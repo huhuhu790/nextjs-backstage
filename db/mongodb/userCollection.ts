@@ -1,0 +1,50 @@
+import { Db, ObjectId, WithId } from 'mongodb';
+import { mongoConnection } from './connection';
+import { Role, User, UserWithID } from '@/types/user';
+
+function dbUserToLocalUser(dbUser: WithId<User>): UserWithID {
+    const { _id, ...rest } = dbUser;
+    return {
+        id: _id.toString(),
+        ...rest, // 保留其他字段
+    };
+}
+
+export async function getUniquePermissions(roleIds: string[], db: Db) {
+    // 通过角色Id数组在mongogb中获取所有角色的permission列表并去重
+    const rolesCollection = db.collection<WithId<Role>>('roles');
+    const rolesObjectIDs = roleIds.map(id => new ObjectId(id))
+    const roles = await rolesCollection.find({ _id: { $in: rolesObjectIDs } }).toArray();
+    const permissions = roles.flatMap(role => role.permissions);
+    const uniquePermissions = [...new Set(permissions)];
+    return uniquePermissions;
+}
+
+
+// 检查权限ID是否在角色权限表中存在
+export async function checkPermission(permissionId: string, roleIds: string[]) {
+    return await mongoConnection(async (db) => {
+        const uniquePermissions = await getUniquePermissions(roleIds, db);
+        if (!uniquePermissions) {
+            return []
+        }
+        if (!uniquePermissions.includes(permissionId)) throw new Error("Permission denied")
+    })
+}
+
+// no authentication needed
+export async function verifyUserCredentials(user: { username: string, password: string }) {
+    return await mongoConnection(async (db) => {
+        const usersCollection = db.collection<WithId<User>>('users');
+        return await usersCollection.findOne(user);
+    })
+}
+
+// no authentication if already logged in as user
+export async function getUserInfo(userId: string) {
+    return await mongoConnection(async (db) => {
+        const usersCollection = db.collection<WithId<User>>('users');
+        const dbUser = await usersCollection.findOne({ _id: new ObjectId(userId) });
+        return dbUser ? dbUserToLocalUser(dbUser) : null;
+    })
+}

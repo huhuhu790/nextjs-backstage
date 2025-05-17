@@ -1,0 +1,21 @@
+.tabs {
+    margin: 0 !important;
+}
+
+.tabs :global(.ant-tabs-nav::before) {
+    display: none !important;
+}
+
+.tabs :global(.ant-tabs-tab) {
+    border-radius: 8px !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.tabs :global(.ant-tabs-nav) {
+    margin: 0 !important;
+}
+
+.logo {
+    height: 60px;
+    width: 100%;
+}
