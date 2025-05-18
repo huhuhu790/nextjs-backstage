@@ -1,6 +1,6 @@
 "use client"
 import React, { Suspense, useState } from 'react';
-import { Button, Drawer, Flex, Table } from 'antd';
+import { Button, Drawer, Flex, Form, Input, InputNumber, Select, Table } from 'antd';
 import type { DrawerProps, TableColumnsType } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
 import { MenuTableDataType } from './menuPage';
@@ -90,9 +90,29 @@ function MenuDrawer({ open, onClose }: { open: boolean, onClose: () => void }) {
         </>
       }
     >
-      <p>Some contents...</p>
-      <p>Some contents...</p>
-      <p>Some contents...</p>
+      <Form>
+        <Form.Item label="名称" name="name">
+          <Input />
+        </Form.Item>
+        <Form.Item label="路径" name="path">
+          <Input />
+        </Form.Item>
+        <Form.Item label="图标" name="iconPath">
+          <Input />
+        </Form.Item>
+        <Form.Item label="类型" name="type">
+          <Select>
+            <Select.Option value="menu">菜单</Select.Option>
+            <Select.Option value="button">按钮</Select.Option>
+          </Select>
+        </Form.Item>
+        <Form.Item label="状态" name="status">
+          <Select>
+            <Select.Option value="menu">菜单</Select.Option>
+            <Select.Option value="button">按钮</Select.Option>
+          </Select>
+        </Form.Item>
+      </Form>
     </Drawer>
   )
 }
