@@ -1,6 +1,5 @@
 "use client"
 import { Button, Table } from 'antd';
-import { MenuTableDataType } from './menuPageType';
 import { LocalRole } from '@/types/api';
 
 
