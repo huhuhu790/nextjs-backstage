@@ -1,5 +1,5 @@
 "use client"
-import { UserWithID } from '@/types/user';
+import { UserWithID } from '@/types/system/user';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { userInfoAtom } from '@/store/user/userAtom';
 import { useHydrateAtoms } from 'jotai/utils';

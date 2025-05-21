@@ -1,6 +1,6 @@
 import { Db, ObjectId, WithId } from 'mongodb';
 import { mongoConnection } from './connection';
-import { Role, User, UserWithID } from '@/types/user';
+import { Role, User, UserWithID } from '@/types/system/user';
 
 function dbUserToLocalUser(dbUser: WithId<User>): UserWithID {
     const { _id, ...rest } = dbUser;
@@ -22,25 +22,26 @@ export async function getUniquePermissions(roleIds: string[], db: Db) {
 
 
 // 检查权限ID是否在角色权限表中存在
-export async function checkPermission(permissionId: string, roleIds: string[]) {
+export async function checkPermission(permissionId: string, userData?: UserWithID | null) {
+    if (!userData) throw new Error("无用户信息")
+    const roleIds = userData.roles
     return await mongoConnection(async (db) => {
         const uniquePermissions = await getUniquePermissions(roleIds, db);
         if (!uniquePermissions) {
             return []
         }
-        if (!uniquePermissions.includes(permissionId)) throw new Error("Permission denied")
+        if (!uniquePermissions.includes(permissionId)) throw new Error("无权限访问")
     })
 }
 
-// no authentication needed
 export async function verifyUserCredentials(user: { username: string, password: string }) {
     return await mongoConnection(async (db) => {
         const usersCollection = db.collection<WithId<User>>('users');
-        return await usersCollection.findOne(user);
+        const dbUser = await usersCollection.findOne(user);
+        return dbUser ? dbUserToLocalUser(dbUser) : null;
     })
 }
 
-// no authentication if already logged in as user
 export async function getUserInfo(userId: string) {
     return await mongoConnection(async (db) => {
         const usersCollection = db.collection<WithId<User>>('users');

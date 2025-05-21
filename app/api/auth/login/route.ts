@@ -1,52 +1,39 @@
-import { generateAccessToken, verifyToken } from '@/utils/server/auth';
+import { generateAccessToken, verifyToken } from '@/utils/tokenAuth';
 import { setUserSession, removeUserSession } from '@/db/redis/redis';
 import { NextResponse } from 'next/server';
 import { ApiResponse, LocalUser } from '@/types/api';
 import { verifyUserCredentials } from '@/db/mongodb/userCollection';
-import { EXPIRED_TIME } from '@/utils/server/time';
+import { EXPIRED_TIME } from '@/utils/getExpiredTime';
+import { toLocalUser } from '@/app/api/system/user/userDataTrans';
 
+// 登录，无需权限
 export async function POST(request: Request) {
     try {
         const { username, password } = await request.json();
 
         // 验证用户凭据
         const user = await verifyUserCredentials({ username, password });
-        if (!user) {
-            const response: ApiResponse = {
-                status: 401,
-                success: false,
-                message: 'Invalid credentials'
-            };
-            return NextResponse.json(response);
-        }
+        if (!user) { throw new Error("无用户信息")}
 
         // 移除旧会话并创建新会话
-        const userId = user._id.toString();
+        const userId = user.id;
         await removeUserSession(userId);
         const accessToken = await generateAccessToken(userId);
         const JWTPayload = await verifyToken(accessToken);
         const jti = JWTPayload?.jti;
 
         if (!jti) {
-            const response: ApiResponse = {
-                status: 500,
-                success: false,
-                message: 'Token generation failed'
-            };
-            return NextResponse.json(response);
+            throw new Error("生成token失败")
         }
 
         await setUserSession(userId, jti, EXPIRED_TIME);
-        const { _id, password: _, ...userItem } = user
+        const localUser = toLocalUser(user);
         // 成功响应
         const response: ApiResponse<LocalUser> = {
             status: 200,
             success: true,
-            data: {
-                id: userId,
-                ...userItem
-            },
-            message: 'Login successful'
+            data: localUser,
+            message: '登录成功'
         };
 
         const nextResponse = NextResponse.json(response);
@@ -60,10 +47,11 @@ export async function POST(request: Request) {
 
         return nextResponse;
     } catch (error) {
+        console.log(error);
         const response: ApiResponse = {
             status: 500,
             success: false,
-            message: 'Internal server error'
+            message: '登录失败'
         };
         return NextResponse.json(response);
     }

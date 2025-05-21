@@ -1,19 +1,19 @@
 "use client"
 import type { FormProps } from 'antd';
-import { Button, Checkbox, Form, Input, Card, Layout, notification } from 'antd';
+import { Button, Form, Input, Card, Layout, notification } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAtom } from 'jotai';
 import { userInfoAtom } from '@/store/user/userAtom';
 import { useEffect } from 'react';
-import type { LoginFieldType } from '@/types/login';
-import { handleLogin } from '@/utils/api/login';
+import type { LoginFieldType } from '@/app/login/loginType';
+import { handleLogin } from '@/api/login';
 
 const Page: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const openNotification = (message: string) => {
     notification.error({
-      message: '登出信息',
+      message: '登出失败',
       description: message,
       duration: 0,
     });

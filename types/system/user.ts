@@ -1,6 +1,7 @@
-import { WithLocalId } from "./api";
-import { DefaultModel } from "./database";
+import { WithLocalId } from "@/types/api";
+import { DefaultModel } from "@/types/database";
 
+// 数据库原始用户类型
 export interface User extends DefaultModel {
     username: string;
     password: string;
@@ -18,6 +19,7 @@ export interface User extends DefaultModel {
 
 export type UserWithID = WithLocalId<User>
 
+// 数据库原始角色类型
 export interface Role extends DefaultModel {
     name: string;
     description: string;

@@ -3,7 +3,7 @@ import { UserOutlined } from '@ant-design/icons';
 import { userInfoAtom } from '@/store/user/userAtom';
 import { useAtom } from 'jotai';
 import { useMemo } from "react";
-import { handleLogout } from "@/utils/api/login";
+import { handleLogout } from "@/api/login";
 
 const items: MenuProps['items'] = [
     {

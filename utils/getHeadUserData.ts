@@ -1,4 +1,4 @@
-import { UserWithID } from "@/types/user"
+import { UserWithID } from "@/types/system/user"
 import { headers } from "next/headers"
 
 export async function getHeadUserData(): Promise<UserWithID | null> {

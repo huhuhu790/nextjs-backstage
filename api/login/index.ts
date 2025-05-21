@@ -1,6 +1,6 @@
 import { LocalUser } from "@/types/api";
-import { fetchData } from "@/utils/api/fetchApi";
-import { LoginFieldType } from "@/types/login";
+import { fetchData } from "@/api/fetchApi";
+import { LoginFieldType } from "@/app/login/loginType";
 
 export async function handleLogin(values: LoginFieldType) {
     return await fetchData<LocalUser, LoginFieldType>('/api/auth/login', values)

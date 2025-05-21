@@ -1,7 +1,7 @@
 "use server";
 import { SignJWT, jwtVerify } from 'jose';
 import { randomUUID } from 'crypto';
-import { EXPIRED_TIME } from './time';
+import { EXPIRED_TIME } from '@/utils/getExpiredTime';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
 

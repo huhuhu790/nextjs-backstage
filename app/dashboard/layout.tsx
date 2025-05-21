@@ -1,18 +1,20 @@
+import { LocalMenu } from "@/types/api";
 import ClientLayout from "./_component/clientLayout"
-import { getMenusByRoles } from '@/db/mongodb/menuCollection'
-import { MenuItemWithID } from "@/types/menu";
-import { getHeadUserData } from "@/utils/apiServer/getHeadUserData";
+import { getHeadUserData } from "@/utils/getHeadUserData";
+import getMenusByRolesServer from "@/app/api/system/menu/getMenuAll/serverGetMenu";
 
 const Layout = async ({ children }: React.PropsWithChildren) => {
   const userData = await getHeadUserData();
-  let menuData: MenuItemWithID[] = [];
-  if (userData?.roles && userData.roles.length > 0)
-    menuData = await getMenusByRoles(userData.roles);
-  return (
-    <ClientLayout menuData={menuData}>
-      {children}
-    </ClientLayout>
-  );
+  try {
+    const menuData = await getMenusByRolesServer(userData);
+    return (
+      <ClientLayout menuData={menuData}>
+        {children}
+      </ClientLayout>
+    );
+  } catch (error) {
+    return "fetch data error";
+  }
 };
 
 export default Layout;

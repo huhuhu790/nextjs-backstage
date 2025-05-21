@@ -1,14 +1,15 @@
-import { getAllMenusServer } from "@/utils/apiServer/menu/getMenus";
+import { getAllMenusServer } from "@/app/api/system/menu/getMenuAll/serverGetMenu";
 import ClientPage from "./_component/clientpage";
-import { getHeadUserData } from "@/utils/apiServer/getHeadUserData";
+import { getHeadUserData } from "@/utils/getHeadUserData";
 
 export default async function Page() {
   const userData = await getHeadUserData();
-  if (userData?.roles && userData.roles.length > 0) {
-    const menuData = await getAllMenusServer(userData.roles);
+  try {
+    const menuData = await getAllMenusServer(userData);
     return (
       <ClientPage dataSource={menuData} />
     );
+  } catch (error) {
+    return "fetch data error";
   }
-  return "fetch data error";
 };

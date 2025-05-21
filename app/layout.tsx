@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ClientLayout from "./_component/clientLayout"
 import { Provider } from 'jotai'
-import { getHeadUserData } from "@/utils/apiServer/getHeadUserData";
+import { getHeadUserData } from "@/utils/getHeadUserData";
 
 export const metadata: Metadata = {
   title: "MES",

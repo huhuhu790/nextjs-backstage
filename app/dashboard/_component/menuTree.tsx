@@ -1,5 +1,5 @@
 "use client"
-import { MenuItemWithID } from '@/types/menu';
+import { LocalMenu } from '@/types/api';
 import { UserOutlined, SyncOutlined } from '@ant-design/icons';
 import { Menu, MenuProps } from 'antd';
 import dynamic from 'next/dynamic';
@@ -15,7 +15,7 @@ const initialMenuItem = [
 ];
 
 // 递归构建目录树
-function buildTree(items: MenuItemWithID[], parentId: string | null): MenuProps["items"] {
+function buildTree(items: LocalMenu[], parentId: string | null): MenuProps["items"] {
   return items
     .filter(item => item.parentId === parentId)
     .map(item => {
@@ -34,7 +34,7 @@ function buildTree(items: MenuItemWithID[], parentId: string | null): MenuProps[
     });
 }
 
-function buildMenuItems(dbMenuData: MenuItemWithID[]): MenuProps["items"] {
+function buildMenuItems(dbMenuData: LocalMenu[]): MenuProps["items"] {
   const menuTree = buildTree(dbMenuData, null) || []
   return [...initialMenuItem, ...menuTree]
 }
@@ -44,7 +44,7 @@ export default function MenuTree({
   menuItems,
 }: {
   activeKey: string,
-  menuItems: MenuItemWithID[]
+  menuItems: LocalMenu[]
 }) {
   const router = useRouter();
   const items = useMemo(() => {

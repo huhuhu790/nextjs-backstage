@@ -49,6 +49,6 @@ export async function removeUserSession(userId: string) {
         client.del(`session:${tokenId}`),
         client.del(`user:${userId}:token`)
       ]);
-    }
+    } else throw new Error("token不存在");
   });
 }

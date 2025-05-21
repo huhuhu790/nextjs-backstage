@@ -7,11 +7,10 @@ import {
 import { Button, Layout, theme, Flex } from 'antd';
 import { usePathname } from 'next/navigation';
 import styles from './page.module.css';
-import { MenuItemWithID } from '@/types/menu';
 import AvatarArea from './avatarArea';
 import MenuTree from './menuTree';
 import TabsBar from './tabBars';
-
+import { LocalMenu } from '@/types/api';
 const { Header, Sider, Content } = Layout;
 
 const layoutCSS: React.CSSProperties = {
@@ -22,7 +21,7 @@ const layoutCSS: React.CSSProperties = {
 
 const RootLayout = (
   { children, menuData }:
-    React.PropsWithChildren<{ menuData: MenuItemWithID[] }>) => {
+    React.PropsWithChildren<{ menuData: LocalMenu[] }>) => {
   // 收缩目录
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();

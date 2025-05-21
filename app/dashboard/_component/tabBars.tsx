@@ -1,10 +1,8 @@
 "use client"
-import { MenuItemWithID } from '@/types/menu';
-import { UserOutlined, SyncOutlined } from '@ant-design/icons';
-import { Dropdown, Menu, MenuProps, Tabs, TabsProps } from 'antd';
-import dynamic from 'next/dynamic';
+import { Dropdown,  MenuProps, Tabs, TabsProps } from 'antd';
 import { usePathname, useRouter } from 'next/navigation';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { LocalMenu } from '@/types/api';
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
@@ -37,7 +35,7 @@ export default function TabsBar({
     className
 }: {
     activeKey: string,
-    menuData: MenuItemWithID[],
+    menuData: LocalMenu[],
     className?: string,
 }) {
     const router = useRouter();

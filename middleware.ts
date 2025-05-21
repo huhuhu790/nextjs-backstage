@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyToken } from '@/utils/server/auth';
+import { verifyToken } from '@/utils/tokenAuth';
 import { verifySession } from '@/db/redis/redis';
 import { getUserInfo } from './db/mongodb/userCollection';
+import { toLocalUser } from '@/app/api/system/user/userDataTrans';
 
 const publicPaths = ['/login', '/api/auth/login'];
 
@@ -67,7 +68,7 @@ export async function middleware(request: NextRequest) {
         // 验证成功，访问系统页面,将用户信息添加到请求头中，继续访问
         const requestHeaders = new Headers(request.headers);
         const userData = await getUserInfo(userId);
-        requestHeaders.set(process.env.SERVER_USERHEADER!, JSON.stringify(userData));
+        requestHeaders.set(process.env.SERVER_USERHEADER!, userData ? JSON.stringify(toLocalUser(userData)) : '');
         response = NextResponse.next({
           request: {
             headers: requestHeaders
@@ -75,9 +76,8 @@ export async function middleware(request: NextRequest) {
         });
       }
     } catch (error) {
-      const e = error as { message: string };
       //验证失败，删除token，跳转到登录页面
-      response = clearToken(request, e.message);
+      response = clearToken(request, (error as Error).message);
     }
   }
   // 如果无权限且访问非公共页面，跳转到登录页面
