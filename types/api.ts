@@ -1,5 +1,6 @@
 import { MenuItem } from "@/types/system/menu";
 import { User } from "@/types/system/user";
+import { RoleItem } from "./system/role";
 
 export interface ApiResponse<T = any> {
     data?: T;
@@ -35,4 +36,12 @@ export type LocalMenu = WithLocalId<Pick<
     'iconPath' |
     'type' |
     'children'
+>>;
+
+export type LocalRole = WithLocalId<Pick<
+    RoleItem,
+    'name' |
+    'description' |
+    'permissions' |
+    'users'
 >>;

@@ -1,0 +1,1 @@
+export const getRoleAllPermission = '682d7f74d044808e4bcf0986'

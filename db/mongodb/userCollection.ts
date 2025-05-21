@@ -12,7 +12,7 @@ function dbUserToLocalUser(dbUser: WithId<User>): UserWithID {
 
 export async function getUniquePermissions(roleIds: string[], db: Db) {
     // 通过角色Id数组在mongogb中获取所有角色的permission列表并去重
-    const rolesCollection = db.collection<WithId<Role>>('roles');
+    const rolesCollection = db.collection<Role>('roles');
     const rolesObjectIDs = roleIds.map(id => new ObjectId(id))
     const roles = await rolesCollection.find({ _id: { $in: rolesObjectIDs } }).toArray();
     const permissions = roles.flatMap(role => role.permissions);
@@ -35,7 +35,7 @@ export async function checkPermission(permissionId: string, userData?: UserWithI
 
 export async function verifyUserCredentials(user: { username: string, password: string }) {
     return await mongoConnection(async (db) => {
-        const usersCollection = db.collection<WithId<User>>('users');
+        const usersCollection = db.collection<User>('users');
         const dbUser = await usersCollection.findOne(user);
         return dbUser ? dbUserToLocalUser(dbUser) : null;
     })
@@ -43,7 +43,7 @@ export async function verifyUserCredentials(user: { username: string, password: 
 
 export async function getUserInfo(userId: string) {
     return await mongoConnection(async (db) => {
-        const usersCollection = db.collection<WithId<User>>('users');
+        const usersCollection = db.collection<User>('users');
         const dbUser = await usersCollection.findOne({ _id: new ObjectId(userId) });
         return dbUser ? dbUserToLocalUser(dbUser) : null;
     })

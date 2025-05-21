@@ -1,0 +1,1 @@
+export const updateMenuSinglePermission = '682c35c1ba576b5b0b059414'

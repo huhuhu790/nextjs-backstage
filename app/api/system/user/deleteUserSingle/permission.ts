@@ -1,0 +1,1 @@
+export const deleteUserSinglePermission = '682d935ed044808e4bcf098c'

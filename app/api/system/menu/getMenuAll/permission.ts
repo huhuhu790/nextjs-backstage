@@ -1,0 +1,1 @@
+export const getMenuAllPermission = '6826b7e80d62e88cd9215a97'

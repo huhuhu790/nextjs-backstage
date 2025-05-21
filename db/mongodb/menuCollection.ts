@@ -21,7 +21,7 @@ export async function getMenusByRoles(roleIds: string[]) {
             return []
         }
         const permissionsObjectIDs = uniquePermissions.map(id => new ObjectId(id))
-        const usersCollection = db.collection<WithId<MenuItem>>('menus');
+        const usersCollection = db.collection<MenuItem>('menus');
         // type不为button
         const menus = await usersCollection.find({ _id: { $in: permissionsObjectIDs }, type: { $ne: 'button' } }).toArray();
         return dbMenusToLocalMenus(menus);
@@ -30,14 +30,14 @@ export async function getMenusByRoles(roleIds: string[]) {
 
 export async function getAllMenus() {
     return await mongoConnection(async (db) => {
-        const usersCollection = db.collection<WithId<MenuItem>>('menus');
+        const usersCollection = db.collection<MenuItem>('menus');
         return dbMenusToLocalMenus(await usersCollection.find({}).toArray());
     })
 }
 
 export async function createSingleMenu(menuData: Partial<MenuClientDataSendType>, userId: string) {
     return await mongoConnection(async (db) => {
-        const usersCollection = db.collection<OptionalId<MenuItem>>('menus');
+        const usersCollection = db.collection<MenuItem>('menus');
         if (!menuData.name) throw new Error("目录名称不能为空")
         if (!menuData.path) throw new Error("目录路径不能为空")
         if (!menuData.type) throw new Error("目录类型不能为空")
@@ -72,7 +72,7 @@ export async function createSingleMenu(menuData: Partial<MenuClientDataSendType>
 
 export async function deleteSingleMenu(id: string, userId: string) {
     return await mongoConnection(async (db) => {
-        const usersCollection = db.collection<WithId<MenuItem>>('menus');
+        const usersCollection = db.collection<MenuItem>('menus');
         const menuItem = await usersCollection.findOne({ _id: new ObjectId(id) })
         if (!menuItem) throw new Error("目录不存在")
         if (menuItem.children && menuItem.children.length > 0) throw new Error("目录下有子目录")

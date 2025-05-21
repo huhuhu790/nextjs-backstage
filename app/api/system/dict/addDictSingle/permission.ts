@@ -1,0 +1,1 @@
+export const addDictSinglePermission = '682d9584d044808e4bcf098f'

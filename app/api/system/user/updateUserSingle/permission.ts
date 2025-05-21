@@ -1,0 +1,1 @@
+export const updateUserSinglePermission = '682d94c1d044808e4bcf098d'

@@ -111,6 +111,12 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
         minWidth: 400
       },
       {
+        title: '权限码',
+        dataIndex: 'key',
+        key: 'key',
+        minWidth: 400
+      },
+      {
         title: '图标',
         dataIndex: 'iconPath',
         width: 100,

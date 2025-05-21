@@ -8,11 +8,11 @@ export async function getMenuAll() {
 }
 
 export async function deleteMenu(id: string) {
-    return await fetchData<null, { id?: string }>('/api/system/menu/deleteMenu', { body: { id } })
+    return await fetchData<null, { id?: string }>('/api/system/menu/deleteMenuSingle', { body: { id } })
 }
 
 export async function addMenu(values: MenuDrawerDataType, parentId: string | null) {
-    return await fetchData<null, MenuClientDataSendType>('/api/system/menu/addMenu',
+    return await fetchData<null, MenuClientDataSendType>('/api/system/menu/addMenuSingle',
         {
             body: {
                 ...values,
@@ -22,7 +22,7 @@ export async function addMenu(values: MenuDrawerDataType, parentId: string | nul
 }
 
 export async function updateMenu(values: MenuDrawerDataType, parentId: string | null) {
-    return await fetchData<null, MenuClientDataSendType>('/api/system/menu/updateMenu',
+    return await fetchData<null, MenuClientDataSendType>('/api/system/menu/updateMenuSingle',
         {
             body: {
                 ...values,

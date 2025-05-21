@@ -3,34 +3,26 @@ import { ApiResponse } from "@/types/api";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { NextResponse } from "next/server";
 import { MenuClientDataSendType } from "../menuClientDataSend";
-import { createSingleMenu } from "@/db/mongodb/menuCollection";
-import { LocalMenu } from "@/types/api";
-//获取所有目录信息 authCode: ---682c3590ba576b5b0b059412---
+import { updateSingleMenu } from "@/db/mongodb/menuCollection";
+import { updateMenuSinglePermission } from "./permission";
+// 获取所有目录信息 authCode: ---682c35c1ba576b5b0b059414---
 export async function POST(request: Request) {
     try {
         const userData = await getHeadUserData()
-        const userId = await checkPermission('682c3590ba576b5b0b059412', userData)
+        const userId = await checkPermission(updateMenuSinglePermission, userData)
         const data: Partial<MenuClientDataSendType> = await request.json()
-        const result = await createSingleMenu(data, userId)
+        const result = await updateSingleMenu(data, userId)
         // 成功响应
-        const response: ApiResponse<LocalMenu> = {
+        const response: ApiResponse = {
             status: 200,
             success: true,
-            message: '添加成功',
-            data: {
-                id: result.insertedId.toString(),
-                parentId: data.parentId!,
-                name: data.name!,
-                path: data.path!,
-                iconPath: data.iconPath!,
-                type: data.type!,
-            }
+            message: '更新成功'
         };
 
         return NextResponse.json(response);
     } catch (error) {
         console.log((error as Error).message);
-        const message = (error as Error).message || '添加目录失败'
+        const message = (error as Error).message || '更新目录失败'
         const response: ApiResponse = {
             status: 500,
             success: false,
