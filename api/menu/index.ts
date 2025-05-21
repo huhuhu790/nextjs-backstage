@@ -4,23 +4,29 @@ import { MenuDrawerDataType } from "@/app/dashboard/system/menu/_component/menuP
 import { MenuClientDataSendType } from "@/app/api/system/menu/menuClientDataSend";
 
 export async function getMenuAll() {
-    return await fetchData<null, LocalMenu>('/api/system/menu/getMenuAll')
+    return await fetchData<LocalMenu[]>('/api/system/menu/getMenuAll', { showMessage: false })
 }
 
-export async function deleteMenu(values: MenuDrawerDataType, parentId: string | null) {
-    return await fetchData<undefined, { id?: string }>('/api/system/menu/deleteMenu', { id: values.id })
+export async function deleteMenu(id: string) {
+    return await fetchData<null, { id?: string }>('/api/system/menu/deleteMenu', { body: { id } })
 }
 
 export async function addMenu(values: MenuDrawerDataType, parentId: string | null) {
-    return await fetchData<undefined, MenuClientDataSendType>('/api/system/menu/addMenu', {
-        ...values,
-        parentId
-    })
+    return await fetchData<null, MenuClientDataSendType>('/api/system/menu/addMenu',
+        {
+            body: {
+                ...values,
+                parentId
+            }
+        })
 }
 
 export async function updateMenu(values: MenuDrawerDataType, parentId: string | null) {
-    return await fetchData<undefined, MenuClientDataSendType>('/api/system/menu/updateMenu', {
-        ...values,
-        parentId
-    })
+    return await fetchData<null, MenuClientDataSendType>('/api/system/menu/updateMenu',
+        {
+            body: {
+                ...values,
+                parentId
+            }
+        })
 }

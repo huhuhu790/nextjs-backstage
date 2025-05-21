@@ -5,7 +5,7 @@ export interface DictValue {
     name: string;
     discription: string;
     value: string;
-    status: boolean;
+    isActive: boolean;
 }
 
 // 数据库原始字典类型

@@ -6,7 +6,7 @@ import { addMenu, updateMenu } from "@/api/menu";
 export default function MenuDrawer({ open, onClose, title, currentItem, parentId, parentName }:
     {
         open: boolean,
-        onClose: () => void,
+        onClose: (result: { update: boolean }) => void,
         title: string,
         currentItem: MenuDrawerDataType,
         parentId: RefObject<string | null>,
@@ -34,7 +34,7 @@ export default function MenuDrawer({ open, onClose, title, currentItem, parentId
                 } else {
                     await updateMenu(data, parentId.current);
                 }
-                onClose()
+                onClose({ update: true })
             } catch (error) {
                 console.log(error);
             }
@@ -48,13 +48,13 @@ export default function MenuDrawer({ open, onClose, title, currentItem, parentId
                 title={title}
                 placement={"right"}
                 width={1000}
-                onClose={onClose}
+                onClose={() => onClose({ update: false })}
                 open={open}
                 maskClosable={false}
                 forceRender
                 extra={
                     <>
-                        <Button onClick={onClose}>取消</Button>
+                        <Button onClick={() => onClose({ update: false })}>取消</Button>
                         <Button type="primary" onClick={handleSubmit}>
                             提交
                         </Button>

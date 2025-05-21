@@ -1,15 +1,16 @@
 import { removeUserSession } from '@/db/redis/redis';
 import { NextResponse } from 'next/server';
 import { ApiResponse } from '@/types/api';
+import { getHeadUserData } from '@/utils/getHeadUserData';
 
 // 登录，无需权限
 export async function POST(request: Request) {
     try {
         // 获取用户信息
-        const userId = request.headers.get('x-user-id');
-        if (!userId) throw new Error("未找到用户");
+        const userData = await getHeadUserData()
+        if (!userData) throw new Error("未找到用户");
         // 移除Redis中的会话记录
-        await removeUserSession(userId);
+        await removeUserSession(userData.id);
         // 验证令牌并获取用户信息
 
         // 构建标准响应

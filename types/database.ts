@@ -4,7 +4,7 @@ export interface DefaultModel {
     updatedAt: Date;
     updatedBy: string;
     isDeleted: boolean;
-    deletedAt: Date;
-    deletedBy: string;
-    status: boolean;
+    deletedAt: Date | null;
+    deletedBy: string | null;
+    isActive: boolean;
 }

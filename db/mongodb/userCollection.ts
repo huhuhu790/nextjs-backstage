@@ -27,10 +27,9 @@ export async function checkPermission(permissionId: string, userData?: UserWithI
     const roleIds = userData.roles
     return await mongoConnection(async (db) => {
         const uniquePermissions = await getUniquePermissions(roleIds, db);
-        if (!uniquePermissions) {
-            return []
-        }
+        if (!uniquePermissions) throw new Error("权限获取失败")
         if (!uniquePermissions.includes(permissionId)) throw new Error("无权限访问")
+        return userData.id
     })
 }
 

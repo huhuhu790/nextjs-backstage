@@ -7,7 +7,7 @@ export default async function Page() {
   try {
     const menuData = await getAllMenusServer(userData);
     return (
-      <ClientPage dataSource={menuData} />
+      <ClientPage initData={menuData} />
     );
   } catch (error) {
     return "fetch data error";

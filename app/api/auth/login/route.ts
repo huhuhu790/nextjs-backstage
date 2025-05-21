@@ -15,7 +15,7 @@ export async function POST(request: Request) {
         const user = await verifyUserCredentials({ username, password });
         if (!user) { throw new Error("无用户信息")}
 
-        // 移除旧会话并创建新会话
+        // 移除可能存在的已登录会话并创建新会话
         const userId = user.id;
         await removeUserSession(userId);
         const accessToken = await generateAccessToken(userId);

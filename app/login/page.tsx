@@ -7,6 +7,7 @@ import { userInfoAtom } from '@/store/user/userAtom';
 import { useEffect } from 'react';
 import type { LoginFieldType } from '@/app/login/loginType';
 import { handleLogin } from '@/api/login';
+import { sha256 } from '@/utils/encrypt';
 
 const Page: React.FC = () => {
   const router = useRouter();
@@ -32,7 +33,10 @@ const Page: React.FC = () => {
   const [user, setUser] = useAtom(userInfoAtom);
   const onFinish: FormProps<LoginFieldType>['onFinish'] = async (values) => {
     try {
-      const data = await handleLogin(values);
+      const data = await handleLogin({
+        username: values.username,
+        password: await sha256(values.password || ""),
+      });
       if (data) {
         setUser(data);
       }
