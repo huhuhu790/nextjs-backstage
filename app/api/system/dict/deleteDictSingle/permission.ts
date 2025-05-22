@@ -1,1 +1,0 @@
-export const deleteDictSinglePermission = '682d958bd044808e4bcf0990'

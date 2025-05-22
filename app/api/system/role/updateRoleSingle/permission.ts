@@ -1,1 +1,0 @@
-export const updateRoleSinglePermission = '682d924bd044808e4bcf0989'

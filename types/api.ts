@@ -1,6 +1,6 @@
-import { MenuItem } from "@/types/system/menu";
-import { User } from "@/types/system/user";
-import { RoleItem } from "./system/role";
+import { BasicMenu } from "@/types/system/menu";
+import { BasicUser } from "@/types/system/user";
+import { BasicRole } from "./system/role";
 
 export interface ApiResponse<T = any> {
     data?: T;
@@ -11,37 +11,18 @@ export interface ApiResponse<T = any> {
 
 export type WithLocalId<T> = T & { id: string };
 
+export type OptionalLocalId<T> = T & { id?: string };
+
 // 本地用户类型
-export type LocalUser = WithLocalId<Pick<
-    User,
-    'username' |
-    'name' |
-    'workingId' |
-    'gender' |
-    'email' |
-    'roles' |
-    'avatar' |
-    'birthday' |
-    'address' |
-    'phone' |
-    'department'
->>;
+export type LocalUser = WithLocalId<Omit<BasicUser, "password">>;
 
 // 本地菜单类型
-export type LocalMenu = WithLocalId<Pick<
-    MenuItem,
-    'parentId' |
-    'name' |
-    'path' |
-    'iconPath' |
-    'type' |
-    'children'
->>;
+export type LocalMenu = WithLocalId<BasicMenu>;
 
-export type LocalRole = WithLocalId<Pick<
-    RoleItem,
-    'name' |
-    'description' |
-    'permissions' |
-    'users'
->>;
+export type LocalRole = WithLocalId<BasicRole>;
+
+export type LoginFieldType = {
+    username?: string;
+    password?: string;
+    remember?: string;
+};

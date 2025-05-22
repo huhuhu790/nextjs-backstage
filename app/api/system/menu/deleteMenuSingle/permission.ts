@@ -1,1 +1,0 @@
-export const deleteMenuSinglePermission = '682c35abba576b5b0b059413'

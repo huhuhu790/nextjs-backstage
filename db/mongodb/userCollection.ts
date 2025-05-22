@@ -1,6 +1,10 @@
-import { Db, ObjectId, WithId } from 'mongodb';
+import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import { mongoConnection } from './connection';
 import { Role, User, UserWithID } from '@/types/system/user';
+import { PaginationRequest } from "@/types/database";
+import { UserDrawerDataType } from "@/app/dashboard/system/user/_component/userPageType";
+import { TZDate } from "@date-fns/tz";
+import { sha256 } from '@/utils/encrypt';
 
 function dbUserToLocalUser(dbUser: WithId<User>): UserWithID {
     const { _id, ...rest } = dbUser;
@@ -46,5 +50,107 @@ export async function getUserInfo(userId: string) {
         const usersCollection = db.collection<User>('users');
         const dbUser = await usersCollection.findOne({ _id: new ObjectId(userId) });
         return dbUser ? dbUserToLocalUser(dbUser) : null;
+    })
+}
+
+function dbUsersToLocalUsers(dbUsers: WithId<User>[]): UserWithID[] {
+    return dbUsers.map((user) => dbUserToLocalUser(user));
+}
+const defaultPageSize = 10
+const defaultCurrentPage = 1
+export async function getUserByPage(options?: Partial<PaginationRequest>) {
+    return await mongoConnection(async (db) => {
+        const usersCollection = db.collection<User>('users');
+        const query: Filter<User> = {};
+        if (options?.keyword) {
+            query.$or = [
+                { username: { $regex: options.keyword, $options: 'i' } }
+            ]
+        }
+        const currentPage = options?.currentPage || defaultCurrentPage
+        const pageSize = options?.pageSize || defaultPageSize
+        const total = await usersCollection.countDocuments(query);
+        const users = await usersCollection.find(query)
+            .skip((currentPage - 1) * pageSize)
+            .limit(pageSize)
+            .toArray();
+        return {
+            data: dbUsersToLocalUsers(users),
+            total,
+            currentPage,
+            pageSize
+        };
+    })
+}
+
+export async function createUserSingle(data: UserDrawerDataType, userId: string) {
+    return await mongoConnection(async (db) => {
+        if (!data.username) throw new Error("用户名不能为空")
+        const date = TZDate.tz("Asia/Shanghai");
+        const collection = db.collection<User>("users");
+        const result = await collection.insertOne({
+            username: data.username,
+            password: await sha256(process.env.DEFAULT_PASSWORD!),
+            email: data.email || "",
+            phone: data.phone || "",
+            name: data.name || "",
+            workingId: data.workingId || "",
+            gender: data.gender || "",
+            avatar: data.avatar || "",
+            birthday: data.birthday || "",
+            address: data.address || "",
+            department: data.department || "",
+            roles: [],
+            isActive: true,
+            createdAt: date,
+            updatedAt: date,
+            createdBy: userId,
+            updatedBy: userId,
+            isDeleted: false,
+            deletedAt: null,
+            deletedBy: null
+        });
+        return result;
+    })
+}
+
+export async function updateUserSingle(data: UserDrawerDataType, userId: string) {
+    return await mongoConnection(async (db) => {
+        if (!data.id) throw new Error("用户ID不能为空")
+        if (!data.username) throw new Error("用户名不能为空")
+        const date = TZDate.tz("Asia/Shanghai");
+        const collection = db.collection<User>("users");
+        const result = await collection.updateOne(
+            { _id: new ObjectId(data.id) },
+            {
+                $set: {
+                    username: data.username,
+                    email: data.email || "",
+                    phone: data.phone || "",
+                    name: data.name || "",
+                    workingId: data.workingId || "",
+                    gender: data.gender || "",
+                    avatar: data.avatar || "",
+                    birthday: data.birthday || "",
+                    address: data.address || "",
+                    department: data.department || "",
+                    roles: data.roles || [],
+                    updatedAt: date,
+                    updatedBy: userId,
+                }
+            }
+        );
+        return result;
+    })
+}
+
+export async function deleteUserSingle(id: string, userId: string) {
+    return await mongoConnection(async (db) => {
+        if (!id) throw new Error("用户ID不能为空")
+        const collection = db.collection<User>("users");
+        const userItem = await collection.findOne({ _id: new ObjectId(id) })
+        if (!userItem) throw new Error("用户不存在")
+        const result = await collection.deleteOne({ _id: new ObjectId(id) });
+        return result;
     })
 }

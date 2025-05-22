@@ -2,15 +2,15 @@ import { checkPermission } from "@/db/mongodb/userCollection";
 import { ApiResponse } from "@/types/api";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { NextResponse } from "next/server";
-import { MenuClientDataSendType } from "../menuClientDataSend";
 import { updateSingleMenu } from "@/db/mongodb/menuCollection";
-import { updateMenuSinglePermission } from "./permission";
-// 获取所有目录信息 authCode: ---682c35c1ba576b5b0b059414---
+import { updateMenuSinglePermission } from "../permission";
+import { MenuDataBasic } from "@/app/dashboard/system/menu/_component/menuPageType";
+
 export async function POST(request: Request) {
     try {
         const userData = await getHeadUserData()
         const userId = await checkPermission(updateMenuSinglePermission, userData)
-        const data: Partial<MenuClientDataSendType> = await request.json()
+        const data: Partial<MenuDataBasic> = await request.json()
         const result = await updateSingleMenu(data, userId)
         // 成功响应
         const response: ApiResponse = {

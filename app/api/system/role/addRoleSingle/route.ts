@@ -2,36 +2,34 @@ import { checkPermission } from "@/db/mongodb/userCollection";
 import { ApiResponse } from "@/types/api";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { NextResponse } from "next/server";
-import { createSingleMenu } from "@/db/mongodb/menuCollection";
-import { LocalMenu } from "@/types/api";
-import { addMenuSinglePermission } from "../permission";
-import { MenuDataBasic } from "@/app/dashboard/system/menu/_component/menuPageType";
+import { addRoleSinglePermission } from "../permission";
+import { createRoleSingle } from "@/db/mongodb/roleCollection";
+import { LocalRole } from "@/types/api";
 
 export async function POST(request: Request) {
     try {
         const userData = await getHeadUserData()
-        const userId = await checkPermission(addMenuSinglePermission, userData)
-        const data: Partial<MenuDataBasic> = await request.json()
-        const result = await createSingleMenu(data, userId)
+        const userId = await checkPermission(addRoleSinglePermission, userData)
+        const data = await request.json()
+        const result = await createRoleSingle(data, userId)
         // 成功响应
-        const response: ApiResponse<LocalMenu> = {
+        const response: ApiResponse<LocalRole> = {
             status: 200,
             success: true,
             message: '添加成功',
             data: {
                 id: result.insertedId.toString(),
-                parentId: data.parentId!,
-                name: data.name!,
-                path: data.path!,
-                iconPath: data.iconPath!,
-                type: data.type!,
+                name: data.name,
+                description: data.description,
+                permissions: data.permissions,
+                users: data.users,
             }
         };
 
         return NextResponse.json(response);
     } catch (error) {
         console.log((error as Error).message);
-        const message = (error as Error).message || '添加目录失败'
+        const message = (error as Error).message || '添加角色失败'
         const response: ApiResponse = {
             status: 500,
             success: false,
@@ -39,4 +37,4 @@ export async function POST(request: Request) {
         };
         return NextResponse.json(response);
     }
-}
+} 

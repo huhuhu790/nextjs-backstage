@@ -5,9 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAtom } from 'jotai';
 import { userInfoAtom } from '@/store/user/userAtom';
 import { useEffect } from 'react';
-import type { LoginFieldType } from '@/app/login/loginType';
 import { handleLogin } from '@/api/login';
 import { sha256 } from '@/utils/encrypt';
+import { LoginFieldType } from '@/types/api';
 
 const Page: React.FC = () => {
   const router = useRouter();

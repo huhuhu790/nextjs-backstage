@@ -1,13 +1,13 @@
-import { getRoleAllServer } from "@/app/api/system/role/getRoleAll/serverGetRole";
+import { getRoleServer } from "@/app/api/system/role/getRoleByPage/serverGetRole";
 import ClientPage from "./_component/clientpage";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 
 export default async function Page() {
   const userData = await getHeadUserData();
   try {
-    const menuData = await getRoleAllServer(userData);
+    const roleData = await getRoleServer(userData);
     return (
-      <ClientPage initData={menuData} />
+      <ClientPage initData={roleData} />
     );
   } catch (error) {
     return "fetch data error";

@@ -1,1 +1,0 @@
-export const getDictAllPermission = '682d957ad044808e4bcf098e'

@@ -1,1 +1,0 @@
-export const addUserSinglePermission = '682d9351d044808e4bcf098b'

@@ -1,9 +1,9 @@
 "use client"
-import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useMemo, useRef, useState } from 'react';
 import { Button, Popconfirm, Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
-import { MenuDrawerDataType, MenuTableDataType } from './menuPageType';
+import { MenuDataBasic, MenuTableDataType } from './menuPageType';
 import dynamic from 'next/dynamic';
 import { LocalMenu } from '@/types/api';
 import { deleteMenu, getMenuAll } from '@/api/menu';
@@ -15,20 +15,29 @@ function buildTree(items: LocalMenu[], parentId: string | null): MenuTableDataTy
   return items
     .filter(item => item.parentId === parentId)
     .map(item => {
-      const { id, children, ...rest } = item
-      if (children && children.length > 0) {
-        return { key: id, ...rest, children: buildTree(items, item.id) || [] }
+      const result: MenuTableDataType = {
+        key: item.id,
+        id: item.id,
+        parentId: item.parentId,
+        name: item.name,
+        path: item.path,
+        iconPath: item.iconPath,
+        type: item.type,
       }
-      return { key: id, ...rest }
+      if (item.children && item.children.length > 0) {
+        result.children = buildTree(items, item.id) || []
+      }
+      return result
     });
 }
 
-function defaultItem(): MenuDrawerDataType {
+function defaultItem(): MenuDataBasic {
   return {
     name: '',
     path: '',
     iconPath: '',
     type: "folder",
+    parentId: null
   }
 }
 
@@ -42,10 +51,11 @@ function getParentName(items: LocalMenu[], id: string): string | null {
 
 export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
   const rawData = useRef<LocalMenu[]>(initData)
+  const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<MenuTableDataType[]>(buildTree(initData, null))
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState<'新增' | '编辑'>('新增');
-  const [currentItem, setCurrentItem] = useState<MenuDrawerDataType>(defaultItem());
+  const [currentItem, setCurrentItem] = useState<MenuDataBasic>(defaultItem());
   const [parentName, setParentName] = useState<string | null>(null);
   const parentId = useRef<string | null>(null);
   const handleAdd = () => {
@@ -56,10 +66,11 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
     setCurrentItem(defaultItem());
   };
   function updateTable() {
+    setLoading(true)
     getMenuAll().then(res => {
       rawData.current = res || []
       setDataSource(buildTree(rawData.current, null));
-    }).catch(error => { })
+    }).catch(error => { }).finally(() => setLoading(false))
   }
   const onClose = (result: { update: boolean }) => {
     setOpen(false);
@@ -89,6 +100,7 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
         path: record.path,
         iconPath: record.iconPath,
         type: record.type,
+        parentId: parentId.current
       });
     };
     const handleDeleteItem = (record: MenuTableDataType) => {
@@ -170,11 +182,13 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
         type="primary"
         style={{ marginBottom: 4 }}
         onClick={handleAdd}
+        loading={loading}
       >新增</Button>
       <Table<MenuTableDataType>
         pagination={false}
         columns={columns}
         dataSource={dataSource}
+        loading={loading}
         scroll={{ x: 'max-content', y: 400 }}
       />
       <MenuDrawer

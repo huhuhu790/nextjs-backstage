@@ -1,1 +1,0 @@
-export const getUserAllPermission = '682d9341d044808e4bcf098a'

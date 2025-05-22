@@ -8,3 +8,16 @@ export interface DefaultModel {
     deletedBy: string | null;
     isActive: boolean;
 }
+
+export interface PaginationRequest {
+    keyword?: string,
+    currentPage: number,
+    pageSize: number
+}
+
+export interface PaginationResponse<T> {
+    currentPage: number,
+    pageSize: number
+    total: number,
+    data: T
+}

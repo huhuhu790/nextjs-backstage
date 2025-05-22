@@ -1,5 +1,5 @@
 import { Button, Drawer, Form, Input, Radio, Space } from "antd";
-import { MenuDrawerDataType } from "./menuPageType";
+import { MenuDataBasic } from "./menuPageType";
 import { RefObject, useEffect, useState } from "react";
 import IconSelectModal from "./iconSelectModal";
 import { addMenu, updateMenu } from "@/api/menu";
@@ -8,7 +8,7 @@ export default function MenuDrawer({ open, onClose, title, currentItem, parentId
         open: boolean,
         onClose: (result: { update: boolean }) => void,
         title: string,
-        currentItem: MenuDrawerDataType,
+        currentItem: MenuDataBasic,
         parentId: RefObject<string | null>,
         parentName: string | null
     }) {
@@ -47,7 +47,7 @@ export default function MenuDrawer({ open, onClose, title, currentItem, parentId
             <Drawer
                 title={title}
                 placement={"right"}
-                width={1000}
+                width={800}
                 onClose={() => onClose({ update: false })}
                 open={open}
                 maskClosable={false}

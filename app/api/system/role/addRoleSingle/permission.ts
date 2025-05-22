@@ -1,1 +1,0 @@
-export const addRoleSinglePermission = '682d7faed044808e4bcf0987'

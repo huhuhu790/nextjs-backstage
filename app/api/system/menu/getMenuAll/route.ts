@@ -4,8 +4,8 @@ import { ApiResponse } from "@/types/api";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { NextResponse } from "next/server";
 import { toLocalMenus } from "../menuDataTrans";
-import { getMenuAllPermission } from "./permission";
-//获取所有目录信息 authCode: ---6826b7e80d62e88cd9215a97---
+import { getMenuAllPermission } from "../permission";
+
 export async function POST(request: Request) {
     try {
         const userData = await getHeadUserData()

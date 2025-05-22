@@ -1,5 +1,11 @@
 import { DefaultModel } from "@/types/database";
 
+export interface BasicDict {
+    name: string;
+    discription: string;
+    values: DictValue[];
+}
+
 // 字典值类型
 export interface DictValue {
     name: string;
@@ -9,8 +15,4 @@ export interface DictValue {
 }
 
 // 数据库原始字典类型
-export interface DictItem extends DefaultModel{
-    name: string;
-    discription: string;
-    values: DictValue[];
-}
+export interface DictItem extends DefaultModel,BasicDict {}

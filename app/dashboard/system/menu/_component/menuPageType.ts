@@ -1,20 +1,9 @@
-import { MenuItemWithID } from "@/types/system/menu";
+import { OptionalLocalId } from "@/types/api";
+import { BasicMenu } from "@/types/system/menu";
 
-export type MenuTableDataType = {
-    id?: string,
+export type MenuTableDataType = OptionalLocalId<Omit<BasicMenu, "children">> & {
     key: string,
-    name: string,
-    path: string,
-    parentId: string | null,
-    iconPath: string,
-    type: MenuItemWithID["type"],
-    children?: MenuTableDataType[],
+    children?: MenuTableDataType[]
 }
 
-export type MenuDrawerDataType = {
-    id?: string,
-    name: string,
-    path: string,
-    iconPath: string,
-    type: MenuTableDataType["type"],
-}
+export type MenuDataBasic = OptionalLocalId<BasicMenu>

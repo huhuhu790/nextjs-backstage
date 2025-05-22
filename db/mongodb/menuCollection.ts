@@ -2,8 +2,8 @@ import { ObjectId, WithId, OptionalId } from 'mongodb';
 import { mongoConnection } from './connection';
 import { MenuItem, MenuItemWithID } from '@/types/system/menu';
 import { getUniquePermissions } from './userCollection';
-import { MenuClientDataSendType } from '@/app/api/system/menu/menuClientDataSend';
 import { TZDate } from '@date-fns/tz';
+import { MenuDataBasic } from '@/app/dashboard/system/menu/_component/menuPageType';
 
 function dbMenusToLocalMenus(dbMenus: WithId<MenuItem>[]): MenuItemWithID[] {
     return dbMenus.map(({ _id, ...rest }) => {
@@ -35,7 +35,7 @@ export async function getAllMenus() {
     })
 }
 
-export async function createSingleMenu(menuData: Partial<MenuClientDataSendType>, userId: string) {
+export async function createSingleMenu(menuData: Partial<MenuDataBasic>, userId: string) {
     return await mongoConnection(async (db) => {
         const usersCollection = db.collection<MenuItem>('menus');
         if (!menuData.name) throw new Error("目录名称不能为空")
@@ -72,6 +72,7 @@ export async function createSingleMenu(menuData: Partial<MenuClientDataSendType>
 
 export async function deleteSingleMenu(id: string, userId: string) {
     return await mongoConnection(async (db) => {
+        if (!id) throw new Error("目录id不能为空")
         const usersCollection = db.collection<MenuItem>('menus');
         const menuItem = await usersCollection.findOne({ _id: new ObjectId(id) })
         if (!menuItem) throw new Error("目录不存在")
@@ -94,7 +95,7 @@ export async function deleteSingleMenu(id: string, userId: string) {
     })
 }
 
-export async function updateSingleMenu(menuData: Partial<MenuClientDataSendType>, userId: string) {
+export async function updateSingleMenu(menuData: Partial<MenuDataBasic>, userId: string) {
     return await mongoConnection(async (db) => {
         const usersCollection = db.collection<OptionalId<MenuItem>>('menus');
         if (!menuData.id) throw new Error("目录id不能为空")
