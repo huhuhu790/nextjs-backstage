@@ -6,7 +6,7 @@ export interface BasicUser {
     password: string;
     name: string;
     workingId: string;
-    gender: 'male' | 'female';
+    gender: '男' | '女';
     email: string;
     roles: string[];
     avatar: string;

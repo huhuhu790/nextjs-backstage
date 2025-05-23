@@ -27,3 +27,25 @@ export async function updateRole(body: RoleDataBasic) {
       body
     })
 }
+
+export async function updateRolePermissionById(id: string, permissions: string[]) {
+  return await fetchData<null, { id: string, permissions: string[] }>('/api/system/role/updateRolePermissionById',
+    {
+      body: { id, permissions }
+    })
+}
+
+export async function addUserToRoleById(id: string, userIds: string[]) {
+  return await fetchData<null, { id: string, userIds: string[] }>('/api/system/role/addUserToRoleById',
+    {
+      body: { id, userIds }
+    })
+}
+
+export async function removeUserFromRoleById(id: string, userIds: string[]) {
+  return await fetchData<null, { id: string, userIds: string[] }>('/api/system/role/removeUserFromRoleById',
+    {
+      body: { id, userIds }
+    })
+}
+

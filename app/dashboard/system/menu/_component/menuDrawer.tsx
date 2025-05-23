@@ -42,23 +42,27 @@ export default function MenuDrawer({ open, onClose, title, currentItem, parentId
             console.log(error);
         })
     }
+    const handleClose = () => {
+        onClose({ update: false })
+        form.resetFields();
+    }
     return (
         <>
             <Drawer
                 title={title}
                 placement={"right"}
                 width={800}
-                onClose={() => onClose({ update: false })}
+                onClose={handleClose}
                 open={open}
                 maskClosable={false}
                 forceRender
                 extra={
-                    <>
-                        <Button onClick={() => onClose({ update: false })}>取消</Button>
+                    <Space>
+                        <Button onClick={handleClose}>取消</Button>
                         <Button type="primary" onClick={handleSubmit}>
                             提交
                         </Button>
-                    </>
+                    </Space>
                 }
             >
                 <Form

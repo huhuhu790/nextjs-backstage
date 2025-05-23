@@ -4,14 +4,16 @@ import { Button, Input, Table, Popconfirm, Space } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { LocalRole } from '@/types/api';
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
-import { RoleTableDataType, RoleDataBasicWithoutPermissions } from './rolePageType';
+import { RoleDataBasic, RoleTableDataType } from './rolePageType';
 import { deleteRoleById, getRoleByPage } from '@/api/role';
 import { PaginationResponse } from '@/types/database';
 import dynamic from 'next/dynamic';
 
-
+const PermissionDrawer = dynamic(() => import('./permissionDrawer'), { ssr: false })
 
 const RoleDrawer = dynamic(() => import('./roleDrawer'), { ssr: false })
+
+const UserDrawer = dynamic(() => import('./userDrawer'), { ssr: false })
 
 function initTableData(initData: LocalRole[]): RoleTableDataType[] {
   return initData.map(item => ({
@@ -23,10 +25,12 @@ function initTableData(initData: LocalRole[]): RoleTableDataType[] {
   }))
 }
 
-function defaultItem(): RoleDataBasicWithoutPermissions {
+function defaultItem(): RoleDataBasic {
   return {
     name: '',
-    description: ''
+    description: '',
+    permissions: [],
+    users: []
   }
 }
 
@@ -41,14 +45,16 @@ export default function ClientPage({ initData }: {
   const [total, setTotal] = useState(initData.total);
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState<'新增' | '编辑'>('新增');
-  const [currentItem, setCurrentItem] = useState<RoleDataBasicWithoutPermissions>(defaultItem());
+  const [currentItem, setCurrentItem] = useState<RoleDataBasic>(defaultItem());
+  const [openPermission, setOpenPermission] = useState(false);
+  const [openUser, setOpenUser] = useState(false);
 
-  function updateTableData(keyword: string) {
+  function updateTableData(keyword: string, currentPage: number, currentPageSize: number) {
     setLoading(true);
     getRoleByPage({
       keyword,
-      currentPage,
-      pageSize
+      currentPage: currentPage,
+      pageSize: currentPageSize
     }).then(result => {
       if (result) {
         const { data, ...rest } = result
@@ -71,12 +77,12 @@ export default function ClientPage({ initData }: {
     if (!keyword) {
       return;
     }
-    updateTableData(keyword)
+    updateTableData(keyword, currentPage, pageSize)
   };
 
   const handleReset = async () => {
     setSearchText('');
-    updateTableData('')
+    updateTableData('', currentPage, pageSize)
   };
 
   const handleAdd = () => {
@@ -91,32 +97,64 @@ export default function ClientPage({ initData }: {
     setCurrentItem({
       id: record.key,
       name: record.name,
-      description: record.description
+      description: record.description,
+      permissions: record.permissions,
+      users: record.users
     });
   };
 
   const handleDelete = (record: RoleTableDataType) => {
     deleteRoleById(record.key).then(res => {
-      updateTableData(searchText);
+      updateTableData(searchText, currentPage, pageSize)
     }).catch(error => { })
   };
 
   const handleEditPermission = (record: RoleTableDataType) => {
-    // TODO: 实现编辑权限的逻辑
+    setOpenPermission(true);
+    setCurrentItem({
+      id: record.key,
+      name: record.name,
+      description: record.description,
+      permissions: record.permissions,
+      users: record.users
+    });
   };
 
   const handleShowUsers = (record: RoleTableDataType) => {
-    // TODO: 实现显示用户的逻辑
-  };
+    setOpenUser(true);
+    setCurrentItem({
+      id: record.key,
+      name: record.name,
+      description: record.description,
+      permissions: record.permissions,
+      users: record.users
+    })
+  }
 
   const handlePageChange = (page: number, pageSize: number) => {
-    updateTableData(searchText)
+    setCurrentPage(page)
+    setPageSize(pageSize)
+    updateTableData(searchText, page, pageSize)
   }
 
   const onClose = (result: { update: boolean }) => {
     setOpen(false);
     if (result.update) {
-      updateTableData(searchText);
+      updateTableData(searchText, currentPage, pageSize)
+    }
+  };
+
+  const onClosePermission = (result: { update: boolean }) => {
+    setOpenPermission(false);
+    if (result.update) {
+      updateTableData(searchText, currentPage, pageSize)
+    }
+  };
+
+  const onCloseUser = (result: { update: boolean }) => {
+    setOpenUser(false);
+    if (result.update) {
+      updateTableData(searchText, currentPage, pageSize)
     }
   };
 
@@ -221,6 +259,16 @@ export default function ClientPage({ initData }: {
         open={open}
         onClose={onClose}
         title={title}
+        currentItem={currentItem}
+      />
+      <PermissionDrawer
+        open={openPermission}
+        onClose={onClosePermission}
+        currentItem={currentItem}
+      />
+      <UserDrawer
+        open={openUser}
+        onClose={onCloseUser}
         currentItem={currentItem}
       />
     </>

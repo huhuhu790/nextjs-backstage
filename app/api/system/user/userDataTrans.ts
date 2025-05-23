@@ -17,3 +17,7 @@ export function toLocalUser(user: UserWithID): LocalUser {
         department: user.department
     }
 }
+
+export function toLocalUserList(users: UserWithID[]): LocalUser[] {
+    return users.map(toLocalUser)
+}

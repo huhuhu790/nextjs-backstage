@@ -1,6 +1,7 @@
 import { BasicMenu } from "@/types/system/menu";
 import { BasicUser } from "@/types/system/user";
 import { BasicRole } from "./system/role";
+import { PaginationRequest } from "./database";
 
 export interface ApiResponse<T = any> {
     data?: T;
@@ -26,3 +27,8 @@ export type LoginFieldType = {
     password?: string;
     remember?: string;
 };
+
+export interface getUserOption extends PaginationRequest {
+    roleId?: string;
+    unselected?: boolean;
+}

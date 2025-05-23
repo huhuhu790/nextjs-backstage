@@ -1,6 +1,6 @@
 "use client"
-import { Button, Drawer, Form, Input } from "antd";
-import { RoleDataBasicWithoutPermissions } from "./rolePageType";
+import { Button, Drawer, Form, Input, Space } from "antd";
+import { RoleDataBasic } from "./rolePageType";
 import { useEffect } from "react";
 import { addRole, updateRole } from "@/api/role";
 
@@ -13,7 +13,7 @@ export default function RoleDrawer({
     open: boolean;
     onClose: (result: { update: boolean }) => void;
     title: string;
-    currentItem: RoleDataBasicWithoutPermissions;
+    currentItem: RoleDataBasic;
 }) {
     const [form] = Form.useForm();
 
@@ -30,6 +30,7 @@ export default function RoleDrawer({
                 } else {
                     await updateRole(data);
                 }
+                form.resetFields();
                 onClose({ update: true });
             } catch (error) {
                 console.log(error);
@@ -49,12 +50,12 @@ export default function RoleDrawer({
             maskClosable={false}
             forceRender
             extra={
-                <>
+                <Space>
                     <Button onClick={() => onClose({ update: false })}>取消</Button>
                     <Button type="primary" onClick={handleSubmit}>
                         提交
                     </Button>
-                </>
+                </Space>
             }
         >
             <Form

@@ -42,11 +42,16 @@ const IconSelectModal: React.FC<IconSelectModalProps> = ({
         iconName.toLowerCase().includes(searchText.toLowerCase())
     );
 
+    const handleClose = () => {
+        onClose()
+        setSearchText('')
+    }
+
     return (
         <Modal
             title="选择图标"
             open={open}
-            onCancel={onClose}
+            onCancel={handleClose}
             footer={null}
             width={800}
         >

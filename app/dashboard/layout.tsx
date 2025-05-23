@@ -1,4 +1,3 @@
-import { LocalMenu } from "@/types/api";
 import ClientLayout from "./_component/clientLayout"
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import getMenusByRolesServer from "@/app/api/system/menu/getMenuAll/serverGetMenu";

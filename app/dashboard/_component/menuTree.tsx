@@ -4,7 +4,7 @@ import { UserOutlined, SyncOutlined } from '@ant-design/icons';
 import { Menu, MenuProps } from 'antd';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { Suspense, useMemo } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 
 const initialMenuItem = [
   {
@@ -39,6 +39,16 @@ function buildMenuItems(dbMenuData: LocalMenu[]): MenuProps["items"] {
   return [...initialMenuItem, ...menuTree]
 }
 
+function getOpenKeys(menuItems: LocalMenu[], activeKey: string, keys: string[]) {
+  const menuItem = menuItems.find(item => item.id === activeKey)
+  if (menuItem) {
+    keys.unshift(menuItem.path)
+    if (menuItem.parentId) {
+      return getOpenKeys(menuItems, menuItem.parentId, keys)
+    }
+  }
+}
+
 export default function MenuTree({
   activeKey,
   menuItems,
@@ -50,15 +60,26 @@ export default function MenuTree({
   const items = useMemo(() => {
     return buildMenuItems(menuItems) || [];
   }, [menuItems])
+  const [openKeys, setOpenKeys] = useState<string[]>([])
+  useEffect(() => {
+    if (activeKey === "/") return setOpenKeys([activeKey])
+    const item = menuItems.find(item => item.path === activeKey)!
+    const keys: string[] = [item.id]
+    if (item.parentId) getOpenKeys(menuItems, item.parentId, keys)
+    setOpenKeys(keys)
+  }, [])
+  const handleSelect: MenuProps["onSelect"] = (info) => {
+    router.push(process.env.NEXT_PUBLIC_SYSTEM_PREFIX + info.key);
+  }
   return (
     <Menu
       style={{ border: "none" }}
       mode="inline"
+      openKeys={openKeys}
       defaultSelectedKeys={[activeKey]}
       selectedKeys={[activeKey]}
-      onSelect={(info) => {
-        router.push(process.env.NEXT_PUBLIC_SYSTEM_PREFIX + info.key);
-      }}
+      onSelect={handleSelect}
+      onOpenChange={setOpenKeys}
       items={items}
     />
   )

@@ -26,22 +26,14 @@ async function verifyTokenStatus(accessToken: string) {
         success: true,
         userId: payload.userId
       }
-      return {
-        success: false,
-        errorType: "1",
-        userId: payload.userId
-      }
     }
-    return {
-      success: false,
-      errorType: "1",
-      userId: payload.userId
-    }
+    throw new Error("验证失败");
   } catch (error) {
+    console.log(error);
+    
     return {
       success: false,
       errorType: "1",
-      userId: ""
     }
   }
 }
@@ -58,7 +50,7 @@ export async function middleware(request: NextRequest) {
     try {
       const result = await verifyTokenStatus(accessToken);
       if (!result.success) throw new Error(result.errorType);
-      userId = result.userId;
+      userId = result.userId!;
       // 将请求的时间，可能存在的用户id，与请求路径，普通JSON格式的请求体，添加到日志中
       console.log(`[${new Date()}] [${userId}] [${pathname}]`);
       // 验证成功，访问登录页面，跳转到系统首页
