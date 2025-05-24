@@ -15,17 +15,9 @@ function buildTree(items: LocalMenu[], parentId: string | null): MenuTableDataTy
   return items
     .filter(item => item.parentId === parentId)
     .map(item => {
-      const result: MenuTableDataType = {
-        key: item.id,
-        id: item.id,
-        parentId: item.parentId,
-        name: item.name,
-        path: item.path,
-        iconPath: item.iconPath,
-        type: item.type,
-      }
-      if (item.children && item.children.length > 0) {
-        result.children = buildTree(items, item.id) || []
+      const { children, ...result } = item
+      if (children && children.length > 0) {
+        (result as MenuTableDataType).children = buildTree(items, item.id) || []
       }
       return result
     });
@@ -80,7 +72,7 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
     const handleAddSubItem = (record: MenuTableDataType) => {
       setOpen(true);
       setTitle('新增');
-      parentId.current = record.key;
+      parentId.current = record.id!;
       setParentName(record.name);
       setCurrentItem(defaultItem());
     };
@@ -88,14 +80,14 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
       setOpen(true);
       setTitle('编辑');
       if (record.parentId) {
-        parentId.current = record.key;
+        parentId.current = record.id!;
         setParentName(getParentName(rawData.current, record.parentId));
       } else {
         parentId.current = null;
         setParentName(null);
       }
       setCurrentItem({
-        id: record.key,
+        id: record.id,
         name: record.name,
         path: record.path,
         iconPath: record.iconPath,
@@ -104,7 +96,7 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
       });
     };
     const handleDeleteItem = (record: MenuTableDataType) => {
-      deleteMenu(record.key).then(res => {
+      deleteMenu(record.id!).then(res => {
         updateTable()
       }).catch(error => { })
     }
@@ -124,8 +116,8 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
       },
       {
         title: '权限码',
-        dataIndex: 'key',
-        key: 'key',
+        dataIndex: 'id',
+        key: 'id',
         minWidth: 400
       },
       {
@@ -157,10 +149,10 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
         render(_, record, index) {
           return (<>
             {record.type !== "button" ?
-              <Button variant="text" color='default' onClick={() => handleAddSubItem(record)}>新增</Button>
+              <Button type="link" onClick={() => handleAddSubItem(record)}>新增</Button>
               : <></>
             }
-            <Button variant="text" color='default' onClick={() => handleEditItem(record)}>编辑</Button>
+            <Button type="link" onClick={() => handleEditItem(record)}>编辑</Button>
             <Popconfirm
               title="删除"
               description="确定删除目录吗?"
@@ -185,6 +177,7 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
         loading={loading}
       >新增</Button>
       <Table<MenuTableDataType>
+        rowKey="id"
         pagination={false}
         columns={columns}
         dataSource={dataSource}

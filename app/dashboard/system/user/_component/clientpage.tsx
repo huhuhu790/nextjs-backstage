@@ -1,165 +1,229 @@
 "use client"
 
 import { useState } from "react";
-import { Button, Table, Space, Input, Drawer, Form, message } from "antd";
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { UserDrawerDataType } from "./userPageType";
+import { Button, Table, Space, Input, TableColumnsType, Popconfirm } from "antd";
+import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { PaginationResponse } from "@/types/database";
 import { LocalUser } from "@/types/api";
+import dynamic from "next/dynamic";
+
+const UserDrawer = dynamic(() => import("./userDrawer"), { ssr: false });
+const RoleDrawer = dynamic(() => import("./roleDrawer"), { ssr: false });
+
+function defaultItem(): Partial<LocalUser> {
+    return {
+        username: '',
+        name: '',
+        workingId: '',
+        email: '',
+        phone: '',
+        avatar: '',
+        roles: [],
+        address: '',
+    }
+}
 
 export default function ClientPage({ initData }: { initData: PaginationResponse<LocalUser[]> }) {
-    const [data, setData] = useState(initData);
+    const [data, setData] = useState(initData.data);
     const [drawerVisible, setDrawerVisible] = useState(false);
-    const [form] = Form.useForm();
-    const [editingId, setEditingId] = useState<string | undefined>();
+    const [searchText, setSearchText] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(initData.currentPage);
+    const [pageSize, setPageSize] = useState(initData.pageSize);
+    const [total, setTotal] = useState(initData.total);
+    const [title, setTitle] = useState('');
+    const [currentItem, setCurrentItem] = useState<Partial<LocalUser>>(defaultItem());
+    const [roleDrawerVisible, setRoleDrawerVisible] = useState(false);
 
-    const columns = [
+    const columns: TableColumnsType<LocalUser> = [
         {
-            title: "用户名",
-            dataIndex: "username",
-            key: "username",
+            title: '用户名',
+            dataIndex: 'username',
+            width: 200,
         },
         {
-            title: "邮箱",
-            dataIndex: "email",
-            key: "email",
+            title: '姓名',
+            dataIndex: 'name',
+            width: 200,
         },
         {
-            title: "电话",
-            dataIndex: "phone",
-            key: "phone",
+            title: '工号',
+            dataIndex: 'workingId',
+            width: 200,
+        },
+        {
+            title: '性别',
+            dataIndex: 'gender',
+            width: 100,
+        },
+        {
+            title: '手机号',
+            dataIndex: 'phone',
+            width: 200,
+        },
+        {
+            title: '部门',
+            dataIndex: 'department',
+            width: 200,
+        },
+        {
+            title: '角色',
+            dataIndex: 'roles',
+            render: (roles: string[]) => roles.join(','),
+            width: 300,
+        },
+        {
+            title: '邮箱',
+            dataIndex: 'email',
+            width: 200,
+        },
+        {
+            title: '地址',
+            dataIndex: 'address',
+            width: 300,
+        },
+        {
+            title: '生日',
+            dataIndex: 'birthday',
+            width: 200,
         },
         {
             title: "操作",
             key: "action",
-            render: (_: any, record: any) => (
+            align: 'center',
+            fixed: 'right',
+            width: 300,
+            render: (_: null, record: LocalUser) => (
                 <Space size="middle">
                     <Button type="link" onClick={() => handleEdit(record)}>
                         编辑
                     </Button>
-                    <Button type="link" danger onClick={() => handleDelete(record.id)}>
-                        删除
+                    <Button type="link" onClick={() => handleRole(record)}>
+                        角色
                     </Button>
+                    <Popconfirm
+                        title="删除用户"
+                        description="确定要删除这个用户吗？"
+                        onConfirm={() => handleDelete(record.id)}
+                        okText="确定"
+                        cancelText="取消"
+                    >
+                        <Button type="link" danger>
+                            删除
+                        </Button>
+                    </Popconfirm>
                 </Space>
             ),
         },
     ];
 
-    const handleEdit = (record: any) => {
-        setEditingId(record.id);
-        form.setFieldsValue(record);
+    const handleEdit = (record: LocalUser) => {
         setDrawerVisible(true);
+        setTitle('编辑');
+        setCurrentItem(record);
     };
 
-    const handleDelete = async (id: string) => {
-        try {
+    const handleRole = (record: LocalUser) => {
+        setRoleDrawerVisible(true);
+        setCurrentItem(record);
+    };
 
-            message.success("删除成功");
+    const handleDelete = (id: string) => {
 
-        } catch (error) {
-            message.error("删除失败");
+    };
+
+    const handleSearch = () => {
+        const keyword = searchText.trim()
+        if (!keyword) {
+            return;
         }
+        updateTableData(keyword, currentPage, pageSize)
+    }
+
+    const handleReset = async () => {
+        setSearchText('');
+        updateTableData('', currentPage, pageSize)
     };
 
-    const handleSubmit = async (values: UserDrawerDataType) => {
-        try {
-            if (editingId) {
+    const handleAdd = () => {
+        setDrawerVisible(true);
+        setTitle('新增');
+        setCurrentItem(defaultItem());
+    };
 
-                message.success("更新成功");
-            } else {
+    function updateTableData(keyword: string, currentPage: number, currentPageSize: number) {
+        setLoading(true);
+        setLoading(false);
+    }
 
-                message.success("创建成功");
-            }
-            setDrawerVisible(false);
-            form.resetFields();
-            setEditingId(undefined);
-            // 刷新数据
-            // TODO: 实现数据刷新逻辑
-        } catch (error) {
-            message.error(editingId ? "更新失败" : "创建失败");
+    const handlePageChange = (page: number, pageSize: number) => {
+        setCurrentPage(page)
+        setPageSize(pageSize)
+        updateTableData(searchText, page, pageSize)
+    }
+
+    const handleCloseUser = (option: { update: boolean }) => {
+        setDrawerVisible(false);
+        if (option.update) {
+            updateTableData('', currentPage, pageSize);
         }
-    };
+    }
 
+    const handleCloseRole = (option: { update: boolean }) => {
+        setRoleDrawerVisible(false);
+        if (option.update) {
+            updateTableData('', currentPage, pageSize);
+        }
+    }
     return (
-        <div className="p-4">
-            <div className="mb-4 flex justify-between">
+        <>
+            <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
                 <Input
-                    placeholder="搜索用户名或邮箱"
-                    prefix={<SearchOutlined />}
-                    className="w-64"
+                    placeholder="搜索用户名"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    onPressEnter={handleSearch}
+                    style={{ width: 200 }}
                 />
                 <Button
                     type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                        setEditingId(undefined);
-                        form.resetFields();
-                        setDrawerVisible(true);
-                    }}
+                    icon={<SearchOutlined />}
+                    onClick={handleSearch}
+                    loading={loading}
                 >
-                    新建用户
+                    搜索
+                </Button>
+                <Button
+                    icon={<ReloadOutlined />}
+                    onClick={handleReset}
+                    loading={loading}
+                >
+                    重置
+                </Button>
+                <Button
+                    type="primary"
+                    loading={loading}
+                    onClick={handleAdd}>
+                    新增用户
                 </Button>
             </div>
             <Table
                 columns={columns}
-                dataSource={data.data}
+                dataSource={data}
                 rowKey="id"
+                loading={loading}
+                scroll={{ y: 500, x: "max-content" }}
                 pagination={{
-                    total: data.total,
-                    current: data.currentPage,
-                    pageSize: data.pageSize,
+                    onChange: handlePageChange,
+                    current: currentPage,
+                    pageSize: pageSize,
+                    total: total,
+                    showSizeChanger: true,
+                    showTotal: (total) => `共${total}条`
                 }}
             />
-            <Drawer
-                title={editingId ? "编辑用户" : "新建用户"}
-                open={drawerVisible}
-                onClose={() => {
-                    setDrawerVisible(false);
-                    form.resetFields();
-                    setEditingId(undefined);
-                }}
-                width={500}
-            >
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={handleSubmit}
-                >
-                    <Form.Item
-                        name="username"
-                        label="用户名"
-                        rules={[{ required: true, message: "请输入用户名" }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    {!editingId && (
-                        <Form.Item
-                            name="password"
-                            label="密码"
-                            rules={[{ required: true, message: "请输入密码" }]}
-                        >
-                            <Input.Password />
-                        </Form.Item>
-                    )}
-                    <Form.Item
-                        name="email"
-                        label="邮箱"
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name="phone"
-                        label="电话"
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            {editingId ? "更新" : "创建"}
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Drawer>
-        </div>
+            <UserDrawer open={drawerVisible} onClose={handleCloseUser} title={title} />
+            <RoleDrawer open={roleDrawerVisible} onClose={handleCloseRole} />
+        </>
     );
 } 

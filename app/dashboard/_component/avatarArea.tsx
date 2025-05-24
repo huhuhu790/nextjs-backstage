@@ -4,8 +4,14 @@ import { userInfoAtom } from '@/store/user/userAtom';
 import { useAtom } from 'jotai';
 import { useMemo } from "react";
 import { handleLogout } from "@/api/login";
+import { useRouter } from "next/navigation";
 
 const items: MenuProps['items'] = [
+    {
+        label: '个人中心',
+        key: '0',
+        icon: <UserOutlined />,
+    },
     {
         label: '登出',
         key: '1',
@@ -15,12 +21,20 @@ const items: MenuProps['items'] = [
 
 const AvatarArea = () => {
     const [user, setUser] = useAtom(userInfoAtom);
-    const onClick: MenuProps['onClick'] = async () => {
-        try {
-            await handleLogout();
-            location.reload();
-        } catch (error) {
-            console.log(error);
+    const router = useRouter();
+    const onClick: MenuProps['onClick'] = async (e) => {
+        switch (e.key) {
+            case '0':
+                // router.push('/dashboard/user/center');
+                break;
+            case '1':
+                try {
+                    await handleLogout();
+                    location.reload();
+                } catch (error) {
+                    console.log(error);
+                }
+                break;
         }
     };
     const userIcon = useMemo(() => {

@@ -2,8 +2,8 @@ import { BasicMenu } from "@/types/system/menu";
 import { BasicUser } from "@/types/system/user";
 import { BasicRole } from "./system/role";
 import { PaginationRequest } from "./database";
-
-export interface ApiResponse<T = any> {
+import { BasicDict } from "./system/dictionary";
+export interface ApiResponse<T> {
     data?: T;
     status: number;
     success: boolean;
@@ -32,3 +32,5 @@ export interface getUserOption extends PaginationRequest {
     roleId?: string;
     unselected?: boolean;
 }
+
+export type LocalDict = WithLocalId<BasicDict>;

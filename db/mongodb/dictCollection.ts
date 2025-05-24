@@ -18,12 +18,12 @@ const defaultPageSize = 10
 const defaultCurrentPage = 1
 export async function getDictByPage(options?: Partial<PaginationRequest>) {
     const db = await dbConnectionMes()
-    const dictsCollection = db.collection<DictItem>('dicts');
+    const dictsCollection = db.collection<DictItem>('dictionaries');
     const query: Filter<DictItem> = {};
     if (options?.keyword) {
         query.$or = [
-            { type: { $regex: options.keyword, $options: 'i' } },
-            { label: { $regex: options.keyword, $options: 'i' } }
+            { name: { $regex: options.keyword, $options: 'i' } },   
+            { discription: { $regex: options.keyword, $options: 'i' } }
         ];
     }
     const currentPage = options?.currentPage || defaultCurrentPage
@@ -45,7 +45,7 @@ export async function createDictSingle(data: DictDrawerDataType, operatorId: str
     const db = await dbConnectionMes()
     if (!data.name) throw new Error("字典名称不能为空")
     const date = TZDate.tz("Asia/Shanghai");
-    const collection = db.collection<DictItem>("dicts");
+    const collection = db.collection<DictItem>("dictionaries");
     const result = await collection.insertOne({
         name: data.name,
         discription: data.discription || "",
@@ -67,7 +67,7 @@ export async function updateDictSingle(data: DictDrawerDataType, operatorId: str
     if (!data.id) throw new Error("字典ID不能为空")
     if (!data.name) throw new Error("字典名称不能为空")
     const date = TZDate.tz("Asia/Shanghai");
-    const collection = db.collection<DictItem>("dicts");
+    const collection = db.collection<DictItem>("dictionaries");
     const result = await collection.updateOne(
         { _id: new ObjectId(data.id) },
         {
@@ -85,7 +85,7 @@ export async function updateDictSingle(data: DictDrawerDataType, operatorId: str
 export async function updateDictValueSingle(data: DictValueDrawerDataType, operatorId: string) {
     const db = await dbConnectionMes()
     if (!data.id) throw new Error("字典表ID不能为空")
-    const collection = db.collection<DictItem>("dicts");
+    const collection = db.collection<DictItem>("dictionaries");
     const dictItem = await collection.findOne({ _id: new ObjectId(data.id) })
     if (!dictItem) throw new Error("字典表不存在")
     const values = data.values.map(record => {
@@ -111,7 +111,7 @@ export async function updateDictValueSingle(data: DictValueDrawerDataType, opera
 export async function deleteDictSingle(id: string, operatorId: string) {
     const db = await dbConnectionMes()
     if (!id) throw new Error("字典ID不能为空")
-    const collection = db.collection<DictItem>("dicts");
+    const collection = db.collection<DictItem>("dictionaries");
     const dictItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!dictItem) throw new Error("字典不存在")
     const result = await collection.deleteOne({ _id: new ObjectId(id) });

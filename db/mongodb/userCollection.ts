@@ -1,7 +1,6 @@
 import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import { dbConnectionMes } from './connection';
 import { Role, User, UserWithID } from '@/types/system/user';
-import { PaginationRequest } from "@/types/database";
 import { UserDrawerDataType } from "@/app/dashboard/system/user/_component/userPageType";
 import { TZDate } from "@date-fns/tz";
 import { sha256 } from '@/utils/encrypt';
@@ -54,6 +53,7 @@ export async function getUserInfo(userId: string) {
 function dbUsersToLocalUsers(dbUsers: WithId<User>[]): UserWithID[] {
     return dbUsers.map((user) => dbUserToLocalUser(user));
 }
+
 const defaultPageSize = 10
 const defaultCurrentPage = 1
 export async function getUserByPage(options?: getUserOption) {

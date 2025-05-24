@@ -1,195 +1,185 @@
 "use client"
 
 import { useState } from "react";
-import { Button, Table, Space, Input, Drawer, Form, message, Switch } from "antd";
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { DictDrawerDataType } from "./dictPageType";
+import { Button, Table, Space, Input, TableColumnsType, Popconfirm } from "antd";
+import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { PaginationResponse } from "@/types/database";
-import { BasicDict } from "@/types/system/dictionary";
+import { LocalDict } from "@/types/api";
+import dynamic from "next/dynamic";
 
-export default function ClientPage({ initData }: { initData: PaginationResponse<BasicDict[]> }) {
-    const [data, setData] = useState(initData);
+const DictDrawer = dynamic(() => import("./dictDrawer"), { ssr: false });
+const DictValuesDrawer = dynamic(() => import("./dictValuesDrawer"), { ssr: false });
+
+function defaultItem(): Partial<LocalDict> {
+    return {
+        name: '',
+        values: [],
+        discription: '',
+    }
+}
+
+export default function ClientPage({ initData }: { initData: PaginationResponse<LocalDict[]> }) {
+    const [data, setData] = useState(initData.data);
+    const [searchText, setSearchText] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(initData.currentPage);
+    const [pageSize, setPageSize] = useState(initData.pageSize);
+    const [total, setTotal] = useState(initData.total);
     const [drawerVisible, setDrawerVisible] = useState(false);
-    const [form] = Form.useForm();
-    const [editingId, setEditingId] = useState<string | undefined>();
+    const [title, setTitle] = useState('');
+    const [currentItem, setCurrentItem] = useState<Partial<LocalDict>>(defaultItem());
+    const [dictValuesDrawerVisible, setDictValuesDrawerVisible] = useState(false);
 
-    const columns = [
+    const columns: TableColumnsType<LocalDict> = [
         {
-            title: "字典类型",
-            dataIndex: "type",
-            key: "type",
+            title: "字典表名称",
+            dataIndex: "name",
+            key: "name",
+            width: 300,
         },
         {
-            title: "字典标签",
-            dataIndex: "label",
-            key: "label",
-        },
-        {
-            title: "字典值",
-            dataIndex: "value",
-            key: "value",
-        },
-        {
-            title: "排序",
-            dataIndex: "sort",
-            key: "sort",
-        },
-        {
-            title: "状态",
-            dataIndex: "status",
-            key: "status",
-            render: (status: boolean) => (
-                <Switch checked={status} disabled />
-            ),
-        },
-        {
-            title: "备注",
-            dataIndex: "remark",
-            key: "remark",
+            title: "字典表描述",
+            dataIndex: "discription",
+            key: "discription",
+            minWidth: 100,
         },
         {
             title: "操作",
             key: "action",
-            render: (_: any, record: any) => (
+            align: 'center',
+            fixed: 'right',
+            width: 300,
+            render: (_: null, record: LocalDict) => (
                 <Space size="middle">
                     <Button type="link" onClick={() => handleEdit(record)}>
                         编辑
                     </Button>
-                    <Button type="link" danger onClick={() => handleDelete(record.id)}>
-                        删除
+                    <Button type="link" onClick={() => handleEditValues(record)}>
+                        配置
                     </Button>
+                    <Popconfirm
+                        title="删除字典表"
+                        description="确定要删除这个字典表吗？"
+                        onConfirm={() => handleDelete(record.id)}
+                        okText="确定"
+                        cancelText="取消"
+                    >
+                        <Button type="link" danger>
+                            删除
+                        </Button>
+                    </Popconfirm>
                 </Space>
             ),
         },
     ];
 
-    const handleEdit = (record: any) => {
-        setEditingId(record.id);
-        form.setFieldsValue(record);
+    const handleEdit = (record: LocalDict) => {
         setDrawerVisible(true);
+        setTitle('编辑');
+        setCurrentItem(record);
     };
 
-    const handleDelete = async (id: string) => {
-        try {
+    const handleEditValues = (record: LocalDict) => {
+        setDictValuesDrawerVisible(true);
+        setCurrentItem(record);
+    };
 
-            message.success("删除成功");
-            // 刷新数据
-        } catch (error) {
-            message.error("删除失败");
+    const handleDelete = (id: string) => {
+
+    };
+
+    const handleSearch = () => {
+        const keyword = searchText.trim()
+        if (!keyword) {
+            return;
         }
+        updateTableData(keyword, currentPage, pageSize)
+    }
+
+    const handleReset = async () => {
+        setSearchText('');
+        updateTableData('', currentPage, pageSize)
     };
 
-    const handleSubmit = async (values: DictDrawerDataType) => {
-        try {
-            if (editingId) {
+    const handleAdd = () => {
+        setDrawerVisible(true);
+        setTitle('新增');
+        setCurrentItem(defaultItem());
+    };
 
-                message.success("更新成功");
-            } else {
+    function updateTableData(keyword: string, currentPage: number, currentPageSize: number) {
+        setLoading(true);
+        setLoading(false);
+    }
 
-                message.success("创建成功");
-            }
-            setDrawerVisible(false);
-            form.resetFields();
-            setEditingId(undefined);
-            // 刷新数据
-            // TODO: 实现数据刷新逻辑
-        } catch (error) {
-            message.error(editingId ? "更新失败" : "创建失败");
+    const handlePageChange = (page: number, pageSize: number) => {
+        setCurrentPage(page)
+        setPageSize(pageSize)
+        updateTableData(searchText, page, pageSize)
+    }
+
+    const handleClose = (option: { update: boolean }) => {
+        setDrawerVisible(false);
+        if (option.update) {
+            updateTableData('', currentPage, pageSize);
         }
-    };
-
+    }
+    const handleCloseDictValuesDrawer = (option: { update: boolean }) => {
+        setDictValuesDrawerVisible(false);
+        if (option.update) {
+            updateTableData('', currentPage, pageSize);
+        }
+    }
     return (
-        <div className="p-4">
-            <div className="mb-4 flex justify-between">
+        <>
+            <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
                 <Input
-                    placeholder="搜索字典类型或标签"
-                    prefix={<SearchOutlined />}
-                    className="w-64"
+                    placeholder="搜索字典表名称和描述"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    onPressEnter={handleSearch}
+                    style={{ width: 200 }}
                 />
                 <Button
                     type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                        setEditingId(undefined);
-                        form.resetFields();
-                        setDrawerVisible(true);
-                    }}
+                    icon={<SearchOutlined />}
+                    onClick={handleSearch}
+                    loading={loading}
                 >
-                    新建字典
+                    搜索
+                </Button>
+                <Button
+                    icon={<ReloadOutlined />}
+                    onClick={handleReset}
+                    loading={loading}
+                >
+                    重置
+                </Button>
+                <Button
+                    type="primary"
+                    loading={loading}
+                    onClick={handleAdd}>
+                    新增字典表
                 </Button>
             </div>
             <Table
                 columns={columns}
-                dataSource={data.data}
+                dataSource={data}
                 rowKey="id"
+                loading={loading}
+                scroll={{ y: 500, x: "max-content" }}
                 pagination={{
-                    total: data.total,
-                    current: data.currentPage,
-                    pageSize: data.pageSize,
+                    onChange: handlePageChange,
+                    current: currentPage,
+                    pageSize: pageSize,
+                    total: total,
+                    showSizeChanger: true,
+                    showTotal: (total) => `共${total}条`
                 }}
             />
-            <Drawer
-                title={editingId ? "编辑字典" : "新建字典"}
-                open={drawerVisible}
-                onClose={() => {
-                    setDrawerVisible(false);
-                    form.resetFields();
-                    setEditingId(undefined);
-                }}
-                width={500}
-            >
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={handleSubmit}
-                >
-                    <Form.Item
-                        name="type"
-                        label="字典类型"
-                        rules={[{ required: true, message: "请输入字典类型" }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name="label"
-                        label="字典标签"
-                        rules={[{ required: true, message: "请输入字典标签" }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name="value"
-                        label="字典值"
-                        rules={[{ required: true, message: "请输入字典值" }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name="sort"
-                        label="排序"
-                    >
-                        <Input type="number" />
-                    </Form.Item>
-                    <Form.Item
-                        name="status"
-                        label="状态"
-                        valuePropName="checked"
-                    >
-                        <Switch />
-                    </Form.Item>
-                    <Form.Item
-                        name="remark"
-                        label="备注"
-                    >
-                        <Input.TextArea />
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            {editingId ? "更新" : "创建"}
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Drawer>
-        </div>
+            <DictDrawer open={drawerVisible} onClose={handleClose} title={title} />
+            <DictValuesDrawer open={dictValuesDrawerVisible} onClose={handleCloseDictValuesDrawer} />
+        </>
+
     );
 } 

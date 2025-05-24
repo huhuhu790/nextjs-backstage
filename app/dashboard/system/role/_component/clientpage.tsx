@@ -15,15 +15,6 @@ const RoleDrawer = dynamic(() => import('./roleDrawer'), { ssr: false })
 
 const UserDrawer = dynamic(() => import('./userDrawer'), { ssr: false })
 
-function initTableData(initData: LocalRole[]): RoleTableDataType[] {
-  return initData.map(item => ({
-    key: item.id,
-    name: item.name,
-    description: item.description,
-    permissions: item.permissions,
-    users: item.users,
-  }))
-}
 
 function defaultItem(): RoleDataBasic {
   return {
@@ -37,7 +28,7 @@ function defaultItem(): RoleDataBasic {
 export default function ClientPage({ initData }: {
   initData: PaginationResponse<LocalRole[]>
 }) {
-  const [dataSource, setDataSource] = useState<RoleTableDataType[]>(initTableData(initData.data));
+  const [dataSource, setDataSource] = useState<RoleTableDataType[]>(initData.data);
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(initData.currentPage);
@@ -58,13 +49,7 @@ export default function ClientPage({ initData }: {
     }).then(result => {
       if (result) {
         const { data, ...rest } = result
-        setDataSource(data.map(item => ({
-          key: item.id,
-          name: item.name,
-          description: item.description,
-          permissions: item.permissions,
-          users: item.users,
-        })))
+        setDataSource(data)
         setTotal(rest.total)
         setCurrentPage(rest.currentPage)
         setPageSize(rest.pageSize)
@@ -94,41 +79,23 @@ export default function ClientPage({ initData }: {
   const handleEdit = (record: RoleTableDataType) => {
     setOpen(true);
     setTitle('编辑');
-    setCurrentItem({
-      id: record.key,
-      name: record.name,
-      description: record.description,
-      permissions: record.permissions,
-      users: record.users
-    });
+    setCurrentItem(record);
   };
 
   const handleDelete = (record: RoleTableDataType) => {
-    deleteRoleById(record.key).then(res => {
+    deleteRoleById(record.id!).then(res => {
       updateTableData(searchText, currentPage, pageSize)
     }).catch(error => { })
   };
 
   const handleEditPermission = (record: RoleTableDataType) => {
     setOpenPermission(true);
-    setCurrentItem({
-      id: record.key,
-      name: record.name,
-      description: record.description,
-      permissions: record.permissions,
-      users: record.users
-    });
+    setCurrentItem(record);
   };
 
   const handleShowUsers = (record: RoleTableDataType) => {
     setOpenUser(true);
-    setCurrentItem({
-      id: record.key,
-      name: record.name,
-      description: record.description,
-      permissions: record.permissions,
-      users: record.users
-    })
+    setCurrentItem(record)
   }
 
   const handlePageChange = (page: number, pageSize: number) => {
@@ -167,17 +134,17 @@ export default function ClientPage({ initData }: {
       fixed: 'left'
     },
     {
-      title: '描述',
-      dataIndex: 'description',
-      key: 'description',
-      width: 300,
-    },
-    {
       title: '用户数量',
       dataIndex: 'users',
       key: 'users',
       width: 100,
       render: (users: string[]) => users.length
+    },
+    {
+      title: '描述',
+      dataIndex: 'description',
+      key: 'description',
+      width: 300,
     },
     {
       title: '操作',
@@ -242,6 +209,7 @@ export default function ClientPage({ initData }: {
         </Button>
       </div>
       <Table<RoleTableDataType>
+        rowKey="id"
         columns={columns}
         dataSource={dataSource}
         scroll={{ x: 'max-content', y: 400 }}
