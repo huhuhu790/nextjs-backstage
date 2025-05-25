@@ -4,6 +4,6 @@ import { headers } from "next/headers"
 export async function getHeadUserData(): Promise<UserWithID | null> {
     const headersList = await headers()
     const userDataJSON = headersList.get(process.env.SERVER_USERHEADER!)
-    const userData = userDataJSON ? JSON.parse(userDataJSON) : null
+    const userData = userDataJSON ? JSON.parse(decodeURIComponent(userDataJSON)) : null
     return userData
 }

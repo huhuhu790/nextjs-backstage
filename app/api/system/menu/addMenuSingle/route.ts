@@ -5,13 +5,12 @@ import { NextResponse } from "next/server";
 import { createSingleMenu } from "@/db/mongodb/menuCollection";
 import { LocalMenu } from "@/types/api";
 import { addMenuSinglePermission } from "../permission";
-import { MenuDataBasic } from "@/app/dashboard/system/menu/_component/menuPageType";
 
 export async function POST(request: Request) {
     try {
         const userData = await getHeadUserData()
         const userId = await checkPermission(addMenuSinglePermission, userData)
-        const data: Partial<MenuDataBasic> = await request.json()
+        const data: Partial<LocalMenu> = await request.json()
         const result = await createSingleMenu(data, userId)
         // 成功响应
         const response: ApiResponse<LocalMenu> = {
@@ -30,7 +29,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json(response);
     } catch (error) {
-        console.log((error as Error).message);
+        console.log(error);
         const message = (error as Error).message || '添加目录失败'
         const response: ApiResponse = {
             status: 500,

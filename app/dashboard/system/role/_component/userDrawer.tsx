@@ -1,9 +1,8 @@
 import { Button, Col, Drawer, Input, Row, Table, Card, TableColumnsType, Flex } from "antd";
 import { useEffect, useState, useRef } from "react";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
-import { RoleDataBasic } from "./rolePageType";
 import { getUserByOption } from "@/api/user";
-import { LocalUser } from "@/types/api";
+import { LocalUser,LocalRole } from "@/types/api";
 import { addUserToRoleById, removeUserFromRoleById } from "@/api/role";
 
 const columns: TableColumnsType<LocalUser> = [
@@ -32,7 +31,7 @@ export default function UserDrawer({
 }: {
     open: boolean;
     onClose: (result: { update: boolean }) => void;
-    currentItem: RoleDataBasic;
+    currentItem: LocalRole;
 }) {
     const [searchText, setSearchText] = useState('');
     const [loading, setLoading] = useState(false);
@@ -81,7 +80,8 @@ export default function UserDrawer({
 
     const handleReset = () => {
         setSearchText('');
-        handleSearch('', currentPage, pageSize);
+        setCurrentPage(1);
+        handleSearch('', 1, pageSize);
     }
 
     const handleSearchAll = (keyword: string, currentPage: number, currentPageSize: number) => {
@@ -106,7 +106,8 @@ export default function UserDrawer({
 
     const handleResetAll = () => {
         setSearchTextAll('');
-        handleSearchAll(searchTextAll, currentPageAll, pageSizeAll)
+        setCurrentPageAll(1);
+        handleSearchAll(searchTextAll, 1, pageSizeAll)
     }
 
     const handleClose = () => {

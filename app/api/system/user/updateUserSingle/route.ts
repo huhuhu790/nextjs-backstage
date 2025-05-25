@@ -1,16 +1,17 @@
-import { checkPermission, createUserSingle } from "@/db/mongodb/userCollection";
+import { checkPermission, createUserSingle, updateUserSingle } from "@/db/mongodb/userCollection";
 import { ApiResponse, LocalUser, updateUserDataType } from "@/types/api";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { NextRequest, NextResponse } from "next/server";
-import { addUserSinglePermission } from "../permission";
+import {  updateUserSinglePermission } from "../permission";
 
 export async function POST(request: NextRequest) {
     try {
         const userData = await getHeadUserData()
-        const userId = await checkPermission(addUserSinglePermission, userData)
+        const userId = await checkPermission(updateUserSinglePermission, userData)
         const formData = await request.formData()
         const department = formData.get('department') as string
         const data: Partial<updateUserDataType> = {
+            id: formData.get('id') as string,
             username: formData.get('username') as string,
             name: formData.get('name') as string,
             workingId: formData.get('workingId') as string,
@@ -23,14 +24,14 @@ export async function POST(request: NextRequest) {
             avatar: formData.get('avatar') as string || null,
             file: formData.get('file') as File || null,
         }
-        const result = await createUserSingle(data, userId)
+        const result = await updateUserSingle(data, userId)
         // 成功响应
         const response: ApiResponse<LocalUser> = {
             status: 200,
             success: true,
             message: '添加成功',
             data: {
-                id: result.insertedId.toString(),
+                id: data.id!,
                 username: data.username!,
                 name: data.name!,
                 workingId: data.workingId!,

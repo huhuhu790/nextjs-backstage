@@ -1,10 +1,10 @@
 export interface DefaultModel {
-    createdAt: Date;
+    createdAt: Date | string;
     createdBy: string;
-    updatedAt: Date;
+    updatedAt: Date | string;
     updatedBy: string;
     isDeleted: boolean;
-    deletedAt: Date | null;
+    deletedAt: Date | string | null;
     deletedBy: string | null;
     isActive: boolean;
 }

@@ -104,7 +104,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
                     <Popconfirm
                         title="删除用户"
                         description="确定要删除这个用户吗？"
-                        onConfirm={() => handleDelete(record.id)}
+                        onConfirm={() => handleDelete(record.id!)}
                         okText="确定"
                         cancelText="取消"
                     >
@@ -137,12 +137,14 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
         if (!keyword) {
             return;
         }
-        updateTableData(keyword, currentPage, pageSize)
+        setCurrentPage(1);
+        updateTableData(keyword, 1, pageSize)
     }
 
     const handleReset = async () => {
         setSearchText('');
-        updateTableData('', currentPage, pageSize)
+        setCurrentPage(1);
+        updateTableData('', 1, pageSize)
     };
 
     const handleAdd = () => {
@@ -222,8 +224,8 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
                     showTotal: (total) => `共${total}条`
                 }}
             />
-            <UserDrawer open={drawerVisible} onClose={handleCloseUser} title={title} />
-            <RoleDrawer open={roleDrawerVisible} onClose={handleCloseRole} />
+            <UserDrawer open={drawerVisible} onClose={handleCloseUser} title={title} currentItem={currentItem} />
+            <RoleDrawer open={roleDrawerVisible} onClose={handleCloseRole} currentItem={currentItem} />
         </>
     );
 } 

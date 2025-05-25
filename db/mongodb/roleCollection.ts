@@ -2,9 +2,8 @@ import { Filter, WithId, ObjectId } from "mongodb";
 import { dbConnectionMes } from "./connection";
 import { RoleItem, RoleItemWithID } from "@/types/system/role";
 import { PaginationRequest } from "@/types/database";
-import { RoleDataBasic } from "@/app/dashboard/system/role/_component/rolePageType";
-import { TZDate } from "@date-fns/tz";
 import { User } from "@/types/system/user";
+import { LocalRole } from "@/types/api";
 
 function dbRolesToLocalRoles(dbRoles: WithId<RoleItem>[]): RoleItemWithID[] {
     return dbRoles.map(({ _id, ...rest }) => {
@@ -42,10 +41,10 @@ export async function getRoleByPage(options?: Partial<PaginationRequest>) {
     };
 }
 
-export async function createRoleSingle(data: RoleDataBasic, operatorId: string) {
+export async function createRoleSingle(data: LocalRole, operatorId: string) {
     const db = await dbConnectionMes()
     if (!data.name) throw new Error("角色名称不能为空")
-    const date = TZDate.tz("Asia/Shanghai");
+    const date = new Date();
     const collection = db.collection<RoleItem>("roles");
     const result = await collection.insertOne({
         name: data.name,
@@ -64,11 +63,11 @@ export async function createRoleSingle(data: RoleDataBasic, operatorId: string) 
     return result;
 }
 
-export async function updateRoleSingle(data: RoleDataBasic, operatorId: string) {
+export async function updateRoleSingle(data: LocalRole, operatorId: string) {
     const db = await dbConnectionMes()
     if (!data.id) throw new Error("角色ID不能为空")
     if (!data.name) throw new Error("角色名称不能为空")
-    const date = TZDate.tz("Asia/Shanghai");
+    const date = new Date();
     const collection = db.collection<RoleItem>("roles");
     const roleItem = await collection.findOne({ _id: new ObjectId(data.id) })
     if (!roleItem) throw new Error("角色不存在")
@@ -90,7 +89,7 @@ export async function updateRolePermissionById(id: string, permissions: string[]
     const db = await dbConnectionMes()
     if (!id) throw new Error("角色ID不能为空")
     if (!permissions) throw new Error("权限不能为空")
-    const date = TZDate.tz("Asia/Shanghai");
+    const date = new Date();
     const collection = db.collection<RoleItem>("roles");
     const roleItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!roleItem) throw new Error("角色不存在")
@@ -112,7 +111,7 @@ export async function deleteRoleSingle(id: string, operatorId: string) {
     const userList = roleItem.users
     const result = await collection.deleteOne({ _id: new ObjectId(id) });
     const userCollection = db.collection<User>("users");
-    const date = TZDate.tz("Asia/Shanghai");
+    const date = new Date();
     await userCollection.updateMany({
         _id: { $in: userList.map(id => new ObjectId(id)) }
     }, {
@@ -134,7 +133,7 @@ export async function addUserToRoleById(id: string, userIds: string[], operatorI
     const collection = db.collection<RoleItem>("roles");
     const roleItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!roleItem) throw new Error("角色不存在")
-    const date = TZDate.tz("Asia/Shanghai");
+    const date = new Date();
     await collection.updateOne({ _id: new ObjectId(id) }, {
         $addToSet: {
             users: { $each: userIds }
@@ -165,7 +164,7 @@ export async function removeUserFromRoleById(id: string, userIds: string[], oper
     const collection = db.collection<RoleItem>("roles");
     const roleItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!roleItem) throw new Error("角色不存在")
-    const date = TZDate.tz("Asia/Shanghai");
+    const date = new Date();
     await collection.updateOne({ _id: new ObjectId(id) }, {
         $pull: {
             users: { $in: userIds }

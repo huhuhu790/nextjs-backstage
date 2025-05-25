@@ -4,7 +4,6 @@ import { Button, Input, Table, Popconfirm, Space } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { LocalRole } from '@/types/api';
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
-import { RoleDataBasic, RoleTableDataType } from './rolePageType';
 import { deleteRoleById, getRoleByPage } from '@/api/role';
 import { PaginationResponse } from '@/types/database';
 import dynamic from 'next/dynamic';
@@ -16,7 +15,7 @@ const RoleDrawer = dynamic(() => import('./roleDrawer'), { ssr: false })
 const UserDrawer = dynamic(() => import('./userDrawer'), { ssr: false })
 
 
-function defaultItem(): RoleDataBasic {
+function defaultItem(): LocalRole {
   return {
     name: '',
     description: '',
@@ -28,7 +27,7 @@ function defaultItem(): RoleDataBasic {
 export default function ClientPage({ initData }: {
   initData: PaginationResponse<LocalRole[]>
 }) {
-  const [dataSource, setDataSource] = useState<RoleTableDataType[]>(initData.data);
+  const [dataSource, setDataSource] = useState<LocalRole[]>(initData.data);
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(initData.currentPage);
@@ -36,7 +35,7 @@ export default function ClientPage({ initData }: {
   const [total, setTotal] = useState(initData.total);
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState<'新增' | '编辑'>('新增');
-  const [currentItem, setCurrentItem] = useState<RoleDataBasic>(defaultItem());
+  const [currentItem, setCurrentItem] = useState<LocalRole>(defaultItem());
   const [openPermission, setOpenPermission] = useState(false);
   const [openUser, setOpenUser] = useState(false);
 
@@ -62,12 +61,14 @@ export default function ClientPage({ initData }: {
     if (!keyword) {
       return;
     }
-    updateTableData(keyword, currentPage, pageSize)
+    setCurrentPage(1);
+    updateTableData(keyword, 1, pageSize)
   };
 
   const handleReset = async () => {
     setSearchText('');
-    updateTableData('', currentPage, pageSize)
+    setCurrentPage(1);
+    updateTableData('', 1, pageSize)
   };
 
   const handleAdd = () => {
@@ -76,24 +77,24 @@ export default function ClientPage({ initData }: {
     setCurrentItem(defaultItem());
   };
 
-  const handleEdit = (record: RoleTableDataType) => {
+  const handleEdit = (record: LocalRole) => {
     setOpen(true);
     setTitle('编辑');
     setCurrentItem(record);
   };
 
-  const handleDelete = (record: RoleTableDataType) => {
+  const handleDelete = (record: LocalRole) => {
     deleteRoleById(record.id!).then(res => {
       updateTableData(searchText, currentPage, pageSize)
     }).catch(error => { })
   };
 
-  const handleEditPermission = (record: RoleTableDataType) => {
+  const handleEditPermission = (record: LocalRole) => {
     setOpenPermission(true);
     setCurrentItem(record);
   };
 
-  const handleShowUsers = (record: RoleTableDataType) => {
+  const handleShowUsers = (record: LocalRole) => {
     setOpenUser(true);
     setCurrentItem(record)
   }
@@ -125,7 +126,7 @@ export default function ClientPage({ initData }: {
     }
   };
 
-  const columns: TableColumnsType<RoleTableDataType> = [
+  const columns: TableColumnsType<LocalRole> = [
     {
       title: '角色名称',
       dataIndex: 'name',
@@ -208,7 +209,7 @@ export default function ClientPage({ initData }: {
           新增角色
         </Button>
       </div>
-      <Table<RoleTableDataType>
+      <Table<LocalRole>
         rowKey="id"
         columns={columns}
         dataSource={dataSource}

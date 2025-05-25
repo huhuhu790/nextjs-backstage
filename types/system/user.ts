@@ -6,14 +6,14 @@ export interface BasicUser {
     password: string;
     name: string;
     workingId: string;
-    gender: '男' | '女';
-    email: string;
+    gender: '男' | '女' | '其他';
+    email?: string | null;
     roles: string[];
-    avatar: string;
-    birthday: Date;
-    address: string;
+    avatar?: string | null;
+    birthday?: Date | string | null;
+    address?: string | null;
     phone: string;
-    department: string[];
+    department?: string[] | null;
 }
 
 // 数据库原始用户类型

@@ -1,9 +1,8 @@
 "use client"
 import { Button, Drawer, Space, Tree, TreeProps } from "antd";
-import { RoleDataBasic } from "./rolePageType";
 import { getMenuAll } from "@/api/menu";
 import { Key, useEffect, useState } from "react";
-import { LocalMenu, OptionalLocalId } from "@/types/api";
+import { LocalMenu, OptionalLocalId, LocalRole } from "@/types/api";
 import { BasicMenu } from "@/types/system/menu";
 import { updateRolePermissionById } from "@/api/role";
 
@@ -21,7 +20,7 @@ function buildTree(items: LocalMenu[], parentId: string | null): MenuTreeDataTyp
         .map(item => {
             const result: MenuTreeDataType = {
                 title: item.name,
-                key: item.id,
+                key: item.id!,
                 id: item.id,
                 parentId: item.parentId,
                 name: item.name,
@@ -30,7 +29,7 @@ function buildTree(items: LocalMenu[], parentId: string | null): MenuTreeDataTyp
                 type: item.type
             }
             if (item.children && item.children.length > 0) {
-                result.children = buildTree(items, item.id) || []
+                result.children = buildTree(items, item.id!) || []
             }
             return result
         });
@@ -43,7 +42,7 @@ export default function RoleDrawer({
 }: {
     open: boolean;
     onClose: (result: { update: boolean }) => void;
-    currentItem: RoleDataBasic;
+    currentItem: LocalRole;
 }) {
     const [dataSource, setDataSource] = useState<MenuTreeDataType[]>([]);
     const [checkedKeys, setCheckedKeys] = useState<Key[]>([]);
@@ -62,7 +61,7 @@ export default function RoleDrawer({
 
     const handleSubmit = async () => {
         updateRolePermissionById(currentItem.id!, checkedKeys as string[]).then(res => {
-            onClose({ update: true })
+            handleClose({ update: true })
         }).catch(error => { }).finally(() => { })
     };
     const onCheck: TreeProps["onCheck"] = (checkedKeys, info) => {
@@ -73,8 +72,8 @@ export default function RoleDrawer({
             setCheckedKeys(checkedKeys)
         }
     };
-    const handleClose = () => {
-        onClose({ update: false })
+    const handleClose = (options: { update: boolean }) => {
+        onClose(options);
         setCheckedKeys([])
     }
     return (
@@ -82,13 +81,13 @@ export default function RoleDrawer({
             title="权限"
             placement="left"
             width={800}
-            onClose={handleClose}
+            onClose={() => handleClose({ update: false })}
             open={open}
             maskClosable={false}
             forceRender
             extra={
                 <Space>
-                    <Button onClick={handleClose}>取消</Button>
+                    <Button onClick={() => handleClose({ update: false })}>取消</Button>
                     <Button type="primary" onClick={handleSubmit}>
                         提交
                     </Button>

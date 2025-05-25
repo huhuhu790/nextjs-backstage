@@ -55,6 +55,7 @@ export default function DictValuesDrawer({ open, onClose }: { open: boolean, onC
         },
     ];
     const handleSubmit = () => {
+        handleClose({ update: true });
     }
     const handleCloseEditDictValueDrawer = () => {
         setEditDictValueDrawerVisible(false);
@@ -72,18 +73,22 @@ export default function DictValuesDrawer({ open, onClose }: { open: boolean, onC
     const handleDeleteDictValue = (record: DictValue) => {
         console.log(record);
     }
+    const handleClose = (options: { update: boolean }) => {
+        onClose(options);
+        setCurrentEditDictValue(null);
+    }
     return (
         <Drawer
             title="字典值配置"
             open={open}
-            onClose={() => onClose({ update: false })}
+            onClose={() => handleClose({ update: false })}
             width={800}
             maskClosable={false}
             placement={"left"}
             forceRender
             extra={
                 <Space>
-                    <Button onClick={() => onClose({ update: false })}>取消</Button>
+                    <Button onClick={() => handleClose({ update: false })}>取消</Button>
                     <Button type="primary" onClick={handleSubmit}>提交</Button>
                 </Space>
             }

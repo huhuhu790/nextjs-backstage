@@ -5,7 +5,8 @@ import { verifySession } from '@/db/redis/redis';
 import { getUserInfo } from './db/mongodb/userCollection';
 import { toLocalUser } from '@/app/api/system/user/userDataTrans';
 
-const publicPaths = ['/login', '/api/auth/login'];
+// 无需登录可访问的页面
+export const publicPaths = ['/login', '/api/auth/login'];
 
 function clearToken(request: NextRequest, query?: string) {
   const response = NextResponse.redirect(new URL(`/login${query ? '?revoked=' + query : ''}`, request.url));
@@ -30,7 +31,7 @@ async function verifyTokenStatus(accessToken: string) {
     throw new Error("验证失败");
   } catch (error) {
     console.log(error);
-    
+
     return {
       success: false,
       errorType: "1",
@@ -60,7 +61,8 @@ export async function middleware(request: NextRequest) {
         // 验证成功，访问系统页面,将用户信息添加到请求头中，继续访问
         const requestHeaders = new Headers(request.headers);
         const userData = await getUserInfo(userId);
-        requestHeaders.set(process.env.SERVER_USERHEADER!, userData ? JSON.stringify(toLocalUser(userData)) : '');
+        const userDataString = encodeURIComponent(userData ? JSON.stringify(toLocalUser(userData)) : '');
+        requestHeaders.set(process.env.SERVER_USERHEADER!, userDataString);
         response = NextResponse.next({
           request: {
             headers: requestHeaders
@@ -68,8 +70,10 @@ export async function middleware(request: NextRequest) {
         });
       }
     } catch (error) {
+      console.log(error);
+      const errorMessage = (error as Error).message;
       //验证失败，删除token，跳转到登录页面
-      response = clearToken(request, (error as Error).message);
+      response = clearToken(request, errorMessage);
     }
   }
   // 如果无权限且访问非公共页面，跳转到登录页面

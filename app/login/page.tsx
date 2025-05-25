@@ -1,8 +1,8 @@
 "use client"
 import type { FormProps } from 'antd';
-import { Button, Form, Input, Card, Layout, notification } from 'antd';
+import { Button, Form, Input, Card, Layout, notification, Checkbox } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { userInfoAtom } from '@/store/user/userAtom';
 import { useEffect } from 'react';
 import { handleLogin } from '@/api/login';
@@ -30,7 +30,7 @@ const Page: React.FC = () => {
         break;
     }
   }, [searchParams])
-  const [user, setUser] = useAtom(userInfoAtom);
+  const setUser = useSetAtom(userInfoAtom)
   const onFinish: FormProps<LoginFieldType>['onFinish'] = async (values) => {
     try {
       const data = await handleLogin({
@@ -76,13 +76,13 @@ const Page: React.FC = () => {
             <Input.Password />
           </Form.Item>
 
-          {/* <Form.Item<LoginFieldType> name="remember" valuePropName="checked" label={null}>
-            <Checkbox>Remember me</Checkbox>
-          </Form.Item> */}
+          <Form.Item<LoginFieldType> name="remember" valuePropName="checked" label={null}>
+            <Checkbox>记住我</Checkbox>
+          </Form.Item>
 
           <Form.Item label={null}>
             <Button type="primary" htmlType="submit">
-              Submit
+              登录
             </Button>
           </Form.Item>
         </Form>

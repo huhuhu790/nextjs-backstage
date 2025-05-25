@@ -2,8 +2,7 @@ import { ObjectId, WithId, OptionalId } from 'mongodb';
 import { dbConnectionMes } from './connection';
 import { MenuItem, MenuItemWithID } from '@/types/system/menu';
 import { getUniquePermissions } from './userCollection';
-import { TZDate } from '@date-fns/tz';
-import { MenuDataBasic } from '@/app/dashboard/system/menu/_component/menuPageType';
+import { LocalMenu } from '@/types/api';
 
 function dbMenusToLocalMenus(dbMenus: WithId<MenuItem>[]): MenuItemWithID[] {
     return dbMenus.map(({ _id, ...rest }) => {
@@ -33,14 +32,14 @@ export async function getAllMenus() {
     return dbMenusToLocalMenus(await usersCollection.find({}).toArray());
 }
 
-export async function createSingleMenu(menuData: Partial<MenuDataBasic>, operatorId: string) {
+export async function createSingleMenu(menuData: Partial<LocalMenu>, operatorId: string) {
     const db = await dbConnectionMes()
     const usersCollection = db.collection<MenuItem>('menus');
     if (!menuData.name) throw new Error("目录名称不能为空")
     if (!menuData.path) throw new Error("目录路径不能为空")
     if (!menuData.type) throw new Error("目录类型不能为空")
     if (!menuData.iconPath) throw new Error("目录图标不能为空")
-    const date = TZDate.tz("Asia/Shanghai");
+        const date = new Date();
     let record: OptionalId<MenuItem> = {
         name: menuData.name,
         path: menuData.path,
@@ -81,7 +80,7 @@ export async function deleteSingleMenu(id: string, operatorId: string) {
     }
     return await usersCollection.deleteOne({ _id: new ObjectId(id) })
     // 逻辑删除
-    // const date = TZDate.tz("Asia/Shanghai");
+    //     const date = new Date();
     // await usersCollection.updateOne({ _id: new ObjectId(id) }, {
     //     $set: {
     //         isDeleted: true,
@@ -91,7 +90,7 @@ export async function deleteSingleMenu(id: string, operatorId: string) {
     // })
 }
 
-export async function updateSingleMenu(menuData: Partial<MenuDataBasic>, operatorId: string) {
+export async function updateSingleMenu(menuData: Partial<LocalMenu>, operatorId: string) {
     const db = await dbConnectionMes()
     const usersCollection = db.collection<OptionalId<MenuItem>>('menus');
     if (!menuData.id) throw new Error("目录id不能为空")
@@ -99,7 +98,7 @@ export async function updateSingleMenu(menuData: Partial<MenuDataBasic>, operato
     if (!menuData.path) throw new Error("目录路径不能为空")
     if (!menuData.type) throw new Error("目录类型不能为空")
     if (!menuData.iconPath) throw new Error("目录图标不能为空")
-    const date = TZDate.tz("Asia/Shanghai");
+        const date = new Date();
     const menuItem = await usersCollection.findOne({ _id: new ObjectId(menuData.id) })
     if (!menuItem) throw new Error("目录不存在")
     let record: Partial<MenuItem> = {

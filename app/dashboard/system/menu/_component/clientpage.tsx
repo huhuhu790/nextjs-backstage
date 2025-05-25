@@ -3,10 +3,13 @@ import React, { Suspense, useMemo, useRef, useState } from 'react';
 import { Button, Popconfirm, Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
-import { MenuDataBasic, MenuTableDataType } from './menuPageType';
 import dynamic from 'next/dynamic';
 import { LocalMenu } from '@/types/api';
 import { deleteMenu, getMenuAll } from '@/api/menu';
+
+type MenuTableDataType = Omit<LocalMenu, "children"> & {
+  children?: MenuTableDataType[]
+}
 
 const MenuDrawer = dynamic(() => import('./menuDrawer'), { ssr: false })
 
@@ -17,13 +20,13 @@ function buildTree(items: LocalMenu[], parentId: string | null): MenuTableDataTy
     .map(item => {
       const { children, ...result } = item
       if (children && children.length > 0) {
-        (result as MenuTableDataType).children = buildTree(items, item.id) || []
+        (result as MenuTableDataType).children = buildTree(items, item.id!) || []
       }
       return result
     });
 }
 
-function defaultItem(): MenuDataBasic {
+function defaultItem(): LocalMenu {
   return {
     name: '',
     path: '',
@@ -47,7 +50,7 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
   const [dataSource, setDataSource] = useState<MenuTableDataType[]>(buildTree(initData, null))
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState<'新增' | '编辑'>('新增');
-  const [currentItem, setCurrentItem] = useState<MenuDataBasic>(defaultItem());
+  const [currentItem, setCurrentItem] = useState<LocalMenu>(defaultItem());
   const [parentName, setParentName] = useState<string | null>(null);
   const parentId = useRef<string | null>(null);
   const handleAdd = () => {

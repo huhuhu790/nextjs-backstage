@@ -1,14 +1,14 @@
 import { Button, Drawer, Form, Input, Radio, Space } from "antd";
-import { MenuDataBasic } from "./menuPageType";
 import { RefObject, useEffect, useState } from "react";
 import IconSelectModal from "./iconSelectModal";
 import { addMenu, updateMenu } from "@/api/menu";
+import { LocalMenu } from "@/types/api";
 export default function MenuDrawer({ open, onClose, title, currentItem, parentId, parentName }:
     {
         open: boolean,
         onClose: (result: { update: boolean }) => void,
         title: string,
-        currentItem: MenuDataBasic,
+        currentItem: LocalMenu,
         parentId: RefObject<string | null>,
         parentName: string | null
     }) {
@@ -27,23 +27,19 @@ export default function MenuDrawer({ open, onClose, title, currentItem, parentId
     }, [currentItem])
     const handleSubmit = async () => {
         form.validateFields().then(async (values) => {
-            try {
-                const data = { ...currentItem, ...values }
-                if (title === "新增") {
-                    await addMenu(data, parentId.current);
-                } else {
-                    await updateMenu(data, parentId.current);
-                }
-                onClose({ update: true })
-            } catch (error) {
-                console.log(error);
+            const data = { ...currentItem, ...values }
+            if (title === "新增") {
+                await addMenu(data, parentId.current);
+            } else {
+                await updateMenu(data, parentId.current);
             }
+            handleClose({ update: true });
         }).catch((error) => {
             console.log(error);
         })
     }
-    const handleClose = () => {
-        onClose({ update: false })
+    const handleClose = (options: { update: boolean } = { update: false }) => {
+        onClose(options);
         form.resetFields();
     }
     return (
@@ -52,13 +48,13 @@ export default function MenuDrawer({ open, onClose, title, currentItem, parentId
                 title={title}
                 placement={"right"}
                 width={800}
-                onClose={handleClose}
+                onClose={() => handleClose({ update: false })}
                 open={open}
                 maskClosable={false}
                 forceRender
                 extra={
                     <Space>
-                        <Button onClick={handleClose}>取消</Button>
+                        <Button onClick={() => handleClose({ update: false })}>取消</Button>
                         <Button type="primary" onClick={handleSubmit}>
                             提交
                         </Button>

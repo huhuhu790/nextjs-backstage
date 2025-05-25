@@ -1,8 +1,9 @@
 "use client"
-import { Dropdown,  MenuProps, Tabs, TabsProps } from 'antd';
+import { Dropdown, MenuProps, Tabs, TabsProps } from 'antd';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { LocalMenu } from '@/types/api';
+import { publicPermissionPaths } from '@/utils/publicPaths';
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
@@ -50,10 +51,9 @@ export default function TabsBar({
         if (pathname === process.env.NEXT_PUBLIC_SYSTEM_PREFIX) return;
         const systemPath = pathname.replace(process.env.NEXT_PUBLIC_SYSTEM_PREFIX!, '');
         if (items.findIndex((pane) => pane.key === systemPath) > -1) return;
-        const menuitem = menuData.find((pane) => pane.path === systemPath)!;
-        const newPanes = [...items];
-        newPanes.push({ label: menuitem?.name, children: '', key: systemPath, closable: true });
-        setItems(newPanes);
+        let menuitem = menuData.find((pane) => pane.path === systemPath);
+        if (!menuitem) menuitem = publicPermissionPaths.find((pane) => pane.path === systemPath);
+        menuitem && setItems([...items, { label: menuitem?.name, children: '', key: systemPath, closable: true }]);
     }, [pathname])
     // 处理关闭所选tab
     const remove = (targetKey: TargetKey) => {

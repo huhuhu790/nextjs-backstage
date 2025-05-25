@@ -26,7 +26,7 @@ function buildTree(items: LocalMenu[], parentId: string | null): MenuProps["item
         label: item.name,
       }
       if (item.type === "folder") {
-        const children = buildTree(items, item.id) || [];
+        const children = buildTree(items, item.id!) || [];
         return { ...data, children }
       } else {
         return data
@@ -63,7 +63,8 @@ export default function MenuTree({
   const [openKeys, setOpenKeys] = useState<string[]>([])
   useEffect(() => {
     if (activeKey === "/") return setOpenKeys([activeKey])
-    const item = menuItems.find(item => item.path === activeKey)!
+    const item = menuItems.find(item => item.path === activeKey)
+    if (!item || !item.id) return
     const keys: string[] = [item.id]
     if (item.parentId) getOpenKeys(menuItems, item.parentId, keys)
     setOpenKeys(keys)

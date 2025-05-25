@@ -1,13 +1,12 @@
 import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import { dbConnectionMes } from './connection';
 import { Role, User, UserWithID } from '@/types/system/user';
-import { UserDrawerDataType } from "@/app/dashboard/system/user/_component/userPageType";
-import { TZDate } from "@date-fns/tz";
 import { sha256 } from '@/utils/encrypt';
 import { createMessageCollection, deleteMessageCollection } from './messageCollection';
-import { getUserOption } from '@/types/api';
+import { getUserOption, updateUserDataType } from '@/types/api';
+import { deleteFile, uploadFile } from './gridFSCollection';
 function dbUserToLocalUser(dbUser: WithId<User>): UserWithID {
-    const { _id, ...rest } = dbUser;
+    let { _id, ...rest } = dbUser;
     return {
         id: _id.toString(),
         ...rest, // 保留其他字段
@@ -72,7 +71,8 @@ export async function getUserByPage(options?: getUserOption) {
     const currentPage = options?.currentPage || defaultCurrentPage
     const pageSize = options?.pageSize || defaultPageSize
     const total = await usersCollection.countDocuments(query);
-    const users = await usersCollection.find(query)
+    const users = await usersCollection
+        .find(query)
         .skip((currentPage - 1) * pageSize)
         .limit(pageSize)
         .toArray();
@@ -84,23 +84,32 @@ export async function getUserByPage(options?: getUserOption) {
     };
 }
 
-export async function createUserSingle(data: UserDrawerDataType, operatorId: string) {
+export async function createUserSingle(data: Partial<updateUserDataType>, operatorId: string) {
     const db = await dbConnectionMes()
     if (!data.username) throw new Error("用户名不能为空")
-    const date = TZDate.tz("Asia/Shanghai");
+    if (!data.name) throw new Error("姓名不能为空")
+    if (!data.workingId) throw new Error("工号不能为空")
+    if (!data.phone) throw new Error("电话不能为空")
+    if (!data.gender) throw new Error("性别不能为空")
+    // 同时存在文件与文件名时更新
+    if (data.file && data.avatar) {
+        const fileId = await uploadFile(data.avatar, data.file, db)
+        data.avatar = fileId
+    }
+    const date = new Date();
     const collection = db.collection<User>("users");
     const result = await collection.insertOne({
         username: data.username,
         password: await sha256(process.env.DEFAULT_PASSWORD!),
-        email: data.email || "",
-        phone: data.phone || "",
-        name: data.name || "",
-        workingId: data.workingId || "",
-        gender: data.gender || "",
-        avatar: data.avatar || "",
-        birthday: data.birthday || "",
-        address: data.address || "",
-        department: data.department || "",
+        email: data.email || null,
+        phone: data.phone,
+        name: data.name,
+        workingId: data.workingId,
+        gender: data.gender!,
+        avatar: data.avatar || null,
+        birthday: data.birthday || null,
+        address: data.address || null,
+        department: data.department || null,
         roles: [],
         isActive: true,
         createdAt: date,
@@ -115,30 +124,45 @@ export async function createUserSingle(data: UserDrawerDataType, operatorId: str
     return result;
 }
 
-export async function updateUserSingle(data: UserDrawerDataType, operatorId: string) {
+export async function updateUserSingle(data: Partial<updateUserDataType>, operatorId: string) {
     const db = await dbConnectionMes()
     if (!data.id) throw new Error("用户ID不能为空")
     if (!data.username) throw new Error("用户名不能为空")
-    const date = TZDate.tz("Asia/Shanghai");
+    if (!data.name) throw new Error("姓名不能为空")
+    if (!data.workingId) throw new Error("工号不能为空")
+    if (!data.phone) throw new Error("电话不能为空")
+    if (!data.gender) throw new Error("性别不能为空")
     const collection = db.collection<User>("users");
+    const userItem = await collection.findOne({ _id: new ObjectId(data.id) })
+    if (!userItem) throw new Error("用户不存在")
+    const date = new Date();
+    const setData: Partial<User> = {
+        username: data.username,
+        email: data.email || null,
+        phone: data.phone,
+        name: data.name,
+        workingId: data.workingId,
+        gender: data.gender,
+        address: data.address || null,
+        department: data.department || null,
+        updatedAt: date,
+        updatedBy: operatorId,
+    }
+    // 标准化时间
+    if (data.birthday) {
+        setData.birthday = new Date(data.birthday as string)
+    }
+    // 同时存在文件与文件名且与原文件名不一致时更新
+    if (data.file && userItem.avatar !== data.avatar) {
+        if (!data.avatar || !data.file) throw new Error("上传文件不能为空")
+        if (userItem.avatar) await deleteFile(userItem.avatar, db)
+        const fileId = await uploadFile(data.avatar, data.file, db)
+        setData.avatar = fileId
+    }
     const result = await collection.updateOne(
         { _id: new ObjectId(data.id) },
         {
-            $set: {
-                username: data.username,
-                email: data.email || "",
-                phone: data.phone || "",
-                name: data.name || "",
-                workingId: data.workingId || "",
-                gender: data.gender || "",
-                avatar: data.avatar || "",
-                birthday: data.birthday || "",
-                address: data.address || "",
-                department: data.department || "",
-                roles: data.roles || [],
-                updatedAt: date,
-                updatedBy: operatorId,
-            }
+            $set: setData
         }
     );
     return result;

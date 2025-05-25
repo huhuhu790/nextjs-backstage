@@ -60,7 +60,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
                     <Popconfirm
                         title="删除字典表"
                         description="确定要删除这个字典表吗？"
-                        onConfirm={() => handleDelete(record.id)}
+                        onConfirm={() => handleDelete(record.id!)}
                         okText="确定"
                         cancelText="取消"
                     >
@@ -93,12 +93,14 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
         if (!keyword) {
             return;
         }
-        updateTableData(keyword, currentPage, pageSize)
+        setCurrentPage(1);
+        updateTableData(keyword, 1, pageSize)
     }
 
     const handleReset = async () => {
         setSearchText('');
-        updateTableData('', currentPage, pageSize)
+        setCurrentPage(1);
+        updateTableData('', 1, pageSize)
     };
 
     const handleAdd = () => {

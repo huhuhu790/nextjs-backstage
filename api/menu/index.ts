@@ -1,6 +1,5 @@
 import { LocalMenu } from "@/types/api";
 import { fetchData } from "@/api/fetchApi";
-import { MenuDataBasic } from "@/app/dashboard/system/menu/_component/menuPageType";
 
 
 export async function getMenuAll() {
@@ -11,8 +10,8 @@ export async function deleteMenu(id: string) {
     return await fetchData<null, { id?: string }>('/api/system/menu/deleteMenuSingle', { body: { id } })
 }
 
-export async function addMenu(values: MenuDataBasic, parentId: string | null) {
-    return await fetchData<null, MenuDataBasic>('/api/system/menu/addMenuSingle',
+export async function addMenu(values: LocalMenu, parentId: string | null) {
+    return await fetchData<null, LocalMenu>('/api/system/menu/addMenuSingle',
         {
             body: {
                 ...values,
@@ -21,8 +20,8 @@ export async function addMenu(values: MenuDataBasic, parentId: string | null) {
         })
 }
 
-export async function updateMenu(values: MenuDataBasic, parentId: string | null) {
-    return await fetchData<null, MenuDataBasic>('/api/system/menu/updateMenuSingle',
+export async function updateMenu(values: LocalMenu, parentId: string | null) {
+    return await fetchData<null, LocalMenu>('/api/system/menu/updateMenuSingle',
         {
             body: {
                 ...values,

@@ -1,5 +1,6 @@
 import { Drawer, Space, Transfer, Button } from "antd";
 import { Key, useState } from "react";
+import { LocalUser } from "@/types/api";
 
 const dataSource = [
     {
@@ -8,16 +9,20 @@ const dataSource = [
     },
 ];
 
-export default function RoleDrawer({ open, onClose }: { open: boolean, onClose: (option: { update: boolean }) => void }) {
+export default function RoleDrawer({ open, onClose, currentItem }: {
+    open: boolean,
+    onClose: (option: { update: boolean }) => void,
+    currentItem: Partial<LocalUser>
+}) {
     const [targetKeys, setTargetKeys] = useState<string[]>([]);
     const onChange = (nextTargetKeys: Key[]) => {
         setTargetKeys(nextTargetKeys as string[]);
     };
     const handleSubmit = () => {
-        console.log(targetKeys);
+        handleClose({ update: true })
     }
-    const handleClose = () => {
-        onClose({ update: false });
+    const handleClose = (options: { update: boolean }) => {
+        onClose(options);
         setTargetKeys([]);
     }
 
@@ -28,11 +33,11 @@ export default function RoleDrawer({ open, onClose }: { open: boolean, onClose: 
             width={800}
             maskClosable={false}
             placement={"left"}
-            onClose={handleClose}
+            onClose={() => handleClose({ update: false })}
             forceRender
             extra={
                 <Space>
-                    <Button onClick={handleClose}>取消</Button>
+                    <Button onClick={() => handleClose({ update: false })}>取消</Button>
                     <Button type="primary" onClick={handleSubmit}>提交</Button>
                 </Space>
             }

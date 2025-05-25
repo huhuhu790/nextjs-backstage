@@ -1,10 +1,11 @@
 import { Avatar, Flex, Dropdown, MenuProps, Button } from "antd";
 import { UserOutlined } from '@ant-design/icons';
 import { userInfoAtom } from '@/store/user/userAtom';
-import { useAtom } from 'jotai';
-import { useMemo } from "react";
+import { useAtomValue } from 'jotai';
+import { useEffect, useMemo, useState } from "react";
 import { handleLogout } from "@/api/login";
 import { useRouter } from "next/navigation";
+import { downloadFile } from "@/api/fetchApi";
 
 const items: MenuProps['items'] = [
     {
@@ -20,12 +21,13 @@ const items: MenuProps['items'] = [
 ];
 
 const AvatarArea = () => {
-    const [user, setUser] = useAtom(userInfoAtom);
+    const user = useAtomValue(userInfoAtom);
     const router = useRouter();
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
     const onClick: MenuProps['onClick'] = async (e) => {
         switch (e.key) {
             case '0':
-                // router.push('/dashboard/user/center');
+                router.push('/dashboard/user/center');
                 break;
             case '1':
                 try {
@@ -41,11 +43,22 @@ const AvatarArea = () => {
         const username = user?.username;
         return username ? username.slice(0, 1).toUpperCase() : "";
     }, [user])
+    useEffect(() => {
+        // 下载头像
+        if (user && user.avatar)
+            downloadFile(user.avatar).then((file) => {
+                setImageUrl(URL.createObjectURL(file));
+            }).catch((error) => {
+                console.log(error);
+            });
+    }, [user]);
     return (
         <Dropdown menu={{ items, onClick }} trigger={['click']} >
             <Button type="text" size="large" style={{ marginRight: 16 }}>
                 <Flex justify='left' align='center'>
-                    <Avatar style={{ backgroundColor: '#fde3cf', color: '#f56a00' }}>{userIcon}</Avatar>
+                    {imageUrl ? <Avatar src={imageUrl} /> :
+                        <Avatar style={{ backgroundColor: '#fde3cf', color: '#f56a00' }}>{userIcon}</Avatar>
+                    }
                     <div style={{ marginLeft: 8, lineHeight: "14px" }}>{user?.username}</div>
                 </Flex>
             </Button>

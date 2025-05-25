@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json(response);
     } catch (error) {
-        console.log((error as Error).message);
+        console.log(error);
         const message = (error as Error).message || '更新角色失败'
         const response: ApiResponse = {
             status: 500,
