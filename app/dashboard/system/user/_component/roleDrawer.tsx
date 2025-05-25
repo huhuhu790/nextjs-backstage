@@ -1,13 +1,8 @@
 import { Drawer, Space, Transfer, Button } from "antd";
-import { Key, useState } from "react";
-import { LocalUser } from "@/types/api";
-
-const dataSource = [
-    {
-        key: '1',
-        title: '角色1',
-    },
-];
+import { Key, useEffect, useState } from "react";
+import { LocalRole, LocalUser } from "@/types/api";
+import { getRoleByPage } from "@/api/role";
+import { updateUserRoleById } from "@/api/user";
 
 export default function RoleDrawer({ open, onClose, currentItem }: {
     open: boolean,
@@ -15,11 +10,27 @@ export default function RoleDrawer({ open, onClose, currentItem }: {
     currentItem: Partial<LocalUser>
 }) {
     const [targetKeys, setTargetKeys] = useState<string[]>([]);
+    const [dataSource, setDataSource] = useState<LocalRole[]>([]);
+    useEffect(() => {
+        if (open && currentItem) {
+            setTargetKeys(currentItem.roles || []);
+            getRoleByPage({}).then(result => {
+                if (result) {
+                    const { data, ...rest } = result
+                    setDataSource(data)
+                }
+            }).catch(e => { }).finally(() => { })
+        }
+    }, [currentItem, open]);
     const onChange = (nextTargetKeys: Key[]) => {
         setTargetKeys(nextTargetKeys as string[]);
     };
     const handleSubmit = () => {
-        handleClose({ update: true })
+        updateUserRoleById({ id: currentItem.id!, roleIds: targetKeys }).then(result => {
+            handleClose({ update: true })
+        }).catch(e => {
+            console.log(e);
+        }).finally(() => { })
     }
     const handleClose = (options: { update: boolean }) => {
         onClose(options);
@@ -43,12 +54,13 @@ export default function RoleDrawer({ open, onClose, currentItem }: {
             }
         >
             <Transfer
+                rowKey={item => item.id!}
                 dataSource={dataSource}
                 targetKeys={targetKeys}
+                render={item => item.name}
                 onChange={onChange}
-                render={item => item.title}
                 showSearch
-                titles={['已选角色', '未选角色']}
+                titles={['未选角色', '已选角色']}
                 listStyle={{
                     width: 400,
                     height: 400,

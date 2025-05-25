@@ -1,7 +1,20 @@
+import { DictValue } from "@/types/system/dictionary";
 import { Drawer, Form, Input, Space, Button } from "antd";
+import { useEffect } from "react";
 
-export default function EditDictValueDrawer({ open, onClose, title }: { open: boolean, onClose: (option: { update: boolean }) => void, title: string }) {
+export default function EditDictValueDrawer({ open, onClose, title, currentItem }:
+    {
+        open: boolean,
+        onClose: (option: { update: boolean }) => void,
+        title: string,
+        currentItem: Partial<DictValue> | null
+    }) {
     const [form] = Form.useForm();
+    useEffect(() => {
+        if (open && currentItem) {
+            form.setFieldsValue(currentItem);
+        }
+    }, [currentItem, open]);
     const handleSubmit = () => {
         form.validateFields().then(async (values) => {
             handleClose({ update: true });
@@ -10,8 +23,8 @@ export default function EditDictValueDrawer({ open, onClose, title }: { open: bo
         });
     }
     const handleClose = (options: { update: boolean }) => {
-        onClose(options);
         form.resetFields();
+        onClose(options);
     }
     return (
         <Drawer

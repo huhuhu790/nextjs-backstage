@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react";
-import { Button, Table, Space, Input, TableColumnsType, Popconfirm } from "antd";
+import { Button, Table, Space, Input, TableColumnsType, Popconfirm, message } from "antd";
 import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { PaginationResponse } from "@/types/database";
 import { LocalDict } from "@/types/api";
 import dynamic from "next/dynamic";
+import { deleteDict, getDictList } from "@/api/dict";
 
 const DictDrawer = dynamic(() => import("./dictDrawer"), { ssr: false });
 const DictValuesDrawer = dynamic(() => import("./dictValuesDrawer"), { ssr: false });
@@ -14,7 +15,7 @@ function defaultItem(): Partial<LocalDict> {
     return {
         name: '',
         values: [],
-        discription: '',
+        description: '',
     }
 }
 
@@ -22,9 +23,9 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
     const [data, setData] = useState(initData.data);
     const [searchText, setSearchText] = useState('');
     const [loading, setLoading] = useState(false);
-    const [currentPage, setCurrentPage] = useState(initData.currentPage);
-    const [pageSize, setPageSize] = useState(initData.pageSize);
-    const [total, setTotal] = useState(initData.total);
+    const [currentPage, setCurrentPage] = useState(initData.currentPage!);
+    const [pageSize, setPageSize] = useState(initData.pageSize!);
+    const [total, setTotal] = useState(initData.total!);
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [title, setTitle] = useState('');
     const [currentItem, setCurrentItem] = useState<Partial<LocalDict>>(defaultItem());
@@ -39,8 +40,8 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
         },
         {
             title: "字典表描述",
-            dataIndex: "discription",
-            key: "discription",
+            dataIndex: "description",
+            key: "description",
             minWidth: 100,
         },
         {
@@ -85,7 +86,11 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
     };
 
     const handleDelete = (id: string) => {
-
+        deleteDict(id).then((res) => {
+            updateTableData('', currentPage, pageSize);
+        }).catch((err) => {
+            console.log(err);
+        });
     };
 
     const handleSearch = () => {
@@ -111,7 +116,22 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
 
     function updateTableData(keyword: string, currentPage: number, currentPageSize: number) {
         setLoading(true);
-        setLoading(false);
+        getDictList({
+            keyword,
+            currentPage,
+            pageSize: currentPageSize
+        }).then((res) => {
+            if (res) {
+                setData(res.data);
+                setTotal(res.total);
+                setCurrentPage(res.currentPage!);
+                setPageSize(res.pageSize!);
+            }
+        }).catch((err) => {
+            console.log(err);
+        }).finally(() => {
+            setLoading(false);
+        });
     }
 
     const handlePageChange = (page: number, pageSize: number) => {
@@ -179,8 +199,8 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
                     showTotal: (total) => `共${total}条`
                 }}
             />
-            <DictDrawer open={drawerVisible} onClose={handleClose} title={title} />
-            <DictValuesDrawer open={dictValuesDrawerVisible} onClose={handleCloseDictValuesDrawer} />
+            <DictDrawer open={drawerVisible} onClose={handleClose} title={title} currentItem={currentItem} />
+            <DictValuesDrawer open={dictValuesDrawerVisible} onClose={handleCloseDictValuesDrawer} currentItem={currentItem} />
         </>
 
     );

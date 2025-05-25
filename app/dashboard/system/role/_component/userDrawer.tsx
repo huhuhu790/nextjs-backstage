@@ -2,7 +2,7 @@ import { Button, Col, Drawer, Input, Row, Table, Card, TableColumnsType, Flex } 
 import { useEffect, useState, useRef } from "react";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import { getUserByOption } from "@/api/user";
-import { LocalUser,LocalRole } from "@/types/api";
+import { LocalUser, LocalRole } from "@/types/api";
 import { addUserToRoleById, removeUserFromRoleById } from "@/api/role";
 
 const columns: TableColumnsType<LocalUser> = [
@@ -69,9 +69,9 @@ export default function UserDrawer({
         }).then(res => {
             if (res) {
                 setDataSourceSelected(res.data)
-                setTotal(res.total)
-                setCurrentPage(res.currentPage)
-                setPageSize(res.pageSize)
+                setTotal(res.total!)
+                setCurrentPage(res.currentPage!)
+                setPageSize(res.pageSize!)
             }
         }).finally(() => {
             setLoading(false);
@@ -95,9 +95,9 @@ export default function UserDrawer({
         }).then(res => {
             if (res) {
                 setDataSourceAll(res.data)
-                setTotalAll(res.total)
-                setCurrentPageAll(res.currentPage)
-                setPageSizeAll(res.pageSize)
+                setTotalAll(res.total!)
+                setCurrentPageAll(res.currentPage!)
+                setPageSizeAll(res.pageSize!)
             }
         }).finally(() => {
             setLoadingAll(false);
@@ -209,7 +209,12 @@ export default function UserDrawer({
                             pagination={{
                                 total: total,
                                 current: currentPage,
-                                pageSize: pageSize
+                                pageSize: pageSize,
+                                onChange: (page, pageSize) => {
+                                    setCurrentPage(page)
+                                    setPageSize(pageSize)
+                                    handleSearch(searchText, page, pageSize)
+                                }
                             }}
                         />
                     </Card>

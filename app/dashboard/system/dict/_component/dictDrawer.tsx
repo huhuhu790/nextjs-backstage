@@ -1,17 +1,37 @@
+import { addDict, updateDict } from "@/api/dict";
+import { LocalDict } from "@/types/api";
 import { Drawer, Form, Input, Button, Space } from "antd";
-
-export default function DictDrawer({ open, onClose, title }: { open: boolean, onClose: (option: { update: boolean }) => void, title: string }) {
+import { useEffect } from "react";
+export default function DictDrawer({ open, onClose, title, currentItem }: {
+    open: boolean,
+    onClose: (option: { update: boolean }) => void,
+    title: string,
+    currentItem: Partial<LocalDict>
+}) {
     const [form] = Form.useForm();
+    useEffect(() => {
+        if (open && currentItem) {
+            form.setFieldsValue(currentItem);
+        }
+    }, [currentItem, open]);
     const handleSubmit = () => {
         form.validateFields().then(async (values) => {
+            if (currentItem.id) {
+                await updateDict({
+                    id: currentItem.id,
+                    ...values
+                });
+            } else {
+                await addDict(values);
+            }
             handleClose({ update: true });
         }).catch((error) => {
             console.log(error);
         });
     }
     const handleClose = (options: { update: boolean } = { update: false }) => {
-        onClose(options);
         form.resetFields();
+        onClose(options);
     }
     return (
         <Drawer

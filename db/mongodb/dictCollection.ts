@@ -13,25 +13,23 @@ function dbDictsToLocalDicts(dbDicts: WithId<DictItem>[]) {
     });
 }
 
-const defaultPageSize = 10
-const defaultCurrentPage = 1
-export async function getDictByPage(options?: Partial<PaginationRequest>) {
+export async function getDictByPage(options?: PaginationRequest) {
     const db = await dbConnectionMes()
     const dictsCollection = db.collection<DictItem>('dictionaries');
     const query: Filter<DictItem> = {};
     if (options?.keyword) {
         query.$or = [
             { name: { $regex: options.keyword, $options: 'i' } },
-            { discription: { $regex: options.keyword, $options: 'i' } }
+            { description: { $regex: options.keyword, $options: 'i' } }
         ];
     }
-    const currentPage = options?.currentPage || defaultCurrentPage
-    const pageSize = options?.pageSize || defaultPageSize
+    const currentPage = options?.currentPage
+    const pageSize = options?.pageSize
     const total = await dictsCollection.countDocuments(query);
-    const dicts = await dictsCollection.find(query)
+    const dicts = currentPage && pageSize ? await dictsCollection.find(query)
         .skip((currentPage - 1) * pageSize)
         .limit(pageSize)
-        .toArray();
+        .toArray() : await dictsCollection.find(query).toArray();
     return {
         data: dbDictsToLocalDicts(dicts),
         total,
@@ -47,8 +45,8 @@ export async function createDictSingle(data: Partial<LocalDict>, operatorId: str
     const collection = db.collection<DictItem>("dictionaries");
     const result = await collection.insertOne({
         name: data.name,
-        discription: data.discription || "",
-        values: data.values || [],
+        description: data.description || "",
+        values: [],
         createdAt: date,
         updatedAt: date,
         createdBy: operatorId,
@@ -61,7 +59,7 @@ export async function createDictSingle(data: Partial<LocalDict>, operatorId: str
     return result;
 }
 
-export async function updateDictSingle(data: LocalDict, operatorId: string) {
+export async function updateDictSingle(data: Partial<LocalDict>, operatorId: string) {
     const db = await dbConnectionMes()
     if (!data.id) throw new Error("字典ID不能为空")
     if (!data.name) throw new Error("字典名称不能为空")
@@ -72,7 +70,7 @@ export async function updateDictSingle(data: LocalDict, operatorId: string) {
         {
             $set: {
                 name: data.name,
-                discription: data.discription || "",
+                description: data.description || "",
                 updatedAt: date,
                 updatedBy: operatorId,
             }

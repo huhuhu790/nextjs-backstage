@@ -3,14 +3,14 @@ import { WithLocalId } from "../api";
 
 export interface BasicDict {
     name: string;
-    discription: string;
+    description: string;
     values: DictValue[];
 }
 
 // 字典值类型
 export interface DictValue {
     name: string;
-    discription: string;
+    description: string;
     value: string;
     isActive: boolean;
 }

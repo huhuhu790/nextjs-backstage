@@ -60,7 +60,7 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
         form.validateFields().then(async ({ avatar, birthday, ...values }: UserFromProps) => {
             const formData = new FormData();
             // 存在文件且与原文件名不一致时更新
-            if (avatar && avatar[0].name !== originalFilename.current) {
+            if (avatar && avatar.length > 0 && avatar[0].name !== originalFilename.current) {
                 formData.append('avatar', avatar[0].name);
                 formData.append('file', avatar[0]);
             }
@@ -93,10 +93,10 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
         });
     }
     const handleClose = (options: { update: boolean }) => {
-        onClose(options);
         form.resetFields();
         setImageUrl(null);
         originalFilename.current = null
+        onClose(options);
     }
     const beforeUpload = (file: RcFile) => {
         setLoading(true);

@@ -53,8 +53,6 @@ function dbUsersToLocalUsers(dbUsers: WithId<User>[]): UserWithID[] {
     return dbUsers.map((user) => dbUserToLocalUser(user));
 }
 
-const defaultPageSize = 10
-const defaultCurrentPage = 1
 export async function getUserByPage(options?: getUserOption) {
     const db = await dbConnectionMes()
     const usersCollection = db.collection<User>('users');
@@ -68,14 +66,14 @@ export async function getUserByPage(options?: getUserOption) {
         if (options?.unselected) query.roles = { $nin: [options.roleId] }
         else query.roles = { $in: [options.roleId] }
     }
-    const currentPage = options?.currentPage || defaultCurrentPage
-    const pageSize = options?.pageSize || defaultPageSize
+    const currentPage = options?.currentPage
+    const pageSize = options?.pageSize
     const total = await usersCollection.countDocuments(query);
-    const users = await usersCollection
+    const users = currentPage && pageSize ? await usersCollection
         .find(query)
         .skip((currentPage - 1) * pageSize)
         .limit(pageSize)
-        .toArray();
+        .toArray() : await usersCollection.find(query).toArray();
     return {
         data: dbUsersToLocalUsers(users),
         total,
@@ -175,6 +173,35 @@ export async function deleteUserSingle(id: string, operatorId: string) {
     const userItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!userItem) throw new Error("用户不存在")
     const result = await collection.deleteOne({ _id: new ObjectId(id) });
+    if (userItem.avatar) await deleteFile(userItem.avatar, db)
+    if (userItem.roles.length > 0) {
+        const rolesCollection = db.collection<Role>("roles");
+        await rolesCollection.updateMany({ _id: { $in: userItem.roles.map(role => new ObjectId(role)) } }, { $pull: { users: id } });
+    }
     await deleteMessageCollection(id)
+    return result;
+}
+
+export async function updateUserRole(id: string, roleIds: string[], operatorId: string) {
+    const db = await dbConnectionMes()
+    if (!id) throw new Error("用户ID不能为空")
+    if (!roleIds) throw new Error("角色ID不能为空")
+    const collection = db.collection<User>("users");
+    const userItem = await collection.findOne({ _id: new ObjectId(id) })
+    if (!userItem) throw new Error("用户不存在")
+    if (userItem.roles.length > 0) {
+        const rolesCollection = db.collection<Role>("roles");
+        await rolesCollection.updateMany({ _id: { $in: roleIds.map(role => new ObjectId(role)) } }, { $pull: { users: id } });
+    }
+    const result = await collection.updateOne(
+        { _id: new ObjectId(id) },
+        {
+            $set: {
+                roles: roleIds,
+                updatedAt: new Date(),
+                updatedBy: operatorId
+            }
+        }
+    );
     return result;
 }

@@ -35,8 +35,8 @@ export default function RoleDrawer({
         });
     };
     const handleClose = (options: { update: boolean }) => {
-        onClose(options);
         form.resetFields();
+        onClose(options);
     }
 
     return (

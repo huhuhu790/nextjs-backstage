@@ -14,8 +14,7 @@ function dbRolesToLocalRoles(dbRoles: WithId<RoleItem>[]): RoleItemWithID[] {
     });
 }
 
-const defaultPageSize = 10
-const defaultCurrentPage = 1
+
 export async function getRoleByPage(options?: Partial<PaginationRequest>) {
     const db = await dbConnectionMes()
     const usersCollection = db.collection<RoleItem>('roles');
@@ -26,13 +25,13 @@ export async function getRoleByPage(options?: Partial<PaginationRequest>) {
             { description: { $regex: options.keyword, $options: 'i' } }
         ];
     }
-    const currentPage = options?.currentPage || defaultCurrentPage
-    const pageSize = options?.pageSize || defaultPageSize
+    const currentPage = options?.currentPage
+    const pageSize = options?.pageSize
     const total = await usersCollection.countDocuments(query);
-    const roles = await usersCollection.find(query)
+    const roles = currentPage && pageSize ? await usersCollection.find(query)
         .skip((currentPage - 1) * pageSize)
         .limit(pageSize)
-        .toArray();
+        .toArray() : await usersCollection.find(query).toArray();
     return {
         data: dbRolesToLocalRoles(roles),
         total,

@@ -16,8 +16,6 @@ export async function deleteMessageCollection(userId: string) {
     await messageDb.dropCollection(colectionName)
 }
 
-const defaultPageSize = 10
-const defaultCurrentPage = 1
 export async function getMessageByPage(user: UserWithID, options: PaginationRequest) {
     const messageDb = await dbConnectionMessage()
     const colectionName = `message_${user.id}`
@@ -29,13 +27,13 @@ export async function getMessageByPage(user: UserWithID, options: PaginationRequ
             { content: { $regex: options.keyword, $options: 'i' } },
         ]
     }
-    const currentPage = options?.currentPage || defaultCurrentPage
-    const pageSize = options?.pageSize || defaultPageSize
+    const currentPage = options?.currentPage
+    const pageSize = options?.pageSize
     const total = await collection.countDocuments(query);
-    const messages = await collection.find(query)
+    const messages = currentPage && pageSize ? await collection.find(query)
         .skip((currentPage - 1) * pageSize)
         .limit(pageSize)
-        .toArray()
+        .toArray() : await collection.find(query).toArray();
     return {
         data: messages,
         total,

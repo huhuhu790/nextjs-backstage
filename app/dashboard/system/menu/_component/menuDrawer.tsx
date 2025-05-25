@@ -39,8 +39,8 @@ export default function MenuDrawer({ open, onClose, title, currentItem, parentId
         })
     }
     const handleClose = (options: { update: boolean } = { update: false }) => {
-        onClose(options);
         form.resetFields();
+        onClose(options);
     }
     return (
         <>

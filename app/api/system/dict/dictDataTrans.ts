@@ -5,7 +5,7 @@ export function toLocalDict(dict: DictItemWithID): LocalDict {
     return {
         id: dict.id,
         name: dict.name,
-        discription: dict.discription,
+        description: dict.description,
         values: dict.values,
     }
 }

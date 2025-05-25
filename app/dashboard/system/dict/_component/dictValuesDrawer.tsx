@@ -1,22 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Drawer, Button, Space, Table, TableColumnsType, Popconfirm } from "antd";
 import EditDictValueDrawer from "./editDictValueDrawer";
 import { DictValue } from "@/types/system/dictionary";
+import { LocalDict } from "@/types/api";
 
-const dataSource = [
-    {
-        key: '1',
-        name: '字典值1',
-        discription: '字典值1描述',
-        value: '字典值1数据',
-        isActive: true,
-    },
-];
-
-export default function DictValuesDrawer({ open, onClose }: { open: boolean, onClose: (option: { update: boolean }) => void }) {
+export default function DictValuesDrawer({ open, onClose, currentItem }: {
+    open: boolean,
+    onClose: (option: { update: boolean }) => void,
+    currentItem: Partial<LocalDict>
+}) {
     const [editDictValueDrawerVisible, setEditDictValueDrawerVisible] = useState(false);
     const [currentEditDictValue, setCurrentEditDictValue] = useState<DictValue | null>(null);
     const [EditDictValueDrawerTitle, setEditDictValueDrawerTitle] = useState('');
+    const [dataSource, setDataSource] = useState<DictValue[]>([]);
+    useEffect(() => {
+        if (currentItem && open) {
+            setDataSource(currentItem.values!);
+        }
+    }, [currentItem, open]);
     const columns: TableColumnsType<DictValue> = [
         {
             title: '名称',
@@ -30,7 +31,7 @@ export default function DictValuesDrawer({ open, onClose }: { open: boolean, onC
         },
         {
             title: '描述',
-            dataIndex: 'discription',
+            dataIndex: 'description',
             width: 400,
         },
         {
@@ -54,9 +55,6 @@ export default function DictValuesDrawer({ open, onClose }: { open: boolean, onC
                 </Space>,
         },
     ];
-    const handleSubmit = () => {
-        handleClose({ update: true });
-    }
     const handleCloseEditDictValueDrawer = () => {
         setEditDictValueDrawerVisible(false);
     }
@@ -86,12 +84,6 @@ export default function DictValuesDrawer({ open, onClose }: { open: boolean, onC
             maskClosable={false}
             placement={"left"}
             forceRender
-            extra={
-                <Space>
-                    <Button onClick={() => handleClose({ update: false })}>取消</Button>
-                    <Button type="primary" onClick={handleSubmit}>提交</Button>
-                </Space>
-            }
         >
             <Button
                 type="primary"
@@ -109,6 +101,7 @@ export default function DictValuesDrawer({ open, onClose }: { open: boolean, onC
             <EditDictValueDrawer
                 open={editDictValueDrawerVisible}
                 onClose={handleCloseEditDictValueDrawer}
+                currentItem={currentEditDictValue}
                 title={EditDictValueDrawerTitle}
             />
         </Drawer>

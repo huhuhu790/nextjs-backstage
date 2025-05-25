@@ -17,3 +17,15 @@ export async function updateUserSingle(formData: FormData) {
     return await fetchFormdata<LocalUser>('/api/system/user/updateUserSingle', formData)
 }
 
+export async function updateUserRoleById(body: { id: string, roleIds: string[] }) {
+    return await fetchData<LocalUser, { id: string, roleIds: string[] }>('/api/system/user/updateUserRoleById', {
+        body
+    })
+}
+
+export async function deleteUserSingle(id: string) {
+    return await fetchData<LocalUser, { id: string }>('/api/system/user/deleteUserSingle', {
+        body: { id }
+    })
+}
+

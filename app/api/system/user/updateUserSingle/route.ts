@@ -1,4 +1,4 @@
-import { checkPermission, createUserSingle, updateUserSingle } from "@/db/mongodb/userCollection";
+import { checkPermission, updateUserSingle } from "@/db/mongodb/userCollection";
 import { ApiResponse, LocalUser, updateUserDataType } from "@/types/api";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { NextRequest, NextResponse } from "next/server";

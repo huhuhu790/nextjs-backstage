@@ -30,9 +30,9 @@ export default function ClientPage({ initData }: {
   const [dataSource, setDataSource] = useState<LocalRole[]>(initData.data);
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(initData.currentPage);
-  const [pageSize, setPageSize] = useState(initData.pageSize);
-  const [total, setTotal] = useState(initData.total);
+  const [currentPage, setCurrentPage] = useState(initData.currentPage!);
+  const [pageSize, setPageSize] = useState(initData.pageSize!);
+  const [total, setTotal] = useState(initData.total!);
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState<'新增' | '编辑'>('新增');
   const [currentItem, setCurrentItem] = useState<LocalRole>(defaultItem());
@@ -49,9 +49,9 @@ export default function ClientPage({ initData }: {
       if (result) {
         const { data, ...rest } = result
         setDataSource(data)
-        setTotal(rest.total)
-        setCurrentPage(rest.currentPage)
-        setPageSize(rest.pageSize)
+        setTotal(rest.total!)
+        setCurrentPage(rest.currentPage!)
+        setPageSize(rest.pageSize!)
       }
     }).catch(e => { }).finally(() => { setLoading(false); })
   }

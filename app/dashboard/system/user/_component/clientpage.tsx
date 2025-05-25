@@ -6,6 +6,8 @@ import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { PaginationResponse } from "@/types/database";
 import { LocalUser } from "@/types/api";
 import dynamic from "next/dynamic";
+import { getUserByOption, deleteUserSingle } from "@/api/user";
+import dayjs from "dayjs";
 
 const UserDrawer = dynamic(() => import("./userDrawer"), { ssr: false });
 const RoleDrawer = dynamic(() => import("./roleDrawer"), { ssr: false });
@@ -28,9 +30,9 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [loading, setLoading] = useState(false);
-    const [currentPage, setCurrentPage] = useState(initData.currentPage);
-    const [pageSize, setPageSize] = useState(initData.pageSize);
-    const [total, setTotal] = useState(initData.total);
+    const [currentPage, setCurrentPage] = useState(initData.currentPage!);
+    const [pageSize, setPageSize] = useState(initData.pageSize!);
+    const [total, setTotal] = useState(initData.total!);
     const [title, setTitle] = useState('');
     const [currentItem, setCurrentItem] = useState<Partial<LocalUser>>(defaultItem());
     const [roleDrawerVisible, setRoleDrawerVisible] = useState(false);
@@ -86,6 +88,10 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
             title: '生日',
             dataIndex: 'birthday',
             width: 200,
+            render: (birthday: string) => {
+                if (!birthday) return ''
+                return dayjs(birthday).format('YYYY-MM-DD')
+            }
         },
         {
             title: "操作",
@@ -129,7 +135,14 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
     };
 
     const handleDelete = (id: string) => {
-
+        setLoading(true);
+        deleteUserSingle(id).then(result => {
+            updateTableData('', currentPage, pageSize);
+        }).catch(e => {
+            console.log(e);
+        }).finally(() => {
+            setLoading(false);
+        })
     };
 
     const handleSearch = () => {
@@ -155,7 +168,22 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
 
     function updateTableData(keyword: string, currentPage: number, currentPageSize: number) {
         setLoading(true);
-        setLoading(false);
+        getUserByOption({
+            keyword,
+            currentPage,
+            pageSize: currentPageSize
+        }).then(result => {
+            if (result) {
+                setData(result.data)
+                setTotal(result.total)
+                setCurrentPage(result.currentPage!)
+                setPageSize(result.pageSize!)
+            }
+        }).catch(e => {
+            console.log(e);
+        }).finally(() => {
+            setLoading(false);
+        })
     }
 
     const handlePageChange = (page: number, pageSize: number) => {
