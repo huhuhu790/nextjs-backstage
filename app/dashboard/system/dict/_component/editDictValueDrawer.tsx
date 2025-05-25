@@ -1,13 +1,15 @@
+import { addDictValue, updateDictValue } from "@/api/dict";
 import { DictValue } from "@/types/system/dictionary";
 import { Drawer, Form, Input, Space, Button } from "antd";
 import { useEffect } from "react";
 
-export default function EditDictValueDrawer({ open, onClose, title, currentItem }:
+export default function EditDictValueDrawer({ open, onClose, title, currentItem, dictId }:
     {
         open: boolean,
         onClose: (option: { update: boolean }) => void,
         title: string,
-        currentItem: Partial<DictValue> | null
+        currentItem: Partial<DictValue> | null,
+        dictId: string
     }) {
     const [form] = Form.useForm();
     useEffect(() => {
@@ -17,7 +19,19 @@ export default function EditDictValueDrawer({ open, onClose, title, currentItem 
     }, [currentItem, open]);
     const handleSubmit = () => {
         form.validateFields().then(async (values) => {
-            handleClose({ update: true });
+            if (currentItem) {
+                updateDictValue(values, dictId).then((res) => {
+                    handleClose({ update: true });
+                }).catch((err) => {
+                    console.log(err);
+                })
+            } else {
+                addDictValue(values, dictId).then((res) => {
+                    handleClose({ update: true });
+                }).catch((err) => {
+                    console.log(err);
+                })
+            }
         }).catch((error) => {
             console.log(error);
         });

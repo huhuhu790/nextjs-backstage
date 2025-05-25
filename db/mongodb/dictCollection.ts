@@ -4,13 +4,15 @@ import { DictItem } from "@/types/system/dictionary";
 import { PaginationRequest } from "@/types/database";
 import { LocalDict, updateDictValueDataType } from "@/types/api";
 
+function dbDictToLocalDict(dbDict: WithId<DictItem>) {
+    return {
+        id: dbDict._id.toString(),
+        ...dbDict,
+    };
+}
+
 function dbDictsToLocalDicts(dbDicts: WithId<DictItem>[]) {
-    return dbDicts.map(({ _id, ...rest }) => {
-        return {
-            id: _id.toString(),
-            ...rest,
-        };
-    });
+    return dbDicts.map(dbDictToLocalDict);
 }
 
 export async function getDictByPage(options?: PaginationRequest) {
@@ -36,6 +38,14 @@ export async function getDictByPage(options?: PaginationRequest) {
         currentPage,
         pageSize
     };
+}
+
+export async function getDictSingleById(id: string) {
+    const db = await dbConnectionMes()
+    const dictsCollection = db.collection<DictItem>('dictionaries');
+    const dict = await dictsCollection.findOne({ _id: new ObjectId(id) });
+    if (!dict) throw new Error("字典不存在")
+    return dbDictToLocalDict(dict);
 }
 
 export async function createDictSingle(data: Partial<LocalDict>, operatorId: string) {

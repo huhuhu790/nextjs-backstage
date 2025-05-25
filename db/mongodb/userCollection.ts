@@ -189,10 +189,12 @@ export async function updateUserRole(id: string, roleIds: string[], operatorId: 
     const collection = db.collection<User>("users");
     const userItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!userItem) throw new Error("用户不存在")
-    if (userItem.roles.length > 0) {
-        const rolesCollection = db.collection<Role>("roles");
-        await rolesCollection.updateMany({ _id: { $in: roleIds.map(role => new ObjectId(role)) } }, { $pull: { users: id } });
-    }
+    const oldRoleIds = userItem.roles
+    const removedRoleIds = oldRoleIds.filter(role => !roleIds.includes(role))
+    const addedRoleIds = roleIds.filter(role => !oldRoleIds.includes(role))
+    const rolesCollection = db.collection<Role>("roles");
+    await rolesCollection.updateMany({ _id: { $in: removedRoleIds.map(role => new ObjectId(role)) } }, { $pull: { users: id } });
+    await rolesCollection.updateMany({ _id: { $in: addedRoleIds.map(role => new ObjectId(role)) } }, { $push: { users: id } });
     const result = await collection.updateOne(
         { _id: new ObjectId(id) },
         {

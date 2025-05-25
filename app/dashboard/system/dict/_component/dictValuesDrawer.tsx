@@ -3,6 +3,7 @@ import { Drawer, Button, Space, Table, TableColumnsType, Popconfirm } from "antd
 import EditDictValueDrawer from "./editDictValueDrawer";
 import { DictValue } from "@/types/system/dictionary";
 import { LocalDict } from "@/types/api";
+import { deleteDictValue, getDictList, getDictSingle } from "@/api/dict";
 
 export default function DictValuesDrawer({ open, onClose, currentItem }: {
     open: boolean,
@@ -13,6 +14,7 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
     const [currentEditDictValue, setCurrentEditDictValue] = useState<DictValue | null>(null);
     const [EditDictValueDrawerTitle, setEditDictValueDrawerTitle] = useState('');
     const [dataSource, setDataSource] = useState<DictValue[]>([]);
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
         if (currentItem && open) {
             setDataSource(currentItem.values!);
@@ -55,7 +57,10 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
                 </Space>,
         },
     ];
-    const handleCloseEditDictValueDrawer = () => {
+    const handleCloseEditDictValueDrawer = (option: { update: boolean }) => {
+        if (option.update) {
+            updateDataSource()
+        }
         setEditDictValueDrawerVisible(false);
     }
     const handleEditDictValue = (record: DictValue) => {
@@ -69,11 +74,28 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
         setCurrentEditDictValue(null);
     }
     const handleDeleteDictValue = (record: DictValue) => {
-        console.log(record);
+        deleteDictValue(record.name, currentItem.id!).then((res) => {
+            updateDataSource()
+        }).catch((err) => {
+            console.log(err);
+        })
     }
     const handleClose = (options: { update: boolean }) => {
         onClose(options);
         setCurrentEditDictValue(null);
+    }
+    const updateDataSource = () => {
+        setLoading(true);
+        getDictSingle(currentItem.id!).then((res) => {
+            if (res) {
+                setDataSource(res.values!);
+            }
+        }).catch((err) => {
+            console.log(err);
+        }).finally(() => {
+            setLoading(false);
+        })
+
     }
     return (
         <Drawer
@@ -87,10 +109,13 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
         >
             <Button
                 type="primary"
-                onClick={handleAdd}>
+                onClick={handleAdd}
+                loading={loading}
+            >
                 新增
             </Button>
             <Table<DictValue>
+                loading={loading}
                 dataSource={dataSource}
                 columns={columns}
                 pagination={false}
@@ -103,6 +128,7 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
                 onClose={handleCloseEditDictValueDrawer}
                 currentItem={currentEditDictValue}
                 title={EditDictValueDrawerTitle}
+                dictId={currentItem.id!}
             />
         </Drawer>
     );
