@@ -1,26 +1,26 @@
-import { checkPermission } from "@/db/mongodb/userCollection";
+import { updateUserOwnPassword } from "@/db/mongodb/userCollection";
 import { ApiResponse } from "@/types/api";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { NextRequest, NextResponse } from "next/server";
-import { deleteDictValueSinglePermission } from "../permission";
-import { deleteDictValueSingle } from "@/db/mongodb/dictCollection";
+
 export async function POST(request: NextRequest) {
     try {
         const userData = await getHeadUserData()
-        const userId = await checkPermission(deleteDictValueSinglePermission, userData)
-        const data: { valueId: string, dictId: string } = await request.json()
-        const dict = await deleteDictValueSingle(data.valueId, data.dictId, userId)
+        if (!userData) throw new Error('请先登录')
+        const data = await request.json()
+        if (data.id !== userData.id) throw new Error('无权限操作')
+        const result = await updateUserOwnPassword(data, userData.id)
         // 成功响应
         const response: ApiResponse = {
             status: 200,
             success: true,
-            message: '删除成功'
+            message: '更新成功',
         };
 
         return NextResponse.json(response);
     } catch (error) {
         console.log(error);
-        const message = (error as Error).message || '删除失败'
+        const message = (error as Error).message || '更新失败'
         const response: ApiResponse = {
             status: 500,
             success: false,

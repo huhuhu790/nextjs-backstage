@@ -1,13 +1,17 @@
 import { Filter, WithId, ObjectId } from "mongodb";
 import { dbConnectionMes } from "./connection";
-import { DictItem } from "@/types/system/dictionary";
+import { DictItem, DictValue } from "@/types/system/dictionary";
 import { PaginationRequest } from "@/types/database";
 import { LocalDict, updateDictValueDataType } from "@/types/api";
 
-function dbDictToLocalDict(dbDict: WithId<DictItem>) {
+function dbDictToLocalDict({ _id, values, ...rest }: WithId<DictItem>) {
     return {
-        id: dbDict._id.toString(),
-        ...dbDict,
+        id: _id.toString(),
+        ...rest,
+        values: values.map(value => ({
+            ...value,
+            _id: value._id!.toString()
+        }))
     };
 }
 
@@ -41,6 +45,7 @@ export async function getDictByPage(options?: PaginationRequest) {
 }
 
 export async function getDictSingleById(id: string) {
+    if (!id) throw new Error("字典ID不能为空")
     const db = await dbConnectionMes()
     const dictsCollection = db.collection<DictItem>('dictionaries');
     const dict = await dictsCollection.findOne({ _id: new ObjectId(id) });
@@ -49,8 +54,8 @@ export async function getDictSingleById(id: string) {
 }
 
 export async function createDictSingle(data: Partial<LocalDict>, operatorId: string) {
-    const db = await dbConnectionMes()
     if (!data.name) throw new Error("字典名称不能为空")
+    const db = await dbConnectionMes()
     const date = new Date();
     const collection = db.collection<DictItem>("dictionaries");
     const result = await collection.insertOne({
@@ -70,9 +75,9 @@ export async function createDictSingle(data: Partial<LocalDict>, operatorId: str
 }
 
 export async function updateDictSingle(data: Partial<LocalDict>, operatorId: string) {
-    const db = await dbConnectionMes()
     if (!data.id) throw new Error("字典ID不能为空")
     if (!data.name) throw new Error("字典名称不能为空")
+    const db = await dbConnectionMes()
     const date = new Date();
     const collection = db.collection<DictItem>("dictionaries");
     const result = await collection.updateOne(
@@ -89,36 +94,90 @@ export async function updateDictSingle(data: Partial<LocalDict>, operatorId: str
     return result;
 }
 
-export async function updateDictValueSingle(data: updateDictValueDataType, operatorId: string) {
-    const db = await dbConnectionMes()
-    if (!data.id) throw new Error("字典表ID不能为空")
-    const collection = db.collection<DictItem>("dictionaries");
-    const dictItem = await collection.findOne({ _id: new ObjectId(data.id) })
-    if (!dictItem) throw new Error("字典表不存在")
-    const values = data.values.map(record => {
-        if (!record.name) throw new Error("字典值名称不能为空")
-        if (!record.value) throw new Error("字典值不能为空")
-        if (!record.isActive) throw new Error("字典值状态不能为空")
-        return record
-    })
-    const date = new Date();
-    const result = await collection.updateOne(
-        { _id: new ObjectId(data.id) },
-        {
-            $set: { values },
-            updatedAt: date,
-            updatedBy: operatorId,
-        }
-    )
-    return result
-}
-
 export async function deleteDictSingle(id: string, operatorId: string) {
-    const db = await dbConnectionMes()
     if (!id) throw new Error("字典ID不能为空")
+    const db = await dbConnectionMes()
     const collection = db.collection<DictItem>("dictionaries");
     const dictItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!dictItem) throw new Error("字典不存在")
     const result = await collection.deleteOne({ _id: new ObjectId(id) });
     return result;
-} 
+}
+
+export async function deleteDictValueSingle(valueId: string, dictId: string, operatorId: string) {
+    if (!valueId) throw new Error("字典值ID不能为空")
+    if (!dictId) throw new Error("字典ID不能为空")
+    const db = await dbConnectionMes()
+    const collection = db.collection<DictItem>("dictionaries");
+    const dictItem = await collection.findOne({ _id: new ObjectId(dictId) })
+    if (!dictItem) throw new Error("字典不存在")
+    const result = await collection.updateOne(
+        { _id: new ObjectId(dictId) },
+        {
+            $pull: { values: { _id: new ObjectId(valueId) } },
+            $set: {
+                updatedAt: new Date(),
+                updatedBy: operatorId,
+            }
+        }
+    )
+    return result
+}
+
+export async function updateDictValueSingle(value: DictValue, dictId: string, operatorId: string) {
+    if (!dictId) throw new Error("字典表ID不能为空")
+    if (!value._id) throw new Error("字典值ID不能为空")
+    if (!value.name) throw new Error("字典值名称不能为空")
+    if (!value.value) throw new Error("字典值不能为空")
+    const db = await dbConnectionMes()
+    const collection = db.collection<DictItem>("dictionaries");
+    const dictItem = await collection.findOne({ _id: new ObjectId(dictId) })
+    if (!dictItem) throw new Error("字典表不存在")
+    const date = new Date();
+    const valueResult = await collection.updateOne(
+        {
+            _id: new ObjectId(dictId),
+            "values._id": new ObjectId(value._id)
+        },
+        {
+            $set: {
+                "values.$.name": value.name,
+                "values.$.value": value.value,
+                "values.$.description": value.description,
+            },
+        }
+    )
+    const result = await collection.updateOne(
+        { _id: new ObjectId(dictId) },
+        {
+            $set: { updatedAt: date, updatedBy: operatorId }
+        }
+    )
+    return result
+}
+
+export async function addDictValueSingle(value: DictValue, dictId: string, operatorId: string) {
+    if (!dictId) throw new Error("字典表ID不能为空")
+    if (!value.name) throw new Error("字典值名称不能为空")
+    if (!value.value) throw new Error("字典值不能为空")
+    const db = await dbConnectionMes()
+    const collection = db.collection<DictItem>("dictionaries");
+    const dictItem = await collection.findOne({ _id: new ObjectId(dictId) })
+    if (!dictItem) throw new Error("字典表不存在")
+    const result = await collection.updateOne(
+        { _id: new ObjectId(dictId) },
+        {
+            $push: {
+                values: {
+                    _id: new ObjectId(),
+                    name: value.name,
+                    value: value.value,
+                    description: value.description || "",
+                    isActive: value.isActive || true,
+                }
+            },
+            $set: { updatedAt: new Date(), updatedBy: operatorId }
+        }
+    )
+    return result
+}

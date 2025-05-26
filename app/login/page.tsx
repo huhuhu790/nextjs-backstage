@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import { handleLogin } from '@/api/login';
 import { sha256 } from '@/utils/encrypt';
 import { LoginFieldType } from '@/types/api';
-
+import { permissionsAtom } from '@/store/user/permissionsAtom';
 const Page: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,6 +31,7 @@ const Page: React.FC = () => {
     }
   }, [searchParams])
   const setUser = useSetAtom(userInfoAtom)
+  const setPermissions = useSetAtom(permissionsAtom)
   const onFinish: FormProps<LoginFieldType>['onFinish'] = async (values) => {
     try {
       const data = await handleLogin({
@@ -38,15 +39,14 @@ const Page: React.FC = () => {
         password: await sha256(values.password || ""),
       });
       if (data) {
-        setUser(data);
+        setUser(data.userInfo);
+        setPermissions(data.permission);
       }
       notification.destroy();
       router.push(process.env.NEXT_PUBLIC_SYSTEM_PREFIX!);
     } catch (error) {
       console.log(error);
     }
-  };
-  const onFinishFailed: FormProps<LoginFieldType>['onFinishFailed'] = (errorInfo) => {
   };
   return (
     <Layout style={{ height: "100vh", width: "100vw", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -57,13 +57,12 @@ const Page: React.FC = () => {
           wrapperCol={{ span: 18 }}
           initialValues={{ remember: true }}
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           autoComplete="off"
         >
           <Form.Item<LoginFieldType>
             label="Username"
             name="username"
-            rules={[{ required: true, message: 'Please input your username!' }]}
+            rules={[{ required: true, message: '请输入用户名!' }]}
           >
             <Input />
           </Form.Item>
@@ -71,7 +70,7 @@ const Page: React.FC = () => {
           <Form.Item<LoginFieldType>
             label="Password"
             name="password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            rules={[{ required: true, message: '请输入密码!' }]}
           >
             <Input.Password />
           </Form.Item>

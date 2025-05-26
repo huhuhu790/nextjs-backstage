@@ -2,7 +2,7 @@ import { generateAccessToken, verifyToken } from '@/utils/tokenAuth';
 import { setUserSession, removeUserSession } from '@/db/redis/redis';
 import { NextResponse } from 'next/server';
 import { ApiResponse, LocalUser } from '@/types/api';
-import { verifyUserCredentials } from '@/db/mongodb/userCollection';
+import { getPermissions, verifyUserCredentials } from '@/db/mongodb/userCollection';
 import { EXPIRED_TIME } from '@/utils/getExpiredTime';
 import { toLocalUser } from '@/app/api/system/user/userDataTrans';
 
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
         // 验证用户凭据
         const user = await verifyUserCredentials({ username, password });
-        if (!user) { throw new Error("无用户信息")}
+        if (!user) { throw new Error("无用户信息") }
 
         // 移除可能存在的已登录会话并创建新会话
         const userId = user.id;
@@ -28,11 +28,15 @@ export async function POST(request: Request) {
 
         await setUserSession(userId, jti, EXPIRED_TIME);
         const localUser = toLocalUser(user);
+        const permissions = await getPermissions(user.roles)
         // 成功响应
-        const response: ApiResponse<LocalUser> = {
+        const response: ApiResponse<{ userInfo: LocalUser, permission: string[] }> = {
             status: 200,
             success: true,
-            data: localUser,
+            data: {
+                userInfo: localUser,
+                permission: permissions
+            },
             message: '登录成功'
         };
 

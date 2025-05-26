@@ -1,6 +1,6 @@
 import { DefaultModel } from "@/types/database";
 import { WithLocalId } from "../api";
-
+import { ObjectId } from "mongodb";
 export interface BasicDict {
     name: string;
     description: string;
@@ -9,6 +9,7 @@ export interface BasicDict {
 
 // 字典值类型
 export interface DictValue {
+    _id?: string | ObjectId;
     name: string;
     description: string;
     value: string;

@@ -33,13 +33,13 @@ export async function getAllMenus() {
 }
 
 export async function createSingleMenu(menuData: Partial<LocalMenu>, operatorId: string) {
-    const db = await dbConnectionMes()
-    const usersCollection = db.collection<MenuItem>('menus');
     if (!menuData.name) throw new Error("目录名称不能为空")
     if (!menuData.path) throw new Error("目录路径不能为空")
     if (!menuData.type) throw new Error("目录类型不能为空")
     if (!menuData.iconPath) throw new Error("目录图标不能为空")
-        const date = new Date();
+    const db = await dbConnectionMes()
+    const usersCollection = db.collection<MenuItem>('menus');
+    const date = new Date();
     let record: OptionalId<MenuItem> = {
         name: menuData.name,
         path: menuData.path,
@@ -67,8 +67,8 @@ export async function createSingleMenu(menuData: Partial<LocalMenu>, operatorId:
 }
 
 export async function deleteSingleMenu(id: string, operatorId: string) {
-    const db = await dbConnectionMes()
     if (!id) throw new Error("目录id不能为空")
+    const db = await dbConnectionMes()
     const usersCollection = db.collection<MenuItem>('menus');
     const menuItem = await usersCollection.findOne({ _id: new ObjectId(id) })
     if (!menuItem) throw new Error("目录不存在")
@@ -91,14 +91,14 @@ export async function deleteSingleMenu(id: string, operatorId: string) {
 }
 
 export async function updateSingleMenu(menuData: Partial<LocalMenu>, operatorId: string) {
-    const db = await dbConnectionMes()
-    const usersCollection = db.collection<OptionalId<MenuItem>>('menus');
     if (!menuData.id) throw new Error("目录id不能为空")
     if (!menuData.name) throw new Error("目录名称不能为空")
     if (!menuData.path) throw new Error("目录路径不能为空")
     if (!menuData.type) throw new Error("目录类型不能为空")
     if (!menuData.iconPath) throw new Error("目录图标不能为空")
-        const date = new Date();
+    const db = await dbConnectionMes()
+    const usersCollection = db.collection<OptionalId<MenuItem>>('menus');
+    const date = new Date();
     const menuItem = await usersCollection.findOne({ _id: new ObjectId(menuData.id) })
     if (!menuItem) throw new Error("目录不存在")
     let record: Partial<MenuItem> = {

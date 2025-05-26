@@ -4,13 +4,14 @@ import { DictValue } from "@/types/system/dictionary";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { NextRequest, NextResponse } from "next/server";
 import { updateDictValueSinglePermission } from "../permission";
+import { updateDictValueSingle } from "@/db/mongodb/dictCollection";
 
 export async function POST(request: NextRequest) {
     try {
         const userData = await getHeadUserData()
         const userId = await checkPermission(updateDictValueSinglePermission, userData)
         const data: { value: DictValue, dictId: string } = await request.json()
-        throw new Error('test')
+        const dict = await updateDictValueSingle(data.value, data.dictId, userId)
         // 成功响应
         const response: ApiResponse = {
             status: 200,

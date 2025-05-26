@@ -40,8 +40,8 @@ const AvatarArea = () => {
         }
     };
     const userIcon = useMemo(() => {
-        const username = user?.username;
-        return username ? username.slice(0, 1).toUpperCase() : "";
+        const name = user?.name;
+        return name ? name.slice(0, 1).toUpperCase() : "";
     }, [user])
     useEffect(() => {
         // 下载头像
@@ -59,7 +59,7 @@ const AvatarArea = () => {
                     {imageUrl ? <Avatar src={imageUrl} /> :
                         <Avatar style={{ backgroundColor: '#fde3cf', color: '#f56a00' }}>{userIcon}</Avatar>
                     }
-                    <div style={{ marginLeft: 8, lineHeight: "14px" }}>{user?.username}</div>
+                    <div style={{ marginLeft: 8, lineHeight: "14px" }}>{user?.name}</div>
                 </Flex>
             </Button>
         </Dropdown>

@@ -20,7 +20,10 @@ export default function EditDictValueDrawer({ open, onClose, title, currentItem,
     const handleSubmit = () => {
         form.validateFields().then(async (values) => {
             if (currentItem) {
-                updateDictValue(values, dictId).then((res) => {
+                updateDictValue({
+                    ...values,
+                    _id: currentItem._id
+                }, dictId).then((res) => {
                     handleClose({ update: true });
                 }).catch((err) => {
                     console.log(err);

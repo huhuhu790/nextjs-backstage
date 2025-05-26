@@ -1,16 +1,22 @@
 import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import { dbConnectionMes } from './connection';
 import { Role, User, UserWithID } from '@/types/system/user';
-import { sha256 } from '@/utils/encrypt';
 import { createMessageCollection, deleteMessageCollection } from './messageCollection';
 import { getUserOption, updateUserDataType } from '@/types/api';
 import { deleteFile, uploadFile } from './gridFSCollection';
+import { serverEncrypt } from '@/utils/serverEncrypt';
 function dbUserToLocalUser(dbUser: WithId<User>): UserWithID {
     let { _id, ...rest } = dbUser;
     return {
         id: _id.toString(),
         ...rest, // 保留其他字段
     };
+}
+
+export async function getPermissions(roleIds: string[]) {
+    const db = await dbConnectionMes()
+    const permissions = await getUniquePermissions(roleIds, db)
+    return permissions
 }
 
 export async function getUniquePermissions(roleIds: string[], db: Db) {
@@ -38,7 +44,8 @@ export async function checkPermission(permissionId: string, userData?: UserWithI
 export async function verifyUserCredentials(user: { username: string, password: string }) {
     const db = await dbConnectionMes()
     const usersCollection = db.collection<User>('users');
-    const dbUser = await usersCollection.findOne(user);
+    const password = await serverEncrypt(user.password)
+    const dbUser = await usersCollection.findOne({ username: user.username, password });
     return dbUser ? dbUserToLocalUser(dbUser) : null;
 }
 
@@ -83,13 +90,13 @@ export async function getUserByPage(options?: getUserOption) {
 }
 
 export async function createUserSingle(data: Partial<updateUserDataType>, operatorId: string) {
-    const db = await dbConnectionMes()
     if (!data.username) throw new Error("用户名不能为空")
     if (!data.name) throw new Error("姓名不能为空")
     if (!data.workingId) throw new Error("工号不能为空")
     if (!data.phone) throw new Error("电话不能为空")
     if (!data.gender) throw new Error("性别不能为空")
-    // 同时存在文件与文件名时更新
+    const db = await dbConnectionMes()
+    // 上传头像时同时存在文件与文件名时更新
     if (data.file && data.avatar) {
         const fileId = await uploadFile(data.avatar, data.file, db)
         data.avatar = fileId
@@ -98,7 +105,7 @@ export async function createUserSingle(data: Partial<updateUserDataType>, operat
     const collection = db.collection<User>("users");
     const result = await collection.insertOne({
         username: data.username,
-        password: await sha256(process.env.DEFAULT_PASSWORD!),
+        password: await serverEncrypt(process.env.DEFAULT_PASSWORD!),
         email: data.email || null,
         phone: data.phone,
         name: data.name,
@@ -122,14 +129,53 @@ export async function createUserSingle(data: Partial<updateUserDataType>, operat
     return result;
 }
 
-export async function updateUserSingle(data: Partial<updateUserDataType>, operatorId: string) {
+export async function updateUserOwnData(data: Partial<updateUserDataType>, operatorId: string) {
+    if (!data.id) throw new Error("用户ID不能为空")
+    if (!data.name) throw new Error("姓名不能为空")
+    if (!data.phone) throw new Error("电话不能为空")
+    if (!data.gender) throw new Error("性别不能为空")
     const db = await dbConnectionMes()
+    const collection = db.collection<User>("users");
+    const userItem = await collection.findOne({ _id: new ObjectId(data.id) })
+    if (!userItem) throw new Error("用户不存在")
+    const date = new Date();
+    const setData: Partial<User> = {
+        email: data.email || null,
+        phone: data.phone,
+        name: data.name,
+        gender: data.gender,
+        address: data.address || null,
+        updatedAt: date,
+        updatedBy: operatorId,
+    }
+    // 标准化时间
+    if (data.birthday) {
+        setData.birthday = new Date(data.birthday as string)
+    }
+    // 同时存在文件与文件名且与原文件名不一致时更新
+    if (data.file && userItem.avatar !== data.avatar) {
+        if (!data.avatar || !data.file) throw new Error("上传文件不能为空")
+        if (userItem.avatar) await deleteFile(userItem.avatar, db)
+        const fileId = await uploadFile(data.avatar, data.file, db)
+        setData.avatar = fileId
+    }
+    const result = await collection.updateOne(
+        { _id: new ObjectId(data.id) },
+        {
+            $set: setData
+        }
+    );
+    return result;
+}
+
+export async function updateUserSingle(data: Partial<updateUserDataType>, operatorId: string) {
     if (!data.id) throw new Error("用户ID不能为空")
     if (!data.username) throw new Error("用户名不能为空")
     if (!data.name) throw new Error("姓名不能为空")
     if (!data.workingId) throw new Error("工号不能为空")
     if (!data.phone) throw new Error("电话不能为空")
     if (!data.gender) throw new Error("性别不能为空")
+    const db = await dbConnectionMes()
     const collection = db.collection<User>("users");
     const userItem = await collection.findOne({ _id: new ObjectId(data.id) })
     if (!userItem) throw new Error("用户不存在")
@@ -167,8 +213,8 @@ export async function updateUserSingle(data: Partial<updateUserDataType>, operat
 }
 
 export async function deleteUserSingle(id: string, operatorId: string) {
-    const db = await dbConnectionMes()
     if (!id) throw new Error("用户ID不能为空")
+    const db = await dbConnectionMes()
     const collection = db.collection<User>("users");
     const userItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!userItem) throw new Error("用户不存在")
@@ -183,9 +229,9 @@ export async function deleteUserSingle(id: string, operatorId: string) {
 }
 
 export async function updateUserRole(id: string, roleIds: string[], operatorId: string) {
-    const db = await dbConnectionMes()
     if (!id) throw new Error("用户ID不能为空")
     if (!roleIds) throw new Error("角色ID不能为空")
+    const db = await dbConnectionMes()
     const collection = db.collection<User>("users");
     const userItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!userItem) throw new Error("用户不存在")
@@ -204,6 +250,29 @@ export async function updateUserRole(id: string, roleIds: string[], operatorId: 
                 updatedBy: operatorId
             }
         }
+    );
+    return result;
+}
+
+
+export async function updateUserOwnPassword(data: {
+    originPassword: string,
+    newPassword: string,
+    id: string
+}, operatorId: string) {
+    if (!data.id) throw new Error("用户ID不能为空")
+    if (!data.originPassword) throw new Error("原密码不能为空")
+    if (!data.newPassword) throw new Error("新密码不能为空")
+    const db = await dbConnectionMes()
+    const collection = db.collection<User>("users");
+    const userItem = await collection.findOne({ _id: new ObjectId(data.id) })
+    if (!userItem) throw new Error("用户不存在")
+    const originPassword = await serverEncrypt(data.originPassword)
+    if (userItem.password !== originPassword) throw new Error("原密码错误")
+    const newPassword = await serverEncrypt(data.newPassword)
+    const result = await collection.updateOne(
+        { _id: new ObjectId(data.id) },
+        { $set: { password: newPassword, updatedAt: new Date(), updatedBy: operatorId } }
     );
     return result;
 }

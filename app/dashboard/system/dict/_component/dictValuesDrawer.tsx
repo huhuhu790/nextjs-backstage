@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Drawer, Button, Space, Table, TableColumnsType, Popconfirm } from "antd";
 import EditDictValueDrawer from "./editDictValueDrawer";
 import { DictValue } from "@/types/system/dictionary";
 import { LocalDict } from "@/types/api";
-import { deleteDictValue, getDictList, getDictSingle } from "@/api/dict";
+import { deleteDictValue, getDictSingle } from "@/api/dict";
 
 export default function DictValuesDrawer({ open, onClose, currentItem }: {
     open: boolean,
@@ -15,6 +15,7 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
     const [EditDictValueDrawerTitle, setEditDictValueDrawerTitle] = useState('');
     const [dataSource, setDataSource] = useState<DictValue[]>([]);
     const [loading, setLoading] = useState(false);
+    const needUpdate = useRef(false);
     useEffect(() => {
         if (currentItem && open) {
             setDataSource(currentItem.values!);
@@ -58,6 +59,7 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
         },
     ];
     const handleCloseEditDictValueDrawer = (option: { update: boolean }) => {
+        needUpdate.current = option.update;
         if (option.update) {
             updateDataSource()
         }
@@ -74,8 +76,9 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
         setCurrentEditDictValue(null);
     }
     const handleDeleteDictValue = (record: DictValue) => {
-        deleteDictValue(record.name, currentItem.id!).then((res) => {
+        deleteDictValue((record._id! as string), currentItem.id!).then((res) => {
             updateDataSource()
+            needUpdate.current = true;
         }).catch((err) => {
             console.log(err);
         })
@@ -97,11 +100,14 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
         })
 
     }
+    const handleCloseDrawer = () => {
+        handleClose({ update: needUpdate.current });
+    }
     return (
         <Drawer
             title="字典值配置"
             open={open}
-            onClose={() => handleClose({ update: false })}
+            onClose={handleCloseDrawer}
             width={800}
             maskClosable={false}
             placement={"left"}
@@ -119,7 +125,7 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
                 dataSource={dataSource}
                 columns={columns}
                 pagination={false}
-                rowKey="name"
+                rowKey="_id"
                 size="small"
                 scroll={{ x: "max-content" }}
             />

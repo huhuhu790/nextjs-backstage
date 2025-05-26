@@ -42,14 +42,15 @@ export function updateDictValue(data: DictValue, dictId: string) {
 }
 
 
-export function deleteDictValue(name: string, dictId: string) {
-    return fetchData<null, { name: string, dictId: string }>("/api/system/dict/deleteDictValueSingle", {
-        body: { name, dictId }
+export function deleteDictValue(valueId: string, dictId: string) {
+    return fetchData<null, { valueId: string, dictId: string }>("/api/system/dict/deleteDictValueSingle", {
+        body: { valueId, dictId }
     });
 }
 
 export function getDictSingle(dictId: string) {
     return fetchData<LocalDict, { id: string }>("/api/system/dict/getDictSingle", {
-        body: { id: dictId }
+        body: { id: dictId },
+        showMessage: false
     });
 }

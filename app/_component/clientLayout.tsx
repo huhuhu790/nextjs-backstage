@@ -6,10 +6,10 @@ import { useHydrateAtoms } from 'jotai/utils';
 import '@ant-design/v5-patch-for-react-19';
 import zhCN from 'antd/locale/zh_CN';
 import { ConfigProvider } from 'antd';
-
-const ClientLayout = ({ children, userData }:
-  React.PropsWithChildren<{ userData: UserWithID | null }>) => {
-  useHydrateAtoms([[userInfoAtom, userData]])
+import { permissionsAtom } from '@/store/user/permissionsAtom';
+const ClientLayout = ({ children, userData, permissions }:
+  React.PropsWithChildren<{ userData: UserWithID | null, permissions: string[] }>) => {
+  useHydrateAtoms([[userInfoAtom, userData], [permissionsAtom, permissions]])
   return (
     <AntdRegistry>
       <ConfigProvider locale={zhCN}>

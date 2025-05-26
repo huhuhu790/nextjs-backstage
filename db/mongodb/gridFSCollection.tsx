@@ -3,9 +3,9 @@ import { dbConnectionMes } from "./connection";
 import { Readable } from "stream";
 
 export async function uploadFile(name: string, file: File, db: Db) {
+    if (!name) throw new Error('文件名不能为空')
     const bucket = new GridFSBucket(db)
     let filename = name
-    if (!filename) throw new Error('文件名不能为空')
     // 检查文件是否存在
     const existFile = await bucket.find({ filename }).toArray();
     if (existFile.length > 0) {
