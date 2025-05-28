@@ -42,8 +42,6 @@ async function verifyTokenStatus(accessToken: string) {
 export async function middleware(request: NextRequest) {
   let response: NextResponse | null = null, userId: string | null = null;
   const pathname = request.nextUrl.pathname;
-  // 如果访问根目录，跳转到系统首页
-  if (pathname === "/") return NextResponse.redirect(new URL("/dashboard", request.url));
   // 查询session中是否存在token
   const accessToken = request.cookies.get('accessToken')?.value;
   // 判断是否访问非公共页面

@@ -1,25 +1,34 @@
-import React, { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Select, Spin, Avatar } from 'antd';
-import type { SelectProps } from 'antd';
 import { debounce } from 'lodash';
+import { DefaultOptionType } from 'antd/es/select';
+import { LocalMenu } from '@/types/api';
+import { useRouter } from 'next/navigation';
 
-export interface DebounceSelectProps<ValueType = any>
-    extends Omit<SelectProps<ValueType | ValueType[]>, 'options' | 'children'> {
-    fetchOptions: (search: string) => Promise<ValueType[]>;
-    debounceTimeout?: number;
+interface MenuValue {
+    label: string;
+    value: string;
 }
 
-function DebounceSelect<
-    ValueType extends {
-        key?: string;
-        label: React.ReactNode;
-        value: string | number;
-        avatar?: string;
-    } = any,
->({ fetchOptions, debounceTimeout = 300, ...props }: DebounceSelectProps<ValueType>) {
+function fetchList(keyword: string, menuList: LocalMenu[]): MenuValue[] {
+    const search = keyword.trim();
+    if (!search) {
+        return [];
+    }
+    return menuList.filter((menu) => menu.name.includes(search)).map((menu) => ({
+        label: menu.name,
+        value: menu.path,
+    }));
+}
+
+
+const debounceTimeout = 300;
+export default function DebounceSelect({ menuData, showSearch }: { menuData: LocalMenu[], showSearch: boolean }) {
     const [fetching, setFetching] = useState(false);
-    const [options, setOptions] = useState<ValueType[]>([]);
+    const [options, setOptions] = useState<MenuValue[]>([]);
+    const [value, setValue] = useState<MenuValue | null>(null);
     const fetchRef = useRef(0);
+    const router = useRouter();
 
     const debounceFetcher = useMemo(() => {
         const loadOptions = (value: string) => {
@@ -28,28 +37,38 @@ function DebounceSelect<
             setOptions([]);
             setFetching(true);
 
-            fetchOptions(value).then((newOptions) => {
-                if (fetchId !== fetchRef.current) {
-                    // for fetch callback order
-                    return;
-                }
+            const newOptions = fetchList(value, menuData);
+            if (fetchId !== fetchRef.current) {
+                // for fetch callback order
+                return;
+            }
 
-                setOptions(newOptions);
-                setFetching(false);
-            });
+            setOptions(newOptions);
+            setFetching(false);
         };
 
         return debounce(loadOptions, debounceTimeout);
-    }, [fetchOptions, debounceTimeout]);
+    }, [menuData, debounceTimeout]);
+
+    const handleSelect = (value: MenuValue) => {
+        router.push(value.value);
+        setOptions([]);
+        setFetching(false);
+    }
 
     return (
         <Select
+            value={value}
+            style={{ width: 240, display: showSearch ? 'block' : 'none' }}
+            variant="underlined"
+            placeholder="搜索菜单"
             labelInValue
             filterOption={false}
+            onSelect={(value) => handleSelect(value as MenuValue)}
+            showSearch
             onSearch={debounceFetcher}
-            notFoundContent={fetching ? <Spin size="small" /> : 'No results found'}
-            {...props}
-            options={options}
+            notFoundContent={fetching ? <Spin size="small" /> : '未找到'}
+            options={options as DefaultOptionType[]}
             optionRender={(option) => (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     {option.data.avatar && <Avatar src={option.data.avatar} style={{ marginRight: 8 }} />}
@@ -59,43 +78,3 @@ function DebounceSelect<
         />
     );
 }
-
-// Usage of DebounceSelect
-interface UserValue {
-    label: string;
-    value: string;
-    avatar?: string;
-}
-
-async function fetchUserList(username: string): Promise<UserValue[]> {
-    console.log('fetching user', username);
-    return fetch(`https://660d2bd96ddfa2943b33731c.mockapi.io/api/users/?search=${username}`)
-        .then((res) => res.json())
-        .then((res) => {
-            const results = Array.isArray(res) ? res : [];
-            return results.map((user) => ({
-                label: user.name,
-                value: user.id,
-                avatar: user.avatar,
-            }));
-        });
-}
-
-export default function SelectMenu() {
-    const [value, setValue] = useState<UserValue[]>([]);
-
-    return (
-        <DebounceSelect
-            mode="multiple"
-            value={value}
-            placeholder="Select users"
-            fetchOptions={fetchUserList}
-            style={{ width: '100%' }}
-            onChange={(newValue) => {
-                if (Array.isArray(newValue)) {
-                    setValue(newValue);
-                }
-            }}
-        />
-    );
-};

@@ -1,5 +1,5 @@
 "use client"
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined
@@ -67,7 +67,7 @@ const RootLayout = (
                 height: 48,
               }}
             />
-            <AvatarArea />
+            <AvatarArea menuData={menuData} />
           </Flex>
           <TabsBar
             className={styles.tabs}

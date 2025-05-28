@@ -1,14 +1,13 @@
 import { Avatar, Flex, Dropdown, MenuProps, Button, Badge, notification } from "antd";
-import { UserOutlined } from '@ant-design/icons';
+import { SearchOutlined, UserOutlined, NotificationOutlined } from '@ant-design/icons';
 import { userInfoAtom } from '@/store/user/userAtom';
 import { useAtomValue } from 'jotai';
 import { useEffect, useMemo, useState } from "react";
 import { handleLogout } from "@/api/login";
 import { useRouter } from "next/navigation";
 import { downloadFile } from "@/api/fetchApi";
-import { NotificationOutlined } from "@ant-design/icons";
 import { pushingMessage } from "@/api/message";
-import { LocalMessage } from "@/types/api";
+import { LocalMenu, LocalMessage } from "@/types/api";
 import SelectMenu from "./selectMenu";
 
 const items: MenuProps['items'] = [
@@ -24,17 +23,19 @@ const items: MenuProps['items'] = [
     },
 ];
 
-const AvatarArea = () => {
+const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
     const user = useAtomValue(userInfoAtom);
     const router = useRouter();
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [hasNewMessage, setHasNewMessage] = useState(false);
     const [api, contextHolder] = notification.useNotification();
+    const [showSearch, setShowSearch] = useState(false);
+
 
     const onClick: MenuProps['onClick'] = async (e) => {
         switch (e.key) {
             case '0':
-                router.push('/dashboard/user/center');
+                router.push('/user/center');
                 break;
             case '1':
                 try {
@@ -86,21 +87,34 @@ const AvatarArea = () => {
         router.push('/user/message')
     }
 
+    const handleShowSearch = () => {
+        setShowSearch(!showSearch)
+    }
 
     return (
-        <Flex>
+        <Flex align='center'>
             {contextHolder}
-            <SelectMenu />
+            <SelectMenu menuData={menuData} showSearch={showSearch} />
+            <Button
+                type="text"
+                icon={<SearchOutlined style={{ fontSize: '20px' }} />}
+                onClick={handleShowSearch}
+                style={{
+                    width: 40,
+                    height: 40,
+                    margin: "0 8px"
+                }}
+            />
             <Button
                 type="text"
                 icon={<Badge dot={hasNewMessage}>
-                    <NotificationOutlined />
+                    <NotificationOutlined style={{ fontSize: '20px' }} />
                 </Badge>}
                 onClick={handleMessage}
                 style={{
-                    fontSize: '16px',
-                    width: 64,
+                    width: 40,
                     height: 40,
+                    marginRight: 8
                 }}
             />
             <Dropdown menu={{ items, onClick }} trigger={['click']} >

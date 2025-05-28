@@ -9,7 +9,7 @@ const Page: React.FC = () => {
             status="404"
             title="404"
             subTitle="Sorry, the page you visited does not exist."
-            extra={<Button type="primary" onClick={() => { router.push("/dashboard") }}>Back Home</Button>}
+            extra={<Button type="primary" onClick={() => { router.push("/") }}>Back Home</Button>}
         />
     );
 }

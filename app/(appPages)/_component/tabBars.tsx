@@ -27,7 +27,7 @@ const tabDropDownMenuItems: MenuProps['items'] = [
 ];
 
 const initialItems = [
-    { label: '首页', children: '', key: '/dashboard', closable: false, },
+    { label: '首页', children: '', key: '/', closable: false, },
 ];
 
 export default function TabsBar({
@@ -48,7 +48,7 @@ export default function TabsBar({
     };
     // 路由变化时新增tab
     useEffect(() => {
-        if (pathname === "/dashboard") return;
+        if (pathname === "/") return;
         if (items.findIndex((pane) => pane.key === pathname) > -1) return;
         let menuitem = menuData.find((pane) => pane.path === pathname);
         if (!menuitem) menuitem = publicPermissionPaths.find((pane) => pane.path === pathname);
@@ -72,7 +72,7 @@ export default function TabsBar({
     }
     // 处理关闭所有tab
     const removeAll = () => {
-        router.push("/dashboard");
+        router.push("/");
         setItems(initialItems);
     }
     // 处理关闭右侧tab
@@ -107,7 +107,7 @@ export default function TabsBar({
         return (
             <DefaultTabBar {...props}>
                 {(node) => {
-                    return node.key === '/dashboard' ? node : (
+                    return node.key === '/' ? node : (
                         <Dropdown
                             menu={{
                                 items: tabDropDownMenuItems,

@@ -8,7 +8,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 
 const initialMenuItem = [
   {
-    key: '/dashboard',
+    key: '/',
     icon: <UserOutlined />,
     label: '首页'
   },
@@ -62,7 +62,7 @@ export default function MenuTree({
   }, [menuItems])
   const [openKeys, setOpenKeys] = useState<string[]>([])
   useEffect(() => {
-    if (activeKey === "/dashboard") return setOpenKeys([activeKey])
+    if (activeKey === "/") return setOpenKeys([activeKey])
     const item = menuItems.find(item => item.path === activeKey)
     if (!item || !item.id) return
     const keys: string[] = [item.id]
