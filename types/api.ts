@@ -3,6 +3,7 @@ import { BasicUser } from "@/types/system/user";
 import { BasicRole } from "./system/role";
 import { PaginationRequest } from "./database";
 import { BasicDict, DictValue } from "./system/dictionary";
+import { BasicMessage } from "./system/message";
 export interface ApiResponse<T = undefined> {
     data?: T;
     status: number;
@@ -43,3 +44,5 @@ export type updateDictValueDataType = {
     id: string,
     values: DictValue[]
 }
+
+export type LocalMessage = OptionalLocalId<BasicMessage>

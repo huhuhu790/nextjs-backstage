@@ -1,7 +1,6 @@
 import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import { dbConnectionMes } from './connection';
 import { Role, User, UserWithID } from '@/types/system/user';
-import { createMessageCollection, deleteMessageCollection } from './messageCollection';
 import { getUserOption, updateUserDataType } from '@/types/api';
 import { deleteFile, uploadFile } from './gridFSCollection';
 import { serverEncrypt } from '@/utils/serverEncrypt';
@@ -45,7 +44,9 @@ export async function verifyUserCredentials(user: { username: string, password: 
     const db = await dbConnectionMes()
     const usersCollection = db.collection<User>('users');
     const password = await serverEncrypt(user.password)
-    const dbUser = await usersCollection.findOne({ username: user.username, password });
+    const dbUser = await usersCollection.findOne({ username: user.username });
+    if (!dbUser) throw new Error("用户不存在")
+    if (dbUser.password !== password) throw new Error("密码错误")
     return dbUser ? dbUserToLocalUser(dbUser) : null;
 }
 
@@ -125,7 +126,6 @@ export async function createUserSingle(data: Partial<updateUserDataType>, operat
         deletedAt: null,
         deletedBy: null
     });
-    await createMessageCollection(result.insertedId.toString())
     return result;
 }
 
@@ -224,7 +224,6 @@ export async function deleteUserSingle(id: string, operatorId: string) {
         const rolesCollection = db.collection<Role>("roles");
         await rolesCollection.updateMany({ _id: { $in: userItem.roles.map(role => new ObjectId(role)) } }, { $pull: { users: id } });
     }
-    await deleteMessageCollection(id)
     return result;
 }
 

@@ -43,7 +43,7 @@ const Page: React.FC = () => {
         setPermissions(data.permission);
       }
       notification.destroy();
-      router.push(process.env.NEXT_PUBLIC_SYSTEM_PREFIX!);
+      router.push("/dashboard");
     } catch (error) {
       console.log(error);
     }

@@ -1,0 +1,6 @@
+export const systemPermission = "682589ce653de366f60aacb4"
+export const userPermission = "68258c3f653de366f60aacb5"
+export const rolePermission = "68258c83653de366f60aacb6"
+export const menuPermission = "68258c94653de366f60aacb7"
+export const dictPermission = "68258caa653de366f60aacb8"
+export const sendingMessagePermission = "683567d9f9c6117ade474b84"

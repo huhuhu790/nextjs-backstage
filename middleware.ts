@@ -5,7 +5,7 @@ import { verifySession } from '@/db/redis/redis';
 import { getUserInfo } from './db/mongodb/userCollection';
 import { toLocalUser } from '@/app/api/system/user/userDataTrans';
 
-// 无需登录可访问的页面
+// 无需登录可访问的页面或接口
 export const publicPaths = ['/login', '/api/auth/login'];
 
 function clearToken(request: NextRequest, query?: string) {
@@ -42,6 +42,8 @@ async function verifyTokenStatus(accessToken: string) {
 export async function middleware(request: NextRequest) {
   let response: NextResponse | null = null, userId: string | null = null;
   const pathname = request.nextUrl.pathname;
+  // 如果访问根目录，跳转到系统首页
+  if (pathname === "/") return NextResponse.redirect(new URL("/dashboard", request.url));
   // 查询session中是否存在token
   const accessToken = request.cookies.get('accessToken')?.value;
   // 判断是否访问非公共页面
@@ -52,13 +54,13 @@ export async function middleware(request: NextRequest) {
       const result = await verifyTokenStatus(accessToken);
       if (!result.success) throw new Error(result.errorType);
       userId = result.userId!;
-      // 将请求的时间，可能存在的用户id，与请求路径，普通JSON格式的请求体，添加到日志中
+      // 将请求的时间，用户id，与请求路径添加到日志中
       console.log(`[${new Date()}] [${userId}] [${pathname}]`);
-      // 验证成功，访问登录页面，跳转到系统首页
+      // 验证成功，如果访问登录页面，跳转到系统首页
       if (pathname.startsWith('/login'))
-        response = NextResponse.redirect(new URL(process.env.SYSTEM_PREFIX!, request.url));
+        response = NextResponse.redirect(request.url);
       else {
-        // 验证成功，访问系统页面,将用户信息添加到请求头中，继续访问
+        // 验证成功，访问受限页面,将用户信息添加到请求头中，继续访问
         const requestHeaders = new Headers(request.headers);
         const userData = await getUserInfo(userId);
         const userDataString = encodeURIComponent(userData ? JSON.stringify(toLocalUser(userData)) : '');

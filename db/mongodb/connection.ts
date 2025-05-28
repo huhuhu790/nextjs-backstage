@@ -5,7 +5,3 @@ const client = new MongoClient(process.env.MONGODB_URL!);
 export async function dbConnectionMes() {
     return client.db(process.env.MONGODB_DB_MES);
 }
-
-export async function dbConnectionMessage() {
-    return client.db(process.env.MONGODB_DB_MESSAGE);
-}

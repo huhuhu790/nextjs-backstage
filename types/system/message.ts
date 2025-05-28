@@ -1,10 +1,15 @@
+import { WithLocalId } from "../api";
+import { DefaultModel } from "../database"
+
 export interface BasicMessage {
-    userId: string
-    title: string
-    content: string
-    isRead: boolean
-    type: 'info' | 'warning' | 'error',
-    sendBy: string
+    from: string;
+    to: string;
+    title: string;
+    content: string;
+    isRead: boolean;
+    type: 'info' | 'warning' | 'error';
 }
 
-export interface Message extends BasicMessage {}
+export interface Message extends DefaultModel, BasicMessage { }
+
+export type MessageWithID = WithLocalId<BasicMessage>
