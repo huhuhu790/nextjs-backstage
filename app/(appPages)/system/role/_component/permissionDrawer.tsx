@@ -1,5 +1,5 @@
 "use client"
-import { Button, Drawer, Space, Tree, TreeProps } from "antd";
+import { App, Button, Drawer, Space, Tree, TreeProps } from "antd";
 import { getMenuAll } from "@/api/menu";
 import { Key, useEffect, useState } from "react";
 import { LocalMenu, OptionalLocalId, LocalRole } from "@/types/api";
@@ -46,6 +46,7 @@ export default function RoleDrawer({
 }) {
     const [dataSource, setDataSource] = useState<MenuTreeDataType[]>([]);
     const [checkedKeys, setCheckedKeys] = useState<Key[]>([]);
+    const { message } = App.useApp()
     useEffect(() => {
         if (open) updateTree()
     }, [open])
@@ -60,7 +61,7 @@ export default function RoleDrawer({
     }
 
     const handleSubmit = async () => {
-        updateRolePermissionById(currentItem.id!, checkedKeys as string[]).then(res => {
+        updateRolePermissionById(currentItem.id!, checkedKeys as string[], message).then(res => {
             handleClose({ update: true })
         }).catch(error => { }).finally(() => { })
     };

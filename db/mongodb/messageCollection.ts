@@ -1,10 +1,10 @@
-import { Message, MessageWithID } from "@/types/system/message";
-import { dbConnectionMes } from "./connection";
-import { User, UserWithID } from "@/types/system/user";
-import { PaginationRequest } from "@/types/database";
-import { Filter, MongoOperationTimeoutError, WithId } from "mongodb";
-import { ObjectId } from "mongodb";
-import { LocalMessage } from "@/types/api";
+import {Message, MessageWithID} from "@/types/system/message";
+import {dbConnectionMes} from "./connection";
+import {User, UserWithID} from "@/types/system/user";
+import {PaginationRequest} from "@/types/database";
+import {Filter, MongoOperationTimeoutError, WithId} from "mongodb";
+import {ObjectId} from "mongodb";
+import {LocalMessage} from "@/types/api";
 
 function dbMessageToLocalMessage(dbMessage: WithId<Message>): MessageWithID {
     return {
@@ -22,7 +22,7 @@ export async function getMessageListByPage(user: UserWithID, options: Pagination
     if (!userId) throw new Error('用户未登录')
     const messageDb = await dbConnectionMes()
     const collectionUser = messageDb.collection<User>("users")
-    const userInfo = await collectionUser.findOne({ _id: new ObjectId(userId) })
+    const userInfo = await collectionUser.findOne({_id: new ObjectId(userId)})
     if (!userInfo) throw new Error('用户不存在')
     const collection = messageDb.collection<Message>("messages")
     const query: Filter<Message> = {
@@ -90,7 +90,7 @@ export async function createMessageEventListner(callback: (change: MessageWithID
                 callback(dbMessageToLocalMessage(change.fullDocument as WithId<Message>))
         })
         .on('error', e => {
-            console.log(e);
+            console.error(e);
             if (e instanceof MongoOperationTimeoutError && !changeStream.closed) {
                 // do nothing
             } else {

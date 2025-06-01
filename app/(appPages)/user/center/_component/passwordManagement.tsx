@@ -1,29 +1,30 @@
 import { handleLogout } from "@/api/login";
 import { updateUserOwnPassword } from "@/api/user";
-import { Button, Form, Input, message } from "antd";
+import { App, Button, Form, Input } from "antd";
 import { useState } from "react";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { userInfoAtom } from "@/store/user/userAtom";
 
 
 export default function PasswordManagement() {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const [user, setUser] = useAtom(userInfoAtom);
+    const user = useAtomValue(userInfoAtom);
+    const { message } = App.useApp()
     const onFinish = (values: any) => {
         setLoading(true);
         updateUserOwnPassword({
             originPassword: values.originPassword,
             newPassword: values.newPassword,
             id: user?.id || ""
-        }).then((res) => {
+        }, message).then((res) => {
             form.resetFields();
             message.success("密码更新成功,请重新登录");
             setTimeout(() => {
-                handleLogout().then(() => {
+                handleLogout(message).then(() => {
                     location.reload();
                 }).catch((err) => {
-                    console.log(err);
+                    console.error(err);
                 })
             }, 1000);
         }).catch((err) => {

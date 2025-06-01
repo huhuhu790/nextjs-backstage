@@ -1,6 +1,6 @@
 "use client"
 import type { FormProps } from 'antd';
-import { Button, Form, Input, Card, Layout, notification, Checkbox } from 'antd';
+import { Button, Form, Input, Card, Layout, Checkbox, App } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSetAtom } from 'jotai';
 import { userInfoAtom } from '@/store/user/userAtom';
@@ -12,6 +12,7 @@ import { permissionsAtom } from '@/store/user/permissionsAtom';
 const Page: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { notification, message } = App.useApp()
   const openNotification = (message: string) => {
     notification.error({
       message: '登出失败',
@@ -37,7 +38,7 @@ const Page: React.FC = () => {
       const data = await handleLogin({
         username: values.username,
         password: await sha256(values.password || ""),
-      });
+      }, message);
       if (data) {
         setUser(data.userInfo);
         setPermissions(data.permission);
@@ -45,7 +46,7 @@ const Page: React.FC = () => {
       notification.destroy();
       router.push("/");
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
   return (

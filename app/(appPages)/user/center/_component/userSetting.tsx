@@ -3,7 +3,7 @@ import { userInfoAtom } from "@/store/user/userAtom";
 import { useAtom } from "jotai";
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import type { FormProps } from 'antd';
-import { Button, DatePicker, Flex, Form, Input, message, Select, Upload } from 'antd';
+import { App, Button, DatePicker, Flex, Form, Input, Select, Upload } from 'antd';
 import { useEffect, useState } from "react";
 import { RcFile } from "antd/es/upload";
 import { downloadFile } from "@/api/fetchApi";
@@ -21,15 +21,16 @@ export default function UserSetting() {
     const [user, setUser] = useAtom(userInfoAtom);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const { message } = App.useApp()
     useEffect(() => {
         if (!user) return;
         const { avatar, birthday, ...rest } = user;
         // 下载头像
         if (avatar)
-            downloadFile(avatar).then((file) => {
+            downloadFile(avatar, message).then((file) => {
                 setImageUrl(URL.createObjectURL(file));
             }).catch((error) => {
-                console.log(error);
+                console.error(error);
             });
         form.setFieldsValue({
             birthday: birthday ? dayjs(birthday) : null,
@@ -83,12 +84,12 @@ export default function UserSetting() {
             formData.append('gender', values.gender);
             formData.append('phone', values.phone);
             formData.append('id', user.id!);
-            const result = await updateUserOwnData(formData);
+            const result = await updateUserOwnData(formData, message);
             if (result) {
                 setUser(result);
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
     return (

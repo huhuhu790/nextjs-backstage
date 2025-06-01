@@ -1,12 +1,13 @@
 "use client"
-import { Card, Form, Input, Button } from "antd"
+import { Card, Form, Input, Button, App } from "antd"
 import { sendingMessage } from "@/api/message"
 export default function Page() {
     const [form] = Form.useForm()
+    const { message } = App.useApp()
     const onFinish = (values: any) => {
-        sendingMessage(values).then((res) => {
+        sendingMessage(values, message).then((res) => {
         }).catch((err) => {
-            console.log(err)
+            console.error(err)
         })
     }
     return (

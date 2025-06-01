@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { createMessageEventListner } from '@/db/mongodb/messageCollection';
-import { getHeadUserData } from '@/utils/getHeadUserData';
-import { toLocalMessage } from '../messageDataTrans';
+import {NextResponse} from 'next/server';
+import {createMessageEventListner} from '@/db/mongodb/messageCollection';
+import {getHeadUserData} from '@/utils/getHeadUserData';
+import {toLocalMessage} from '../messageDataTrans';
 
 export async function GET(request: Request) {
     try {
@@ -11,10 +11,14 @@ export async function GET(request: Request) {
         const encoder = new TextEncoder();
         const stream = new ReadableStream({
             async start(controller) {
-                await createMessageEventListner((doc) => {
-                    console.log(doc);
-                    controller.enqueue(encoder.encode(`data: ${JSON.stringify(toLocalMessage(doc))}\n\n`));
-                }, userData.id!)
+                try {
+                    await createMessageEventListner((doc) => {
+                        controller.enqueue(encoder.encode(`data: ${JSON.stringify(toLocalMessage(doc))}\n\n`));
+                    }, userData.id!)
+                } catch (e) {
+                    console.error(e);
+                    await stream.cancel()
+                }
             },
         });
 
@@ -26,8 +30,8 @@ export async function GET(request: Request) {
             },
         });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         const message = (error as Error).message || '获取失败'
-        return new NextResponse(message, { status: 500 })
+        return new NextResponse(message, {status: 500})
     }
 }

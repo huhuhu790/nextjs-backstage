@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Drawer, Button, Space, Table, TableColumnsType, Popconfirm } from "antd";
+import { Drawer, Button, Space, Table, TableColumnsType, Popconfirm, App } from "antd";
 import EditDictValueDrawer from "./editDictValueDrawer";
 import { DictValue } from "@/types/system/dictionary";
 import { LocalDict } from "@/types/api";
@@ -16,6 +16,7 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
     const [dataSource, setDataSource] = useState<DictValue[]>([]);
     const [loading, setLoading] = useState(false);
     const needUpdate = useRef(false);
+    const { message } = App.useApp()
     useEffect(() => {
         if (currentItem && open) {
             setDataSource(currentItem.values!);
@@ -76,11 +77,11 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
         setCurrentEditDictValue(null);
     }
     const handleDeleteDictValue = (record: DictValue) => {
-        deleteDictValue((record._id! as string), currentItem.id!).then((res) => {
+        deleteDictValue((record._id! as string), currentItem.id!, message).then((res) => {
             updateDataSource()
             needUpdate.current = true;
         }).catch((err) => {
-            console.log(err);
+            console.error(err);
         })
     }
     const handleClose = (options: { update: boolean }) => {
@@ -94,7 +95,7 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
                 setDataSource(res.values!);
             }
         }).catch((err) => {
-            console.log(err);
+            console.error(err);
         }).finally(() => {
             setLoading(false);
         })

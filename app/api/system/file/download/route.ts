@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
         const result = await downloadFile(body.fileId)
         return new NextResponse(result as any as ReadableStream)
     } catch (error) {
-        console.log(error);
+        console.error(error);
         const message = (error as Error).message || '下载文件失败'
         return new NextResponse(message, { status: 500 })
     }

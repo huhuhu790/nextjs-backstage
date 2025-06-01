@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 
         return nextResponse;
     } catch (error) {
-        console.log(error);
+        console.error(error);
         const response: ApiResponse = {
             status: 500,
             success: false,

@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(response);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         const message = (error as Error).message || '添加字典失败'
         const response: ApiResponse = {
             status: 500,

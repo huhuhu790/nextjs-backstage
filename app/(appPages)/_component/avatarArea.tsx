@@ -1,14 +1,15 @@
-import { Avatar, Flex, Dropdown, MenuProps, Button, Badge, notification } from "antd";
-import { SearchOutlined, UserOutlined, NotificationOutlined } from '@ant-design/icons';
+import { App, Avatar, Badge, Button, Dropdown, Flex, MenuProps } from "antd";
+import { BellFilled, MoonFilled, SearchOutlined, SunFilled, UserOutlined } from '@ant-design/icons';
 import { userInfoAtom } from '@/store/user/userAtom';
-import { useAtomValue } from 'jotai';
-import { useEffect, useMemo, useState } from "react";
+import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useMemo, useRef, useState } from "react";
 import { handleLogout } from "@/api/login";
 import { useRouter } from "next/navigation";
 import { downloadFile } from "@/api/fetchApi";
 import { pushingMessage } from "@/api/message";
 import { LocalMenu, LocalMessage } from "@/types/api";
 import SelectMenu from "./selectMenu";
+import { darkModeAtom } from "@/store/system/themeAtom";
 
 const items: MenuProps['items'] = [
     {
@@ -28,9 +29,10 @@ const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
     const router = useRouter();
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [hasNewMessage, setHasNewMessage] = useState(false);
-    const [api, contextHolder] = notification.useNotification();
+    const { notification, message } = App.useApp()
     const [showSearch, setShowSearch] = useState(false);
-
+    const [darkMode, setDarkMode] = useAtom(darkModeAtom)
+    const eventSource = useRef<EventSource>(null)
 
     const onClick: MenuProps['onClick'] = async (e) => {
         switch (e.key) {
@@ -39,10 +41,10 @@ const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
                 break;
             case '1':
                 try {
-                    await handleLogout();
+                    await handleLogout(message);
                     location.reload();
                 } catch (error) {
-                    console.log(error);
+                    console.error(error);
                 }
                 break;
         }
@@ -56,30 +58,35 @@ const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
     useEffect(() => {
         // 下载头像
         if (user && user.avatar)
-            downloadFile(user.avatar).then((file) => {
+            downloadFile(user.avatar, message).then((file) => {
                 setImageUrl(URL.createObjectURL(file));
             }).catch((error) => {
-                console.log(error);
+                console.error(error);
             });
     }, [user]);
 
     useEffect(() => {
-        const close = pushingMessage((event) => {
-            try {
-                const data: LocalMessage = JSON.parse(event.data);
-                if (data.id) {
-                    setHasNewMessage(true)
-                    api.info({
-                        message: '新消息',
-                        description: `${data.title}, ${data.content}`,
-                        duration: null
-                    });
+        if (!eventSource.current) {
+            eventSource.current = pushingMessage((event) => {
+                try {
+                    const data: LocalMessage = JSON.parse(event.data);
+                    if (data.id) {
+                        setHasNewMessage(true)
+                        notification.info({
+                            message: '新消息',
+                            description: `${data.title}, ${data.content}`,
+                            duration: null
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
                 }
-            } catch (error) {
-                console.log(error);
+            });
+            return () => {
+                eventSource.current?.close();
+                eventSource.current = null;
             }
-        })
-        return close;
+        }
     }, []);
 
     const handleMessage = () => {
@@ -91,9 +98,12 @@ const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
         setShowSearch(!showSearch)
     }
 
+    const handleModeChange = () => {
+        setDarkMode(!darkMode)
+    }
+
     return (
         <Flex align='center'>
-            {contextHolder}
             <SelectMenu menuData={menuData} showSearch={showSearch} />
             <Button
                 type="text"
@@ -108,7 +118,7 @@ const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
             <Button
                 type="text"
                 icon={<Badge dot={hasNewMessage}>
-                    <NotificationOutlined style={{ fontSize: '20px' }} />
+                    <BellFilled style={{ fontSize: '20px' }} />
                 </Badge>}
                 onClick={handleMessage}
                 style={{
@@ -117,7 +127,19 @@ const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
                     marginRight: 8
                 }}
             />
-            <Dropdown menu={{ items, onClick }} trigger={['click']} >
+            <Button
+                type="text"
+                icon={darkMode ?
+                    <MoonFilled style={{ fontSize: '20px' }} /> :
+                    <SunFilled style={{ fontSize: '20px' }} />}
+                onClick={handleModeChange}
+                style={{
+                    width: 40,
+                    height: 40,
+                    marginRight: 8
+                }}
+            />
+            <Dropdown menu={{ items, onClick }} trigger={['click']}>
                 <Button type="text" size="large" style={{ marginRight: 16 }}>
                     <Flex justify='left' align='center'>
                         {imageUrl ? <Avatar src={imageUrl} /> :

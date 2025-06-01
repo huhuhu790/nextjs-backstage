@@ -7,7 +7,7 @@ const Layout = async ({ children }: React.PropsWithChildren) => {
     await checkPermission(systemPermission, userData)
     return children;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return (error as Error).message || '获取页面失败'
   }
 };

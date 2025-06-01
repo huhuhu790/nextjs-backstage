@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react";
-import { Button, Table, Space, Input, TableColumnsType, Popconfirm } from "antd";
+import { Button, Table, Space, Input, TableColumnsType, Popconfirm, App } from "antd";
 import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { PaginationResponse } from "@/types/database";
 import { LocalUser } from "@/types/api";
@@ -36,7 +36,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
     const [title, setTitle] = useState('');
     const [currentItem, setCurrentItem] = useState<Partial<LocalUser>>(defaultItem());
     const [roleDrawerVisible, setRoleDrawerVisible] = useState(false);
-
+    const { message } = App.useApp()
     const columns: TableColumnsType<LocalUser> = [
         {
             title: '用户名',
@@ -136,10 +136,10 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
 
     const handleDelete = (id: string) => {
         setLoading(true);
-        deleteUserSingle(id).then(result => {
+        deleteUserSingle(id, message).then(result => {
             updateTableData('', currentPage, pageSize);
         }).catch(e => {
-            console.log(e);
+            console.error(e);
         }).finally(() => {
             setLoading(false);
         })
@@ -172,7 +172,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
             keyword,
             currentPage,
             pageSize: currentPageSize
-        }).then(result => {
+        }, message).then(result => {
             if (result) {
                 setData(result.data)
                 setTotal(result.total)
@@ -180,7 +180,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
                 setPageSize(result.pageSize!)
             }
         }).catch(e => {
-            console.log(e);
+            console.error(e);
         }).finally(() => {
             setLoading(false);
         })

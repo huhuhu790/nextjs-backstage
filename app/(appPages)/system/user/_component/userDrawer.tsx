@@ -1,4 +1,4 @@
-import { Drawer, Form, Input, Button, Space, Select, DatePicker, Upload, message } from "antd";
+import { Drawer, Form, Input, Button, Space, Select, DatePicker, Upload, App } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { LocalUser } from "@/types/api";
 import { RcFile } from "antd/lib/upload";
@@ -22,6 +22,7 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
     const [loading, setLoading] = useState(false);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const originalFilename = useRef<string | null>(null);
+    const { message } = App.useApp()
 
     const uploadButton = (
         <div style={{ border: 0, background: 'none', cursor: 'pointer' }}>
@@ -36,14 +37,14 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
         originalFilename.current = avatar || null
         // 下载头像
         if (avatar) {
-            downloadFile(avatar).then((file) => {
+            downloadFile(avatar, message).then((file) => {
                 setImageUrl(URL.createObjectURL(file));
                 form.setFieldsValue({
                     birthday: birthday ? dayjs(birthday) : null,
                     ...rest
                 });
             }).catch((error) => {
-                console.log(error);
+                console.error(error);
             });
         } else form.setFieldsValue({
             avatar: [],
@@ -82,14 +83,14 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
             formData.append('gender', values.gender);
             formData.append('phone', values.phone);
             if (title === "新增") {
-                await addUser(formData);
+                await addUser(formData, message);
             } else {
                 formData.append('id', currentItem.id!);
-                await updateUserSingle(formData);
+                await updateUserSingle(formData, message);
             }
             handleClose({ update: true });
         }).catch((error) => {
-            console.log(error);
+            console.error(error);
         });
     }
     const handleClose = (options: { update: boolean }) => {

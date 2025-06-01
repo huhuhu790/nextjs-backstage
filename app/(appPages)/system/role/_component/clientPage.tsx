@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react';
-import { Button, Input, Table, Popconfirm, Space } from 'antd';
+import { Button, Input, Table, Popconfirm, Space, App } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { LocalRole } from '@/types/api';
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -38,7 +38,7 @@ export default function ClientPage({ initData }: {
   const [currentItem, setCurrentItem] = useState<LocalRole>(defaultItem());
   const [openPermission, setOpenPermission] = useState(false);
   const [openUser, setOpenUser] = useState(false);
-
+  const { message } = App.useApp()
   function updateTableData(keyword: string, currentPage: number, currentPageSize: number) {
     setLoading(true);
     getRoleByPage({
@@ -84,7 +84,7 @@ export default function ClientPage({ initData }: {
   };
 
   const handleDelete = (record: LocalRole) => {
-    deleteRoleById(record.id!).then(res => {
+    deleteRoleById(record.id!, message).then(res => {
       updateTableData(searchText, currentPage, pageSize)
     }).catch(error => { })
   };

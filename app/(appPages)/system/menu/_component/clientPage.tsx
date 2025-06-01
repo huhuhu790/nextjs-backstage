@@ -1,6 +1,6 @@
 "use client"
 import React, { Suspense, useMemo, useRef, useState } from 'react';
-import { Button, Popconfirm, Table } from 'antd';
+import { App, Button, Popconfirm, Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
 import dynamic from 'next/dynamic';
@@ -53,6 +53,7 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
   const [currentItem, setCurrentItem] = useState<LocalMenu>(defaultItem());
   const [parentName, setParentName] = useState<string | null>(null);
   const parentId = useRef<string | null>(null);
+  const { message } = App.useApp()
   const handleAdd = () => {
     setOpen(true);
     setTitle('新增');
@@ -99,7 +100,7 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
       });
     };
     const handleDeleteItem = (record: MenuTableDataType) => {
-      deleteMenu(record.id!).then(res => {
+      deleteMenu(record.id!, message).then(res => {
         updateTable()
       }).catch(error => { })
     }

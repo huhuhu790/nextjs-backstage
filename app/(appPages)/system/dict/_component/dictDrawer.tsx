@@ -1,6 +1,6 @@
 import { addDict, updateDict } from "@/api/dict";
 import { LocalDict } from "@/types/api";
-import { Drawer, Form, Input, Button, Space } from "antd";
+import { Drawer, Form, Input, Button, Space, App } from "antd";
 import { useEffect } from "react";
 export default function DictDrawer({ open, onClose, title, currentItem }: {
     open: boolean,
@@ -9,6 +9,7 @@ export default function DictDrawer({ open, onClose, title, currentItem }: {
     currentItem: Partial<LocalDict>
 }) {
     const [form] = Form.useForm();
+    const { message } = App.useApp()
     useEffect(() => {
         if (open && currentItem) {
             form.setFieldsValue(currentItem);
@@ -20,13 +21,13 @@ export default function DictDrawer({ open, onClose, title, currentItem }: {
                 await updateDict({
                     id: currentItem.id,
                     ...values
-                });
+                }, message);
             } else {
-                await addDict(values);
+                await addDict(values, message);
             }
             handleClose({ update: true });
         }).catch((error) => {
-            console.log(error);
+            console.error(error);
         });
     }
     const handleClose = (options: { update: boolean } = { update: false }) => {

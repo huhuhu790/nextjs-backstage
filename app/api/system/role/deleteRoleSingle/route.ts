@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json(response);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         const message = (error as Error).message || '删除角色失败'
         const response: ApiResponse = {
             status: 500,

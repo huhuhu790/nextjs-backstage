@@ -12,7 +12,7 @@ const Layout = async ({ children }: React.PropsWithChildren) => {
       </ClientLayout>
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return (error as Error).message || '获取页面失败'
   }
 };

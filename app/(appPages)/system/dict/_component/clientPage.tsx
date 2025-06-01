@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react";
-import { Button, Table, Space, Input, TableColumnsType, Popconfirm, message } from "antd";
+import { Button, Table, Space, Input, TableColumnsType, Popconfirm, App } from "antd";
 import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { PaginationResponse } from "@/types/database";
 import { LocalDict } from "@/types/api";
@@ -30,6 +30,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
     const [title, setTitle] = useState('');
     const [currentItem, setCurrentItem] = useState<Partial<LocalDict>>(defaultItem());
     const [dictValuesDrawerVisible, setDictValuesDrawerVisible] = useState(false);
+    const { message } = App.useApp()
 
     const columns: TableColumnsType<LocalDict> = [
         {
@@ -86,10 +87,10 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
     };
 
     const handleDelete = (id: string) => {
-        deleteDict(id).then((res) => {
+        deleteDict(id, message).then((res) => {
             updateTableData('', currentPage, pageSize);
         }).catch((err) => {
-            console.log(err);
+            console.error(err);
         });
     };
 
@@ -128,7 +129,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
                 setPageSize(res.pageSize!);
             }
         }).catch((err) => {
-            console.log(err);
+            console.error(err);
         }).finally(() => {
             setLoading(false);
         });

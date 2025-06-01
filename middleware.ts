@@ -30,7 +30,7 @@ async function verifyTokenStatus(accessToken: string) {
     }
     throw new Error("验证失败");
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     return {
       success: false,
@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
         });
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       const errorMessage = (error as Error).message;
       //验证失败，删除token，跳转到登录页面
       response = clearToken(request, errorMessage);

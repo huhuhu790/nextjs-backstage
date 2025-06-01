@@ -1,4 +1,4 @@
-import { Button, Drawer, Form, Input, Radio, Space } from "antd";
+import { App, Button, Drawer, Form, Input, Radio, Space } from "antd";
 import { RefObject, useEffect, useState } from "react";
 import IconSelectModal from "./iconSelectModal";
 import { addMenu, updateMenu } from "@/api/menu";
@@ -14,6 +14,7 @@ export default function MenuDrawer({ open, onClose, title, currentItem, parentId
     }) {
     const [form] = Form.useForm();
     const [openModal, setOpenModal] = useState(false);
+    const { message } = App.useApp()
     const onCloseModal = () => {
         setOpenModal(false);
     }
@@ -29,13 +30,13 @@ export default function MenuDrawer({ open, onClose, title, currentItem, parentId
         form.validateFields().then(async (values) => {
             const data = { ...currentItem, ...values }
             if (title === "新增") {
-                await addMenu(data, parentId.current);
+                await addMenu(data, parentId.current, message);
             } else {
-                await updateMenu(data, parentId.current);
+                await updateMenu(data, parentId.current, message);
             }
             handleClose({ update: true });
         }).catch((error) => {
-            console.log(error);
+            console.error(error);
         })
     }
     const handleClose = (options: { update: boolean } = { update: false }) => {

@@ -2,55 +2,54 @@ import { LocalDict } from "@/types/api";
 import { fetchData } from "../fetchApi";
 import { PaginationRequest, PaginationResponse } from "@/types/database";
 import { DictValue } from "@/types/system/dictionary";
+import { MessageInstance } from "antd/lib/message/interface";
 
 export function getDictList(body: PaginationRequest) {
     return fetchData<PaginationResponse<LocalDict[]>, PaginationRequest>("/api/system/dict/getDictByPage", {
-        body,
-        showMessage: false
+        body
     });
 }
 
-export function addDict(data: LocalDict) {
+export function addDict(data: LocalDict, message: MessageInstance) {
     return fetchData<null, LocalDict>("/api/system/dict/addDictSingle", {
-        body: data
+        body: data, message
     });
 }
 
-export function updateDict(data: LocalDict) {
+export function updateDict(data: LocalDict, message: MessageInstance) {
     return fetchData<null, LocalDict>("/api/system/dict/updateDictSingle", {
-        body: data
+        body: data, message
     });
 }
 
-export function deleteDict(id: string) {
+export function deleteDict(id: string, message: MessageInstance) {
     return fetchData<null, { id?: string }>("/api/system/dict/deleteDictSingle", {
-        body: { id }
+        body: { id }, message
     });
 }
 
-export function addDictValue(data: DictValue, dictId: string) {
+export function addDictValue(data: DictValue, dictId: string, message: MessageInstance) {
     return fetchData<null, { value: DictValue, dictId: string }>("/api/system/dict/addDictValueSingle", {
-        body: { value: data, dictId }
+        body: { value: data, dictId }, message
     });
 }
 
 
-export function updateDictValue(data: DictValue, dictId: string) {
+export function updateDictValue(data: DictValue, dictId: string, message: MessageInstance) {
     return fetchData<null, { value: DictValue, dictId: string }>("/api/system/dict/updateDictValueSingle", {
-        body: { value: data, dictId }
+        body: { value: data, dictId }, message
     });
 }
 
 
-export function deleteDictValue(valueId: string, dictId: string) {
+export function deleteDictValue(valueId: string, dictId: string, message: MessageInstance) {
     return fetchData<null, { valueId: string, dictId: string }>("/api/system/dict/deleteDictValueSingle", {
-        body: { valueId, dictId }
+        body: { valueId, dictId }, message
     });
 }
 
 export function getDictSingle(dictId: string) {
     return fetchData<LocalDict, { id: string }>("/api/system/dict/getDictSingle", {
-        body: { id: dictId },
-        showMessage: false
+        body: { id: dictId }
     });
 }

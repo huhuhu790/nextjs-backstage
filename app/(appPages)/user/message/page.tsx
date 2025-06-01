@@ -10,7 +10,7 @@ export default async function Page() {
       <ClientPage initData={dictData} />
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return (error as Error).message || '获取页面失败'
   }
 };

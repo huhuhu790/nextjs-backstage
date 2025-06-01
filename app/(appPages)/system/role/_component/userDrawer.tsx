@@ -1,4 +1,4 @@
-import { Button, Col, Drawer, Input, Row, Table, Card, TableColumnsType, Flex } from "antd";
+import { Button, Col, Drawer, Input, Row, Table, Card, TableColumnsType, Flex, App } from "antd";
 import { useEffect, useState, useRef } from "react";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import { getUserByOption } from "@/api/user";
@@ -48,6 +48,7 @@ export default function UserDrawer({
     const [dataSourceAll, setDataSourceAll] = useState<LocalUser[]>([]);
     const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
     const [selectedRowKeysAll, setSelectedRowKeysAll] = useState<string[]>([]);
+    const { message } = App.useApp()
     const needUpdate = useRef(false);
 
     useEffect(() => {
@@ -66,7 +67,7 @@ export default function UserDrawer({
             keyword,
             currentPage: currentPage,
             pageSize: currentPageSize
-        }).then(res => {
+        }, message).then(res => {
             if (res) {
                 setDataSourceSelected(res.data)
                 setTotal(res.total!)
@@ -92,7 +93,7 @@ export default function UserDrawer({
             keyword,
             currentPage: currentPage,
             pageSize: currentPageSize
-        }).then(res => {
+        }, message).then(res => {
             if (res) {
                 setDataSourceAll(res.data)
                 setTotalAll(res.total!)
@@ -125,14 +126,14 @@ export default function UserDrawer({
     }
 
     const handleRemove = () => {
-        removeUserFromRoleById(currentItem.id!, selectedRowKeys).then(res => {
+        removeUserFromRoleById(currentItem.id!, selectedRowKeys, message).then(res => {
             updateTables()
             needUpdate.current = true
         })
     }
 
     const handleAdd = () => {
-        addUserToRoleById(currentItem.id!, selectedRowKeysAll).then(res => {
+        addUserToRoleById(currentItem.id!, selectedRowKeysAll, message).then(res => {
             updateTables()
             needUpdate.current = true
         })

@@ -1,9 +1,9 @@
 "use client"
-import { Dropdown, MenuProps, Tabs, TabsProps } from 'antd';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { LocalMenu } from '@/types/api';
-import { publicPermissionPaths } from '@/utils/publicPaths';
+import {Dropdown, MenuProps, Tabs, TabsProps} from 'antd';
+import {usePathname, useRouter} from 'next/navigation';
+import {useEffect, useState} from 'react';
+import {LocalMenu} from '@/types/api';
+import {publicPermissionPaths} from '@/utils/publicPaths';
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
@@ -27,14 +27,14 @@ const tabDropDownMenuItems: MenuProps['items'] = [
 ];
 
 const initialItems = [
-    { label: '首页', children: '', key: '/', closable: false, },
+    {label: '首页', children: '', key: '/', closable: false,},
 ];
 
 export default function TabsBar({
-    activeKey,
-    menuData,
-    className
-}: {
+                                    activeKey,
+                                    menuData,
+                                    className
+                                }: {
     activeKey: string,
     menuData: LocalMenu[],
     className?: string,
@@ -42,6 +42,7 @@ export default function TabsBar({
     const router = useRouter();
     const pathname = usePathname();
     const [items, setItems] = useState(initialItems);
+
     // 处理切换tab
     const onChange = (key: string) => {
         router.push(key);
@@ -52,14 +53,14 @@ export default function TabsBar({
         if (items.findIndex((pane) => pane.key === pathname) > -1) return;
         let menuitem = menuData.find((pane) => pane.path === pathname);
         if (!menuitem) menuitem = publicPermissionPaths.find((pane) => pane.path === pathname);
-        menuitem && setItems([...items, { label: menuitem?.name, children: '', key: pathname, closable: true }]);
+        menuitem && setItems([...items, {label: menuitem?.name, children: '', key: pathname, closable: true}]);
     }, [pathname])
     // 处理关闭所选tab
     const remove = (targetKey: TargetKey) => {
         const targetIndex = items.findIndex((pane) => pane.key === targetKey);
         const newPanes = items.filter((pane) => pane.key !== targetKey);
         if (newPanes.length && targetKey === activeKey) {
-            const { key } = newPanes[targetIndex === newPanes.length ? targetIndex - 1 : targetIndex];
+            const {key} = newPanes[targetIndex === newPanes.length ? targetIndex - 1 : targetIndex];
             router.push(key);
         }
         setItems(newPanes);

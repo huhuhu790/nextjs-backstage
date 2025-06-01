@@ -1,4 +1,4 @@
-import { Drawer, Space, Transfer, Button } from "antd";
+import { Drawer, Space, Transfer, Button, App } from "antd";
 import { Key, useEffect, useState } from "react";
 import { LocalRole, LocalUser } from "@/types/api";
 import { getRoleByPage } from "@/api/role";
@@ -11,6 +11,7 @@ export default function RoleDrawer({ open, onClose, currentItem }: {
 }) {
     const [targetKeys, setTargetKeys] = useState<string[]>([]);
     const [dataSource, setDataSource] = useState<LocalRole[]>([]);
+    const { message } = App.useApp()
     useEffect(() => {
         if (open && currentItem) {
             setTargetKeys(currentItem.roles || []);
@@ -26,10 +27,10 @@ export default function RoleDrawer({ open, onClose, currentItem }: {
         setTargetKeys(nextTargetKeys as string[]);
     };
     const handleSubmit = () => {
-        updateUserRoleById({ id: currentItem.id!, roleIds: targetKeys }).then(result => {
+        updateUserRoleById({ id: currentItem.id!, roleIds: targetKeys }, message).then(result => {
             handleClose({ update: true })
         }).catch(e => {
-            console.log(e);
+            console.error(e);
         }).finally(() => { })
     }
     const handleClose = (options: { update: boolean }) => {

@@ -8,7 +8,15 @@
 
 .tabs :global(.ant-tabs-tab) {
     border-radius: 8px !important;
-    border-bottom: 1px solid #f0f0f0 !important;
+    border-bottom: 1px solid !important;
+}
+
+.tabsLight :global(.ant-tabs-tab) {
+    border-bottom-color: #f0f0f0 !important;
+}
+
+.tabsDark :global(.ant-tabs-tab) {
+    border-bottom-color: rgb(48, 48, 48) !important;
 }
 
 .tabs :global(.ant-tabs-nav) {

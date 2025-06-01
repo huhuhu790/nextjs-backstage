@@ -1,5 +1,5 @@
 "use client"
-import { Button, Drawer, Form, Input, Space } from "antd";
+import { App, Button, Drawer, Form, Input, Space } from "antd";
 import { LocalRole } from "@/types/api";
 import { useEffect } from "react";
 import { addRole, updateRole } from "@/api/role";
@@ -16,7 +16,7 @@ export default function RoleDrawer({
     currentItem: LocalRole;
 }) {
     const [form] = Form.useForm();
-
+    const { message } = App.useApp()
     useEffect(() => {
         form.setFieldsValue(currentItem);
     }, [currentItem]);
@@ -25,13 +25,13 @@ export default function RoleDrawer({
         form.validateFields().then(async (values) => {
             const data = { id: currentItem.id, ...values };
             if (title === "新增") {
-                await addRole(data);
+                await addRole(data, message);
             } else {
-                await updateRole(data);
+                await updateRole(data, message);
             }
             handleClose({ update: true });
         }).catch((error) => {
-            console.log(error);
+            console.error(error);
         });
     };
     const handleClose = (options: { update: boolean }) => {

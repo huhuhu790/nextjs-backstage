@@ -1,6 +1,6 @@
 import { addDictValue, updateDictValue } from "@/api/dict";
 import { DictValue } from "@/types/system/dictionary";
-import { Drawer, Form, Input, Space, Button } from "antd";
+import { Drawer, Form, Input, Space, Button, App } from "antd";
 import { useEffect } from "react";
 
 export default function EditDictValueDrawer({ open, onClose, title, currentItem, dictId }:
@@ -12,6 +12,7 @@ export default function EditDictValueDrawer({ open, onClose, title, currentItem,
         dictId: string
     }) {
     const [form] = Form.useForm();
+    const { message } = App.useApp()
     useEffect(() => {
         if (open && currentItem) {
             form.setFieldsValue(currentItem);
@@ -23,20 +24,20 @@ export default function EditDictValueDrawer({ open, onClose, title, currentItem,
                 updateDictValue({
                     ...values,
                     _id: currentItem._id
-                }, dictId).then((res) => {
+                }, dictId, message).then((res) => {
                     handleClose({ update: true });
                 }).catch((err) => {
-                    console.log(err);
+                    console.error(err);
                 })
             } else {
-                addDictValue(values, dictId).then((res) => {
+                addDictValue(values, dictId, message).then((res) => {
                     handleClose({ update: true });
                 }).catch((err) => {
-                    console.log(err);
+                    console.error(err);
                 })
             }
         }).catch((error) => {
-            console.log(error);
+            console.error(error);
         });
     }
     const handleClose = (options: { update: boolean }) => {
