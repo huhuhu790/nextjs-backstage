@@ -1,7 +1,7 @@
 import { App, Button, Drawer, Form, Input, Radio, Space } from "antd";
 import { RefObject, useEffect, useState } from "react";
 import IconSelectModal from "./iconSelectModal";
-import { addMenu, updateMenu } from "@/api/menu";
+import { addMenu, updateMenu } from "@/api/system/menu";
 import { LocalMenu } from "@/types/api";
 export default function MenuDrawer({ open, onClose, title, currentItem, parentId, parentName }:
     {
@@ -36,7 +36,7 @@ export default function MenuDrawer({ open, onClose, title, currentItem, parentId
             }
             handleClose({ update: true });
         }).catch((error) => {
-            console.error(error);
+           
         })
     }
     const handleClose = (options: { update: boolean } = { update: false }) => {

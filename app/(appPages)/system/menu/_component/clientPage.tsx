@@ -5,7 +5,7 @@ import type { TableColumnsType } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
 import dynamic from 'next/dynamic';
 import { LocalMenu } from '@/types/api';
-import { deleteMenu, getMenuAll } from '@/api/menu';
+import { deleteMenu, getMenuAll } from '@/api/system/menu';
 
 type MenuTableDataType = Omit<LocalMenu, "children"> & {
   children?: MenuTableDataType[]
@@ -132,8 +132,8 @@ export default function ClientPage({ initData }: { initData: LocalMenu[] }) {
         align: 'center',
         render(value: string, record, index) {
           if (value) {
-            const Icon = dynamic(() => import(`@ant-design/icons/lib/icons/${value}`));
-            return <Suspense fallback={<SyncOutlined spin />}> <Icon /> </Suspense>
+            const IconComponent = dynamic(() => import(`@ant-design/icons`).then((mod: any) => mod[value]), {});
+            return <Suspense fallback={<SyncOutlined spin />}> <IconComponent /> </Suspense>
           }
         },
       },

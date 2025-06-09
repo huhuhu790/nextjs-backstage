@@ -1,5 +1,5 @@
-import { handleLogout } from "@/api/login";
-import { updateUserOwnPassword } from "@/api/user";
+import { handleLogout } from "@/api/auth";
+import { updateUserOwnPassword } from "@/api/system/user";
 import { App, Button, Form, Input } from "antd";
 import { useState } from "react";
 import { useAtomValue } from "jotai";
@@ -24,7 +24,7 @@ export default function PasswordManagement() {
                 handleLogout(message).then(() => {
                     location.reload();
                 }).catch((err) => {
-                    console.error(err);
+                   
                 })
             }, 1000);
         }).catch((err) => {

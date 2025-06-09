@@ -2,7 +2,7 @@
 import { App, Button, Drawer, Form, Input, Space } from "antd";
 import { LocalRole } from "@/types/api";
 import { useEffect } from "react";
-import { addRole, updateRole } from "@/api/role";
+import { addRole, updateRole } from "@/api/system/role";
 
 export default function RoleDrawer({
     open,
@@ -31,7 +31,7 @@ export default function RoleDrawer({
             }
             handleClose({ update: true });
         }).catch((error) => {
-            console.error(error);
+           
         });
     };
     const handleClose = (options: { update: boolean }) => {

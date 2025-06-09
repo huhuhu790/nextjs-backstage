@@ -3,7 +3,7 @@ import { Drawer, Button, Space, Table, TableColumnsType, Popconfirm, App } from 
 import EditDictValueDrawer from "./editDictValueDrawer";
 import { DictValue } from "@/types/system/dictionary";
 import { LocalDict } from "@/types/api";
-import { deleteDictValue, getDictSingle } from "@/api/dict";
+import { deleteDictValue, getDictSingle } from "@/api/system/dict";
 
 export default function DictValuesDrawer({ open, onClose, currentItem }: {
     open: boolean,
@@ -81,7 +81,7 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
             updateDataSource()
             needUpdate.current = true;
         }).catch((err) => {
-            console.error(err);
+            
         })
     }
     const handleClose = (options: { update: boolean }) => {
@@ -95,7 +95,7 @@ export default function DictValuesDrawer({ open, onClose, currentItem }: {
                 setDataSource(res.values!);
             }
         }).catch((err) => {
-            console.error(err);
+            
         }).finally(() => {
             setLoading(false);
         })

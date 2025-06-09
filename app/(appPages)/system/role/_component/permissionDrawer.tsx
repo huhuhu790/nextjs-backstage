@@ -1,10 +1,10 @@
 "use client"
 import { App, Button, Drawer, Space, Tree, TreeProps } from "antd";
-import { getMenuAll } from "@/api/menu";
+import { getMenuAll } from "@/api/system/menu";
 import { Key, useEffect, useState } from "react";
 import { LocalMenu, OptionalLocalId, LocalRole } from "@/types/api";
 import { BasicMenu } from "@/types/system/menu";
-import { updateRolePermissionById } from "@/api/role";
+import { updateRolePermissionById } from "@/api/system/role";
 
 export type MenuTreeDataType = OptionalLocalId<Omit<BasicMenu, "children">> & {
     key: string,

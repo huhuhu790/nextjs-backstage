@@ -3,3 +3,5 @@ export default function Page() {
         <div>欢迎</div>
     )
 }
+
+export const dynamic = 'force-dynamic'; 

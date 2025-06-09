@@ -1,8 +1,8 @@
 import { Drawer, Space, Transfer, Button, App } from "antd";
 import { Key, useEffect, useState } from "react";
 import { LocalRole, LocalUser } from "@/types/api";
-import { getRoleByPage } from "@/api/role";
-import { updateUserRoleById } from "@/api/user";
+import { getRoleByPage } from "@/api/system/role";
+import { updateUserRoleById } from "@/api/system/user";
 
 export default function RoleDrawer({ open, onClose, currentItem }: {
     open: boolean,
@@ -30,12 +30,13 @@ export default function RoleDrawer({ open, onClose, currentItem }: {
         updateUserRoleById({ id: currentItem.id!, roleIds: targetKeys }, message).then(result => {
             handleClose({ update: true })
         }).catch(e => {
-            console.error(e);
+            
         }).finally(() => { })
     }
     const handleClose = (options: { update: boolean }) => {
         onClose(options);
         setTargetKeys([]);
+        setDataSource([])
     }
 
     return (

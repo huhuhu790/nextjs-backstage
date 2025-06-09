@@ -1,10 +1,10 @@
 import { Filter, WithId, ObjectId } from "mongodb";
-import { dbConnectionMes } from "./connection";
+import { dbConnection } from "./connection";
 import { DictItem, DictValue } from "@/types/system/dictionary";
 import { PaginationRequest } from "@/types/database";
-import { LocalDict, updateDictValueDataType } from "@/types/api";
+import { LocalDict } from "@/types/api";
 
-function dbDictToLocalDict({ _id, values, ...rest }: WithId<DictItem>) {
+function toLocal({ _id, values, ...rest }: WithId<DictItem>) {
     return {
         id: _id.toString(),
         ...rest,
@@ -15,12 +15,12 @@ function dbDictToLocalDict({ _id, values, ...rest }: WithId<DictItem>) {
     };
 }
 
-function dbDictsToLocalDicts(dbDicts: WithId<DictItem>[]) {
-    return dbDicts.map(dbDictToLocalDict);
+function toLocalList(dbDicts: WithId<DictItem>[]) {
+    return dbDicts.map(toLocal);
 }
 
-export async function getDictByPage(options?: PaginationRequest) {
-    const db = await dbConnectionMes()
+export async function getListByPageDict(options?: PaginationRequest) {
+    const db = await dbConnection()
     const dictsCollection = db.collection<DictItem>('dictionaries');
     const query: Filter<DictItem> = {};
     if (options?.keyword) {
@@ -37,25 +37,25 @@ export async function getDictByPage(options?: PaginationRequest) {
         .limit(pageSize)
         .toArray() : await dictsCollection.find(query).toArray();
     return {
-        data: dbDictsToLocalDicts(dicts),
+        data: toLocalList(dicts),
         total,
         currentPage,
         pageSize
     };
 }
 
-export async function getDictSingleById(id: string) {
+export async function getOneByIdDict(id: string) {
     if (!id) throw new Error("字典ID不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const dictsCollection = db.collection<DictItem>('dictionaries');
     const dict = await dictsCollection.findOne({ _id: new ObjectId(id) });
     if (!dict) throw new Error("字典不存在")
-    return dbDictToLocalDict(dict);
+    return toLocal(dict);
 }
 
-export async function createDictSingle(data: Partial<LocalDict>, operatorId: string) {
+export async function insertOneDict(data: Partial<LocalDict>, operatorId: string) {
     if (!data.name) throw new Error("字典名称不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const date = new Date();
     const collection = db.collection<DictItem>("dictionaries");
     const result = await collection.insertOne({
@@ -74,10 +74,10 @@ export async function createDictSingle(data: Partial<LocalDict>, operatorId: str
     return result;
 }
 
-export async function updateDictSingle(data: Partial<LocalDict>, operatorId: string) {
+export async function updateOneDict(data: Partial<LocalDict>, operatorId: string) {
     if (!data.id) throw new Error("字典ID不能为空")
     if (!data.name) throw new Error("字典名称不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const date = new Date();
     const collection = db.collection<DictItem>("dictionaries");
     const result = await collection.updateOne(
@@ -94,9 +94,9 @@ export async function updateDictSingle(data: Partial<LocalDict>, operatorId: str
     return result;
 }
 
-export async function deleteDictSingle(id: string, operatorId: string) {
+export async function deleteOneDict(id: string, operatorId: string) {
     if (!id) throw new Error("字典ID不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const collection = db.collection<DictItem>("dictionaries");
     const dictItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!dictItem) throw new Error("字典不存在")
@@ -104,10 +104,10 @@ export async function deleteDictSingle(id: string, operatorId: string) {
     return result;
 }
 
-export async function deleteDictValueSingle(valueId: string, dictId: string, operatorId: string) {
+export async function deleteOneDictValue(valueId: string, dictId: string, operatorId: string) {
     if (!valueId) throw new Error("字典值ID不能为空")
     if (!dictId) throw new Error("字典ID不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const collection = db.collection<DictItem>("dictionaries");
     const dictItem = await collection.findOne({ _id: new ObjectId(dictId) })
     if (!dictItem) throw new Error("字典不存在")
@@ -124,12 +124,12 @@ export async function deleteDictValueSingle(valueId: string, dictId: string, ope
     return result
 }
 
-export async function updateDictValueSingle(value: DictValue, dictId: string, operatorId: string) {
+export async function updateOneDictValue(value: DictValue, dictId: string, operatorId: string) {
     if (!dictId) throw new Error("字典表ID不能为空")
     if (!value._id) throw new Error("字典值ID不能为空")
     if (!value.name) throw new Error("字典值名称不能为空")
     if (!value.value) throw new Error("字典值不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const collection = db.collection<DictItem>("dictionaries");
     const dictItem = await collection.findOne({ _id: new ObjectId(dictId) })
     if (!dictItem) throw new Error("字典表不存在")
@@ -156,11 +156,11 @@ export async function updateDictValueSingle(value: DictValue, dictId: string, op
     return result
 }
 
-export async function addDictValueSingle(value: DictValue, dictId: string, operatorId: string) {
+export async function insertOneDictValue(value: DictValue, dictId: string, operatorId: string) {
     if (!dictId) throw new Error("字典表ID不能为空")
     if (!value.name) throw new Error("字典值名称不能为空")
     if (!value.value) throw new Error("字典值不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const collection = db.collection<DictItem>("dictionaries");
     const dictItem = await collection.findOne({ _id: new ObjectId(dictId) })
     if (!dictItem) throw new Error("字典表不存在")

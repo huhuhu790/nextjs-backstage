@@ -3,15 +3,17 @@ import "./globals.css";
 import ClientLayout from "./_component/clientLayout"
 import { Provider } from 'jotai'
 import { getHeadUserData } from "@/utils/getHeadUserData";
-import { getPermissionsServer } from "./api/system/user/getUserByPage/getPermissionsServer";
+import { headers } from "next/headers";
+import { getPermissionsServer } from "./api/system/user/getListByPage/getPermissionsServer";
 
 export const metadata: Metadata = {
-  title: "MES",
-  description: "MES",
+  title: "后台管理系统",
+  description: "后台管理系统",
 };
 
 const Layout = async ({ children }: React.PropsWithChildren) => {
-  const userData = await getHeadUserData();
+  const headersList = await headers()
+  const userData = await getHeadUserData(headersList);
   const permissions = await getPermissionsServer(userData?.roles || [])
   return (
     <html>

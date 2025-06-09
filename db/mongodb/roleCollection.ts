@@ -1,11 +1,11 @@
 import { Filter, WithId, ObjectId } from "mongodb";
-import { dbConnectionMes } from "./connection";
+import { dbConnection } from "./connection";
 import { RoleItem, RoleItemWithID } from "@/types/system/role";
 import { PaginationRequest } from "@/types/database";
 import { User } from "@/types/system/user";
 import { LocalRole } from "@/types/api";
 
-function dbRolesToLocalRoles(dbRoles: WithId<RoleItem>[]): RoleItemWithID[] {
+function toLocalList(dbRoles: WithId<RoleItem>[]): RoleItemWithID[] {
     return dbRoles.map(({ _id, ...rest }) => {
         return {
             id: _id.toString(),
@@ -15,8 +15,8 @@ function dbRolesToLocalRoles(dbRoles: WithId<RoleItem>[]): RoleItemWithID[] {
 }
 
 
-export async function getRoleByPage(options?: Partial<PaginationRequest>) {
-    const db = await dbConnectionMes()
+export async function getListByPageRole(options?: Partial<PaginationRequest>) {
+    const db = await dbConnection()
     const usersCollection = db.collection<RoleItem>('roles');
     const query: Filter<RoleItem> = {};
     if (options?.keyword) {
@@ -33,16 +33,16 @@ export async function getRoleByPage(options?: Partial<PaginationRequest>) {
         .limit(pageSize)
         .toArray() : await usersCollection.find(query).toArray();
     return {
-        data: dbRolesToLocalRoles(roles),
+        data: toLocalList(roles),
         total,
         currentPage,
         pageSize
     };
 }
 
-export async function createRoleSingle(data: LocalRole, operatorId: string) {
+export async function insertOneRole(data: LocalRole, operatorId: string) {
     if (!data.name) throw new Error("角色名称不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const date = new Date();
     const collection = db.collection<RoleItem>("roles");
     const result = await collection.insertOne({
@@ -62,10 +62,10 @@ export async function createRoleSingle(data: LocalRole, operatorId: string) {
     return result;
 }
 
-export async function updateRoleSingle(data: LocalRole, operatorId: string) {
+export async function updateOneRole(data: LocalRole, operatorId: string) {
     if (!data.id) throw new Error("角色ID不能为空")
     if (!data.name) throw new Error("角色名称不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const date = new Date();
     const collection = db.collection<RoleItem>("roles");
     const roleItem = await collection.findOne({ _id: new ObjectId(data.id) })
@@ -84,10 +84,10 @@ export async function updateRoleSingle(data: LocalRole, operatorId: string) {
     return result;
 }
 
-export async function updateRolePermissionById(id: string, permissions: string[], operatorId: string) {
+export async function updatePermissionToRole(id: string, permissions: string[], operatorId: string) {
     if (!id) throw new Error("角色ID不能为空")
     if (!permissions) throw new Error("权限不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const date = new Date();
     const collection = db.collection<RoleItem>("roles");
     const roleItem = await collection.findOne({ _id: new ObjectId(id) })
@@ -101,9 +101,9 @@ export async function updateRolePermissionById(id: string, permissions: string[]
     });
     return result;
 }
-export async function deleteRoleSingle(id: string, operatorId: string) {
+export async function deleteOneRole(id: string, operatorId: string) {
     if (!id) throw new Error("角色ID不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const collection = db.collection<RoleItem>("roles");
     const roleItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!roleItem) throw new Error("角色不存在")
@@ -125,10 +125,10 @@ export async function deleteRoleSingle(id: string, operatorId: string) {
     return result;
 }
 
-export async function addUserToRoleById(id: string, userIds: string[], operatorId: string) {
+export async function addUserToRole(id: string, userIds: string[], operatorId: string) {
     if (!id) throw new Error("角色ID不能为空")
     if (!userIds) throw new Error("用户ID不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const collection = db.collection<RoleItem>("roles");
     const roleItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!roleItem) throw new Error("角色不存在")
@@ -156,10 +156,10 @@ export async function addUserToRoleById(id: string, userIds: string[], operatorI
     });
 }
 
-export async function removeUserFromRoleById(id: string, userIds: string[], operatorId: string) {
+export async function removeUserFromRole(id: string, userIds: string[], operatorId: string) {
     if (!id) throw new Error("角色ID不能为空")
     if (!userIds) throw new Error("用户ID不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const collection = db.collection<RoleItem>("roles");
     const roleItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!roleItem) throw new Error("角色不存在")

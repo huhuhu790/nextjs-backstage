@@ -1,10 +1,9 @@
 import { generateAccessToken, verifyToken } from '@/utils/tokenAuth';
 import { setUserSession, removeUserSession } from '@/db/redis/redis';
-import { NextResponse } from 'next/server';
-import { ApiResponse, LocalUser } from '@/types/api';
 import { getPermissions, verifyUserCredentials } from '@/db/mongodb/userCollection';
 import { EXPIRED_TIME } from '@/utils/getExpiredTime';
-import { toLocalUser } from '@/app/api/system/user/userDataTrans';
+import { toLocalUser } from '@/app/api/system/user/dataTransform';
+import { buildResponse } from '@/utils/buildResponse';
 
 // 登录，无需权限
 export async function POST(request: Request) {
@@ -29,21 +28,19 @@ export async function POST(request: Request) {
         await setUserSession(userId, jti, EXPIRED_TIME);
         const localUser = toLocalUser(user);
         const permissions = await getPermissions(user.roles)
-        // 成功响应
-        const response: ApiResponse<{ userInfo: LocalUser, permission: string[] }> = {
+
+
+        const nextResponse = buildResponse({
             status: 200,
-            success: true,
             data: {
                 userInfo: localUser,
                 permission: permissions
             },
             message: '登录成功'
-        };
-
-        const nextResponse = NextResponse.json(response);
+        });
         nextResponse.cookies.set('accessToken', accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            // secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             maxAge: EXPIRED_TIME,
             path: '/'
@@ -52,11 +49,9 @@ export async function POST(request: Request) {
         return nextResponse;
     } catch (error) {
         console.error(error);
-        const response: ApiResponse = {
-            status: 500,
-            success: false,
+        return buildResponse({
+            status: 401,
             message: '登录失败'
-        };
-        return NextResponse.json(response);
+        });
     }
 }

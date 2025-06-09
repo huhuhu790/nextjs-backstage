@@ -3,10 +3,10 @@ import { BellFilled, MoonFilled, SearchOutlined, SunFilled, UserOutlined } from 
 import { userInfoAtom } from '@/store/user/userAtom';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from "react";
-import { handleLogout } from "@/api/login";
+import { handleLogout } from "@/api/auth";
 import { useRouter } from "next/navigation";
 import { downloadFile } from "@/api/fetchApi";
-import { pushingMessage } from "@/api/message";
+import { pushingMessage } from "@/api/system/message";
 import { LocalMenu, LocalMessage } from "@/types/api";
 import SelectMenu from "./selectMenu";
 import { darkModeAtom } from "@/store/system/themeAtom";
@@ -44,7 +44,7 @@ const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
                     await handleLogout(message);
                     location.reload();
                 } catch (error) {
-                    console.error(error);
+                    
                 }
                 break;
         }
@@ -61,7 +61,7 @@ const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
             downloadFile(user.avatar, message).then((file) => {
                 setImageUrl(URL.createObjectURL(file));
             }).catch((error) => {
-                console.error(error);
+                
             });
     }, [user]);
 
@@ -79,7 +79,7 @@ const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
                         });
                     }
                 } catch (error) {
-                    console.error(error);
+                    
                 }
             });
             return () => {

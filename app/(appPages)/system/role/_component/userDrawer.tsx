@@ -1,9 +1,9 @@
 import { Button, Col, Drawer, Input, Row, Table, Card, TableColumnsType, Flex, App } from "antd";
 import { useEffect, useState, useRef } from "react";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
-import { getUserByOption } from "@/api/user";
+import { getUserByOption } from "@/api/system/user";
 import { LocalUser, LocalRole } from "@/types/api";
-import { addUserToRoleById, removeUserFromRoleById } from "@/api/role";
+import { addUserToRoleById, removeUserFromRoleById } from "@/api/system/role";
 
 const columns: TableColumnsType<LocalUser> = [
     {
@@ -67,7 +67,7 @@ export default function UserDrawer({
             keyword,
             currentPage: currentPage,
             pageSize: currentPageSize
-        }, message).then(res => {
+        }).then(res => {
             if (res) {
                 setDataSourceSelected(res.data)
                 setTotal(res.total!)
@@ -93,7 +93,7 @@ export default function UserDrawer({
             keyword,
             currentPage: currentPage,
             pageSize: currentPageSize
-        }, message).then(res => {
+        }).then(res => {
             if (res) {
                 setDataSourceAll(res.data)
                 setTotalAll(res.total!)

@@ -1,26 +1,26 @@
 import {Message, MessageWithID} from "@/types/system/message";
-import {dbConnectionMes} from "./connection";
+import {dbConnection} from "./connection";
 import {User, UserWithID} from "@/types/system/user";
 import {PaginationRequest} from "@/types/database";
 import {Filter, MongoOperationTimeoutError, WithId} from "mongodb";
 import {ObjectId} from "mongodb";
 import {LocalMessage} from "@/types/api";
 
-function dbMessageToLocalMessage(dbMessage: WithId<Message>): MessageWithID {
+function toLocal(dbMessage: WithId<Message>): MessageWithID {
     return {
         id: dbMessage._id.toString(),
         ...dbMessage,
     };
 }
 
-function dbMessagesToLocalMessages(dbMessages: WithId<Message>[]): MessageWithID[] {
-    return dbMessages.map(dbMessageToLocalMessage);
+function toLocalList(dbMessages: WithId<Message>[]): MessageWithID[] {
+    return dbMessages.map(toLocal);
 }
 
-export async function getMessageListByPage(user: UserWithID, options: PaginationRequest) {
+export async function getListByPageMessage(user: UserWithID, options: PaginationRequest) {
     const userId = user.id
     if (!userId) throw new Error('用户未登录')
-    const messageDb = await dbConnectionMes()
+    const messageDb = await dbConnection()
     const collectionUser = messageDb.collection<User>("users")
     const userInfo = await collectionUser.findOne({_id: new ObjectId(userId)})
     if (!userInfo) throw new Error('用户不存在')
@@ -36,7 +36,7 @@ export async function getMessageListByPage(user: UserWithID, options: Pagination
         .limit(pageSize)
         .toArray() : await collection.find(query).toArray();
     return {
-        data: dbMessagesToLocalMessages(messages),
+        data: toLocalList(messages),
         total,
         currentPage,
         pageSize
@@ -48,7 +48,7 @@ export async function sendingMessage(message: Partial<LocalMessage>, operatorId:
     if (!message) throw new Error('消息不能为空')
     if (!message.title) throw new Error('消息标题不能为空')
     if (!message.content) throw new Error('消息内容不能为空')
-    const messageDb = await dbConnectionMes()
+    const messageDb = await dbConnection()
     const userCollection = messageDb.collection<User>("users")
     const users = await userCollection.find({}).toArray()
     const date = new Date()
@@ -74,8 +74,8 @@ export async function sendingMessage(message: Partial<LocalMessage>, operatorId:
 }
 
 
-export async function createMessageEventListner(callback: (change: MessageWithID) => void, operatorId: string) {
-    const messageDb = await dbConnectionMes()
+export async function createMessageEventListener(callback: (change: MessageWithID) => void, operatorId: string) {
+    const messageDb = await dbConnection()
     const collection = messageDb.collection<Message>("messages")
     const changeStream = collection.watch([
         {
@@ -87,7 +87,7 @@ export async function createMessageEventListner(callback: (change: MessageWithID
     ])
         .on('change', (change) => {
             if (change.operationType === 'insert')
-                callback(dbMessageToLocalMessage(change.fullDocument as WithId<Message>))
+                callback(toLocal(change.fullDocument as WithId<Message>))
         })
         .on('error', e => {
             console.error(e);

@@ -6,7 +6,7 @@ import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { PaginationResponse } from "@/types/database";
 import { LocalDict } from "@/types/api";
 import dynamic from "next/dynamic";
-import { deleteDict, getDictList } from "@/api/dict";
+import { deleteDict, getDictList } from "@/api/system/dict";
 
 const DictDrawer = dynamic(() => import("./dictDrawer"), { ssr: false });
 const DictValuesDrawer = dynamic(() => import("./dictValuesDrawer"), { ssr: false });
@@ -90,7 +90,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
         deleteDict(id, message).then((res) => {
             updateTableData('', currentPage, pageSize);
         }).catch((err) => {
-            console.error(err);
+           
         });
     };
 
@@ -129,7 +129,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
                 setPageSize(res.pageSize!);
             }
         }).catch((err) => {
-            console.error(err);
+            
         }).finally(() => {
             setLoading(false);
         });

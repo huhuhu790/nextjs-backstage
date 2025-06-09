@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useSetAtom } from 'jotai';
 import { userInfoAtom } from '@/store/user/userAtom';
 import { useEffect } from 'react';
-import { handleLogin } from '@/api/login';
+import { handleLogin } from '@/api/auth';
 import { sha256 } from '@/utils/encrypt';
 import { LoginFieldType } from '@/types/api';
 import { permissionsAtom } from '@/store/user/permissionsAtom';

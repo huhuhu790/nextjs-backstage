@@ -6,7 +6,7 @@ import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { PaginationResponse } from "@/types/database";
 import { LocalUser } from "@/types/api";
 import dynamic from "next/dynamic";
-import { getUserByOption, deleteUserSingle } from "@/api/user";
+import { getUserByOption, deleteUserSingle } from "@/api/system/user";
 import dayjs from "dayjs";
 
 const UserDrawer = dynamic(() => import("./userDrawer"), { ssr: false });
@@ -139,7 +139,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
         deleteUserSingle(id, message).then(result => {
             updateTableData('', currentPage, pageSize);
         }).catch(e => {
-            console.error(e);
+            
         }).finally(() => {
             setLoading(false);
         })
@@ -172,7 +172,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
             keyword,
             currentPage,
             pageSize: currentPageSize
-        }, message).then(result => {
+        }).then(result => {
             if (result) {
                 setData(result.data)
                 setTotal(result.total)
@@ -180,7 +180,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
                 setPageSize(result.pageSize!)
             }
         }).catch(e => {
-            console.error(e);
+            
         }).finally(() => {
             setLoading(false);
         })

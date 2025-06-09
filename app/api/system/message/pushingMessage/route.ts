@@ -1,18 +1,19 @@
 import {NextResponse} from 'next/server';
-import {createMessageEventListner} from '@/db/mongodb/messageCollection';
+import {createMessageEventListener} from '@/db/mongodb/messageCollection';
 import {getHeadUserData} from '@/utils/getHeadUserData';
-import {toLocalMessage} from '../messageDataTrans';
-
+import {toLocalMessage} from '../dataTransform';
+import {headers} from 'next/headers';
 export async function GET(request: Request) {
     try {
-        const userData = await getHeadUserData()
+        const headersList = await headers()
+    const userData = await getHeadUserData(headersList);
         if (!userData || !userData.id) throw new Error('用户未登录')
         // 初始化 SSE 流
         const encoder = new TextEncoder();
         const stream = new ReadableStream({
             async start(controller) {
                 try {
-                    await createMessageEventListner((doc) => {
+                    await createMessageEventListener((doc) => {
                         controller.enqueue(encoder.encode(`data: ${JSON.stringify(toLocalMessage(doc))}\n\n`));
                     }, userData.id!)
                 } catch (e) {
@@ -32,6 +33,6 @@ export async function GET(request: Request) {
     } catch (error) {
         console.error(error);
         const message = (error as Error).message || '获取失败'
-        return new NextResponse(message, {status: 500})
+        return new NextResponse(message, {status: 400})
     }
 }

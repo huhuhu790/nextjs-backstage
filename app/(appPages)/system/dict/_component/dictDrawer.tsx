@@ -1,4 +1,4 @@
-import { addDict, updateDict } from "@/api/dict";
+import { addDict, updateDict } from "@/api/system/dict";
 import { LocalDict } from "@/types/api";
 import { Drawer, Form, Input, Button, Space, App } from "antd";
 import { useEffect } from "react";
@@ -27,7 +27,7 @@ export default function DictDrawer({ open, onClose, title, currentItem }: {
             }
             handleClose({ update: true });
         }).catch((error) => {
-            console.error(error);
+         
         });
     }
     const handleClose = (options: { update: boolean } = { update: false }) => {

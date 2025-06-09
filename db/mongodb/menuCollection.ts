@@ -1,10 +1,10 @@
 import { ObjectId, WithId, OptionalId } from 'mongodb';
-import { dbConnectionMes } from './connection';
+import { dbConnection } from './connection';
 import { MenuItem, MenuItemWithID } from '@/types/system/menu';
 import { getUniquePermissions } from './userCollection';
 import { LocalMenu } from '@/types/api';
 
-function dbMenusToLocalMenus(dbMenus: WithId<MenuItem>[]): MenuItemWithID[] {
+function toLocal(dbMenus: WithId<MenuItem>[]): MenuItemWithID[] {
     return dbMenus.map(({ _id, ...rest }) => {
         return {
             id: _id.toString(),
@@ -13,8 +13,8 @@ function dbMenusToLocalMenus(dbMenus: WithId<MenuItem>[]): MenuItemWithID[] {
     });
 }
 
-export async function getMenusByRoles(roleIds: string[]) {
-    const db = await dbConnectionMes()
+export async function getListByRolesMenus(roleIds: string[]) {
+    const db = await dbConnection()
     const uniquePermissions = await getUniquePermissions(roleIds, db);
     if (!uniquePermissions) {
         return []
@@ -23,21 +23,21 @@ export async function getMenusByRoles(roleIds: string[]) {
     const usersCollection = db.collection<MenuItem>('menus');
     // type不为button
     const menus = await usersCollection.find({ _id: { $in: permissionsObjectIDs }, type: { $ne: 'button' } }).toArray();
-    return dbMenusToLocalMenus(menus);
+    return toLocal(menus);
 }
 
 export async function getAllMenus() {
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const usersCollection = db.collection<MenuItem>('menus');
-    return dbMenusToLocalMenus(await usersCollection.find({}).toArray());
+    return toLocal(await usersCollection.find({}).toArray());
 }
 
-export async function createSingleMenu(menuData: Partial<LocalMenu>, operatorId: string) {
+export async function insertOneMenu(menuData: Partial<LocalMenu>, operatorId: string) {
     if (!menuData.name) throw new Error("目录名称不能为空")
     if (!menuData.path) throw new Error("目录路径不能为空")
     if (!menuData.type) throw new Error("目录类型不能为空")
     if (!menuData.iconPath) throw new Error("目录图标不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const usersCollection = db.collection<MenuItem>('menus');
     const date = new Date();
     let record: OptionalId<MenuItem> = {
@@ -66,9 +66,9 @@ export async function createSingleMenu(menuData: Partial<LocalMenu>, operatorId:
     return await usersCollection.insertOne(record)
 }
 
-export async function deleteSingleMenu(id: string, operatorId: string) {
+export async function deleteOneMenu(id: string, operatorId: string) {
     if (!id) throw new Error("目录id不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const usersCollection = db.collection<MenuItem>('menus');
     const menuItem = await usersCollection.findOne({ _id: new ObjectId(id) })
     if (!menuItem) throw new Error("目录不存在")
@@ -90,13 +90,13 @@ export async function deleteSingleMenu(id: string, operatorId: string) {
     // })
 }
 
-export async function updateSingleMenu(menuData: Partial<LocalMenu>, operatorId: string) {
+export async function updateOneMenu(menuData: Partial<LocalMenu>, operatorId: string) {
     if (!menuData.id) throw new Error("目录id不能为空")
     if (!menuData.name) throw new Error("目录名称不能为空")
     if (!menuData.path) throw new Error("目录路径不能为空")
     if (!menuData.type) throw new Error("目录类型不能为空")
     if (!menuData.iconPath) throw new Error("目录图标不能为空")
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const usersCollection = db.collection<OptionalId<MenuItem>>('menus');
     const date = new Date();
     const menuItem = await usersCollection.findOne({ _id: new ObjectId(menuData.id) })

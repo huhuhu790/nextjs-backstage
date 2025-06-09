@@ -2,7 +2,7 @@ import { Drawer, Form, Input, Button, Space, Select, DatePicker, Upload, App } f
 import { useEffect, useRef, useState } from "react";
 import { LocalUser } from "@/types/api";
 import { RcFile } from "antd/lib/upload";
-import { addUser, updateUserSingle } from "@/api/user";
+import { addUser, updateUserSingle } from "@/api/system/user";
 import dayjs from "dayjs";
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { downloadFile } from "@/api/fetchApi";
@@ -44,7 +44,7 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
                     ...rest
                 });
             }).catch((error) => {
-                console.error(error);
+
             });
         } else form.setFieldsValue({
             avatar: [],
@@ -66,7 +66,7 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
                 formData.append('file', avatar[0]);
             }
             if (birthday) {
-                formData.append('birthday', birthday.format('YYYY-MM-DD'));
+                formData.append('birthday', birthday.toISOString());
             }
             if (values.email) {
                 formData.append('email', values.email);
@@ -90,7 +90,7 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
             }
             handleClose({ update: true });
         }).catch((error) => {
-            console.error(error);
+
         });
     }
     const handleClose = (options: { update: boolean }) => {
@@ -206,6 +206,7 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
                 <Form.Item
                     label="邮箱"
                     name="email"
+                    rules={[{ type: 'email', message: '请输入正确的邮箱地址' }]}
                 >
                     <Input />
                 </Form.Item>

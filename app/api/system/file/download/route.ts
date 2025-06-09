@@ -1,10 +1,12 @@
 import { getHeadUserData } from "@/utils/getHeadUserData";
+import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { downloadFile } from "@/db/mongodb/gridFSCollection";
 
 export async function POST(request: NextRequest) {
     try {
-        const userData = await getHeadUserData()
+        const headersList = await headers()
+    const userData = await getHeadUserData(headersList);
         if (!userData || !userData.id) throw new Error('无用户信息')
         const body = await request.json()
         const result = await downloadFile(body.fileId)

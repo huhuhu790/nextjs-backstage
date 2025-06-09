@@ -1,4 +1,4 @@
-import { addDictValue, updateDictValue } from "@/api/dict";
+import { addDictValue, updateDictValue } from "@/api/system/dict";
 import { DictValue } from "@/types/system/dictionary";
 import { Drawer, Form, Input, Space, Button, App } from "antd";
 import { useEffect } from "react";
@@ -27,17 +27,17 @@ export default function EditDictValueDrawer({ open, onClose, title, currentItem,
                 }, dictId, message).then((res) => {
                     handleClose({ update: true });
                 }).catch((err) => {
-                    console.error(err);
+                   
                 })
             } else {
                 addDictValue(values, dictId, message).then((res) => {
                     handleClose({ update: true });
                 }).catch((err) => {
-                    console.error(err);
+                    
                 })
             }
         }).catch((error) => {
-            console.error(error);
+            
         });
     }
     const handleClose = (options: { update: boolean }) => {

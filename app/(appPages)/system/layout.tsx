@@ -1,9 +1,11 @@
 import { checkPermission } from "@/db/mongodb/userCollection";
 import { systemPermission } from "../appPagePermission";
 import { getHeadUserData } from "@/utils/getHeadUserData";
+import { headers } from "next/headers";
 const Layout = async ({ children }: React.PropsWithChildren) => {
   try {
-    const userData = await getHeadUserData();
+    const headersList = await headers()
+    const userData = await getHeadUserData(headersList);
     await checkPermission(systemPermission, userData)
     return children;
   } catch (error) {

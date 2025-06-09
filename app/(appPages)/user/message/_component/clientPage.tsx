@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { Button, Card, List, Skeleton } from 'antd';
 import { PaginationResponse } from '@/types/database';
 import { LocalMessage } from '@/types/api';
-import { getMessageListByPage } from '@/api/message';
+import { getMessageListByPage } from '@/api/system/message';
 
 export default function Page(
   {
@@ -33,7 +33,7 @@ export default function Page(
         }
       }
     }).catch((err) => {
-      console.error(err);
+      
     }).finally(() => {
       setLoading(false);
       // Resetting window's offsetTop so as to display react-virtualized demo underfloor.

@@ -66,7 +66,7 @@ const IconSelectModal: React.FC<IconSelectModalProps> = ({
                 style={{ padding: '16px' }}
             >
                 {filteredIcons.map((iconName) => {
-                    const IconComponent = dynamic(() => import(`@ant-design/icons/lib/icons/${iconName}`));
+                    const IconComponent = dynamic(() => import(`@ant-design/icons`).then((mod: any) => mod[iconName]), {});
                     return (
                         <Col span={2} key={iconName}>
                             <Tooltip title={iconName}>

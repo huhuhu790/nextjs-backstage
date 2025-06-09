@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { verifyToken } from '@/utils/tokenAuth';
 import { verifySession } from '@/db/redis/redis';
 import { getUserInfo } from './db/mongodb/userCollection';
-import { toLocalUser } from '@/app/api/system/user/userDataTrans';
+import { toLocalUser } from '@/app/api/system/user/dataTransform';
 
 // 无需登录可访问的页面或接口
 export const publicPaths = ['/login', '/api/auth/login'];

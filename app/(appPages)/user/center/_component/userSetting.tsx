@@ -9,7 +9,7 @@ import { RcFile } from "antd/es/upload";
 import { downloadFile } from "@/api/fetchApi";
 import { LocalUser } from "@/types/api";
 import dayjs from "dayjs";
-import { updateUserOwnData } from "@/api/user";
+import { updateUserOwnData } from "@/api/system/user";
 
 type UserFromProps = Omit<LocalUser, "avatar" | "birthday"> & {
     avatar: RcFile[]
@@ -30,7 +30,7 @@ export default function UserSetting() {
             downloadFile(avatar, message).then((file) => {
                 setImageUrl(URL.createObjectURL(file));
             }).catch((error) => {
-                console.error(error);
+               
             });
         form.setFieldsValue({
             birthday: birthday ? dayjs(birthday) : null,
@@ -89,7 +89,7 @@ export default function UserSetting() {
                 setUser(result);
             }
         } catch (error) {
-            console.error(error);
+            
         }
     };
     return (

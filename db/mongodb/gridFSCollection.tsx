@@ -1,5 +1,5 @@
 import { Db, GridFSBucket, ObjectId } from "mongodb";
-import { dbConnectionMes } from "./connection";
+import { dbConnection } from "./connection";
 import { Readable } from "stream";
 
 export async function uploadFile(name: string, file: File, db: Db) {
@@ -19,7 +19,7 @@ export async function uploadFile(name: string, file: File, db: Db) {
 }
 
 export async function downloadFile(filename: string) {
-    const db = await dbConnectionMes()
+    const db = await dbConnection()
     const bucket = new GridFSBucket(db)
     const file = await getFile(filename, bucket)
     if (!file) throw new Error('文件不存在')

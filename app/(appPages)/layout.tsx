@@ -1,10 +1,12 @@
 import ClientLayout from "./_component/clientLayout"
 import { getHeadUserData } from "@/utils/getHeadUserData";
-import getMenusByRolesServer from "@/app/api/system/menu/getMenuAll/serverGetMenu";
+import { headers } from "next/headers";
+import getMenusByRolesServer from "@/app/api/system/menu/getListByPage/serverGetMenu";
 
 const Layout = async ({ children }: React.PropsWithChildren) => {
   try {
-    const userData = await getHeadUserData();
+    const headersList = await headers()
+    const userData = await getHeadUserData(headersList);
     const menuData = await getMenusByRolesServer(userData);
     return (
       <ClientLayout menuData={menuData}>

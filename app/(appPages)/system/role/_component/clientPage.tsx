@@ -4,7 +4,7 @@ import { Button, Input, Table, Popconfirm, Space, App } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { LocalRole } from '@/types/api';
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
-import { deleteRoleById, getRoleByPage } from '@/api/role';
+import { deleteRoleById, getRoleByPage } from '@/api/system/role';
 import { PaginationResponse } from '@/types/database';
 import dynamic from 'next/dynamic';
 

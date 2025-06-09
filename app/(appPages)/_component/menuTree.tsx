@@ -19,10 +19,10 @@ function buildTree(items: LocalMenu[], parentId: string | null): MenuProps["item
   return items
     .filter(item => item.parentId === parentId)
     .map(item => {
-      const Icon = dynamic(() => import(`@ant-design/icons/lib/icons/${item.iconPath}`));
+      const IconComponent = dynamic(() => import(`@ant-design/icons`).then((mod: any) => mod[item.iconPath]), {});
       const data = {
         key: item.path,
-        icon: <Suspense fallback={<SyncOutlined spin />}> <Icon /> </Suspense>,
+        icon: <Suspense fallback={<SyncOutlined spin />}> <IconComponent /> </Suspense>,
         label: item.name,
       }
       if (item.type === "folder") {
