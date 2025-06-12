@@ -1,4 +1,4 @@
-import { Drawer, Form, Input, Button, Space, Select, DatePicker, Upload, App } from "antd";
+import { Drawer, Form, Input, Button, Space, Select, DatePicker, Upload, App, Spin } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { LocalUser } from "@/types/api";
 import { RcFile } from "antd/lib/upload";
@@ -19,6 +19,7 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
     currentItem: Partial<LocalUser>
 }) {
     const [form] = Form.useForm();
+    const [spinning, setSpinning] = useState(false);
     const [loading, setLoading] = useState(false);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const originalFilename = useRef<string | null>(null);
@@ -58,6 +59,7 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
     };
 
     const handleSubmit = () => {
+        setSpinning(true);
         form.validateFields().then(async ({ avatar, birthday, ...values }: UserFromProps) => {
             const formData = new FormData();
             // 存在文件且与原文件名不一致时更新
@@ -91,6 +93,8 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
             handleClose({ update: true });
         }).catch((error) => {
 
+        }).finally(() => {
+            setSpinning(false);
         });
     }
     const handleClose = (options: { update: boolean }) => {
@@ -232,6 +236,9 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
                     </Select>
                 </Form.Item> */}
             </Form>
+            <Spin spinning={spinning} fullscreen percent="auto">
+                {"正在提交中，请勿关闭！"}
+            </Spin>
         </Drawer>
     )
 }

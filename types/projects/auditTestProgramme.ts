@@ -29,4 +29,9 @@ export enum AuditTestProgrammeRoles {
     '生产' = '生产',
     '计划' = '计划',
     '总经理' = '总经理',
-}  
+}
+
+export interface GetRelativePathApiProps {
+    path: string;
+    type: "save" | "savePath" | "backup";
+}

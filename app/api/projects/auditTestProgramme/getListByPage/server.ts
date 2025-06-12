@@ -5,15 +5,17 @@ import { checkPermission } from "@/db/mongodb/userCollection"
 import { getListbyPageAuditTestProgrammePermission } from '../permission';
 const defaultPageSize = 10
 const defaultCurrentPage = 1
-export async function getAuditTestProgrammeListbyPage(userData?: UserWithID | null) {
+export async function getAuditTestProgrammeListbyPage(userData: UserWithID) {
     await checkPermission(getListbyPageAuditTestProgrammePermission, userData)
     if (!userData || !userData.id) throw new Error('用户未登录')
-    const { data, ...rest } = await getListbyPageAuditTestProgramme({
+    const { data, total } = await getListbyPageAuditTestProgramme({
         pageSize: defaultPageSize,
         currentPage: defaultCurrentPage
     })
     return {
         data: toLocalAuditTestProgrammeList(data),
-        ...rest
+        total: total,
+        currentPage: defaultCurrentPage,
+        pageSize: defaultPageSize
     }
 } 

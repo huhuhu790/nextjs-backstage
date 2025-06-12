@@ -4,12 +4,14 @@ import { headers } from "next/headers";
 import { removeUserFromRolePermission } from "../permission";
 import { removeUserFromRole } from "@/db/mongodb/roleCollection";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(removeUserFromRolePermission, userData)
         const data: { id: string, userIds: string[] } = await request.json()
+        checkProps(data, ['id', 'userIds']);
         await removeUserFromRole(data.id, data.userIds, userId)
         // 成功响应
         return buildResponse({

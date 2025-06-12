@@ -1,5 +1,5 @@
 import { Db, ObjectId, WithId, Filter } from 'mongodb';
-import { dbConnection } from './connection';
+import { dbConnection, sessionTask } from './connection';
 import { Role, User, UserWithID } from '@/types/system/user';
 import { getUserOption, updateUserDataType } from '@/types/api';
 import { deleteFile, uploadFile } from './gridFSCollection';
@@ -17,7 +17,7 @@ function toLocalList(dbUsers: WithId<User>[]): UserWithID[] {
 }
 
 export async function getPermissions(roleIds: string[]) {
-    const db = await dbConnection()
+    const db = dbConnection()
     const permissions = await getUniquePermissions(roleIds, db)
     return permissions
 }
@@ -34,10 +34,9 @@ export async function getUniquePermissions(roleIds: string[], db: Db) {
 
 
 // 检查权限ID是否在角色权限表中存在
-export async function checkPermission(permissionId: string, userData?: UserWithID | null) {
-    if (!userData) throw new Error("无用户信息")
+export async function checkPermission(permissionId: string, userData: UserWithID) {
     const roleIds = userData.roles
-    const db = await dbConnection()
+    const db = dbConnection()
     const uniquePermissions = await getUniquePermissions(roleIds, db);
     if (!uniquePermissions) throw new Error("权限获取失败")
     if (!uniquePermissions.includes(permissionId)) throw new Error("无权限访问")
@@ -45,7 +44,7 @@ export async function checkPermission(permissionId: string, userData?: UserWithI
 }
 
 export async function verifyUserCredentials(user: { username: string, password: string }) {
-    const db = await dbConnection()
+    const db = dbConnection()
     const usersCollection = db.collection<User>('users');
     const password = await serverEncrypt(user.password)
     const dbUser = await usersCollection.findOne({ username: user.username });
@@ -55,14 +54,14 @@ export async function verifyUserCredentials(user: { username: string, password: 
 }
 
 export async function getUserInfo(userId: string) {
-    const db = await dbConnection()
+    const db = dbConnection()
     const usersCollection = db.collection<User>('users');
     const dbUser = await usersCollection.findOne({ _id: new ObjectId(userId) });
     return dbUser ? toLocal(dbUser) : null;
 }
 
 export async function getListByPageUser(options?: getUserOption) {
-    const db = await dbConnection()
+    const db = dbConnection()
     const usersCollection = db.collection<User>('users');
     const query: Filter<User> = {};
     if (options?.keyword) {
@@ -90,13 +89,8 @@ export async function getListByPageUser(options?: getUserOption) {
     };
 }
 
-export async function insertOneUser(data: Partial<updateUserDataType>, operatorId: string) {
-    if (!data.username) throw new Error("用户名不能为空")
-    if (!data.name) throw new Error("姓名不能为空")
-    if (!data.workingId) throw new Error("工号不能为空")
-    if (!data.phone) throw new Error("电话不能为空")
-    if (!data.gender) throw new Error("性别不能为空")
-    const db = await dbConnection()
+export async function insertOneUser(data: updateUserDataType, operatorId: string) {
+    const db = dbConnection()
     // 上传头像时同时存在文件与文件名时更新
     if (data.file && data.avatar) {
         const fileId = await uploadFile(data.avatar, data.file, db)
@@ -107,7 +101,7 @@ export async function insertOneUser(data: Partial<updateUserDataType>, operatorI
     const result = await collection.insertOne({
         username: data.username,
         password: await serverEncrypt(process.env.DEFAULT_PASSWORD!),
-        email: data.email || null,
+        email: data.email,
         phone: data.phone,
         name: data.name,
         workingId: data.workingId,
@@ -129,18 +123,14 @@ export async function insertOneUser(data: Partial<updateUserDataType>, operatorI
     return result;
 }
 
-export async function updateOwn(data: Partial<updateUserDataType>, operatorId: string) {
-    if (!data.id) throw new Error("用户ID不能为空")
-    if (!data.name) throw new Error("姓名不能为空")
-    if (!data.phone) throw new Error("电话不能为空")
-    if (!data.gender) throw new Error("性别不能为空")
-    const db = await dbConnection()
+export async function updateOwn(data: updateUserDataType, operatorId: string) {
+    const db = dbConnection()
     const collection = db.collection<User>("users");
     const userItem = await collection.findOne({ _id: new ObjectId(data.id) })
     if (!userItem) throw new Error("用户不存在")
     const date = new Date();
     const setData: Partial<User> = {
-        email: data.email || null,
+        email: data.email,
         phone: data.phone,
         name: data.name,
         gender: data.gender,
@@ -168,21 +158,15 @@ export async function updateOwn(data: Partial<updateUserDataType>, operatorId: s
     return result;
 }
 
-export async function updateOneUser(data: Partial<updateUserDataType>, operatorId: string) {
-    if (!data.id) throw new Error("用户ID不能为空")
-    if (!data.username) throw new Error("用户名不能为空")
-    if (!data.name) throw new Error("姓名不能为空")
-    if (!data.workingId) throw new Error("工号不能为空")
-    if (!data.phone) throw new Error("电话不能为空")
-    if (!data.gender) throw new Error("性别不能为空")
-    const db = await dbConnection()
+export async function updateOneUser(data: updateUserDataType, operatorId: string) {
+    const db = dbConnection()
     const collection = db.collection<User>("users");
     const userItem = await collection.findOne({ _id: new ObjectId(data.id) })
     if (!userItem) throw new Error("用户不存在")
     const date = new Date();
     const setData: Partial<User> = {
         username: data.username,
-        email: data.email || null,
+        email: data.email,
         phone: data.phone,
         name: data.name,
         workingId: data.workingId,
@@ -213,35 +197,34 @@ export async function updateOneUser(data: Partial<updateUserDataType>, operatorI
 }
 
 export async function deleteOneUser(id: string, operatorId: string) {
-    if (!id) throw new Error("用户ID不能为空")
-    const db = await dbConnection()
+    const db = dbConnection()
     const collection = db.collection<User>("users");
     const userItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!userItem) throw new Error("用户不存在")
-    const result = await collection.deleteOne({ _id: new ObjectId(id) });
-    if (userItem.avatar) await deleteFile(userItem.avatar, db)
-    if (userItem.roles.length > 0) {
-        const rolesCollection = db.collection<Role>("roles");
-        await rolesCollection.updateMany(
-            {
-                _id: { $in: userItem.roles.map(role => new ObjectId(role)) }
-            },
-            {
-                $pull: { users: id },
-                $set: {
-                    updatedAt: new Date(),
-                    updatedBy: operatorId,
+    return await sessionTask(async () => {
+        const result = await collection.deleteOne({ _id: new ObjectId(id) });
+        if (userItem.avatar) await deleteFile(userItem.avatar, db)
+        if (userItem.roles.length > 0) {
+            const rolesCollection = db.collection<Role>("roles");
+            await rolesCollection.updateMany(
+                {
+                    _id: { $in: userItem.roles.map(role => new ObjectId(role)) }
+                },
+                {
+                    $pull: { users: id },
+                    $set: {
+                        updatedAt: new Date(),
+                        updatedBy: operatorId,
+                    }
                 }
-            }
-        );
-    }
-    return result;
+            );
+        }
+        return result;
+    })
 }
 
 export async function updateRoleToUser(id: string, roleIds: string[], operatorId: string) {
-    if (!id) throw new Error("用户ID不能为空")
-    if (!roleIds) throw new Error("角色ID不能为空")
-    const db = await dbConnection()
+    const db = dbConnection()
     const collection = db.collection<User>("users");
     const userItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!userItem) throw new Error("用户不存在")
@@ -249,38 +232,39 @@ export async function updateRoleToUser(id: string, roleIds: string[], operatorId
     const removedRoleIds = oldRoleIds.filter(role => !roleIds.includes(role))
     const addedRoleIds = roleIds.filter(role => !oldRoleIds.includes(role))
     const rolesCollection = db.collection<Role>("roles");
-    await rolesCollection.updateMany({
-        _id: { $in: removedRoleIds.map(role => new ObjectId(role)) }
-    },
-        {
-            $pull: { users: id },
-            $set: {
-                updatedAt: new Date(),
-                updatedBy: operatorId,
-            }
-        });
-    await rolesCollection.updateMany({
-        _id: { $in: addedRoleIds.map(role => new ObjectId(role)) }
-    },
-        {
-            $push: { users: id },
-            $set: {
-                updatedAt: new Date(),
-                updatedBy: operatorId,
-            }
-        });
+    return await sessionTask(async () => {
+        await rolesCollection.updateMany({
+            _id: { $in: removedRoleIds.map(role => new ObjectId(role)) }
+        },
+            {
+                $pull: { users: id },
+                $set: {
+                    updatedAt: new Date(),
+                    updatedBy: operatorId,
+                }
+            });
+        await rolesCollection.updateMany({
+            _id: { $in: addedRoleIds.map(role => new ObjectId(role)) }
+        },
+            {
+                $push: { users: id },
+                $set: {
+                    updatedAt: new Date(),
+                    updatedBy: operatorId,
+                }
+            });
 
-    const result = await collection.updateOne(
-        { _id: new ObjectId(id) },
-        {
-            $set: {
-                roles: roleIds,
-                updatedAt: new Date(),
-                updatedBy: operatorId
+        return await collection.updateOne(
+            { _id: new ObjectId(id) },
+            {
+                $set: {
+                    roles: roleIds,
+                    updatedAt: new Date(),
+                    updatedBy: operatorId
+                }
             }
-        }
-    );
-    return result;
+        );
+    })
 }
 
 
@@ -289,10 +273,7 @@ export async function updatePassword(data: {
     newPassword: string,
     id: string
 }, operatorId: string) {
-    if (!data.id) throw new Error("用户ID不能为空")
-    if (!data.originPassword) throw new Error("原密码不能为空")
-    if (!data.newPassword) throw new Error("新密码不能为空")
-    const db = await dbConnection()
+    const db = dbConnection()
     const collection = db.collection<User>("users");
     const userItem = await collection.findOne({ _id: new ObjectId(data.id) })
     if (!userItem) throw new Error("用户不存在")

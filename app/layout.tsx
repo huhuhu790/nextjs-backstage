@@ -12,9 +12,12 @@ export const metadata: Metadata = {
 };
 
 const Layout = async ({ children }: React.PropsWithChildren) => {
-  const headersList = await headers()
-  const userData = await getHeadUserData(headersList);
-  const permissions = await getPermissionsServer(userData?.roles || [])
+  let userData = null, permissions: string[] = []
+  try {
+    const headersList = await headers()
+    userData = await getHeadUserData(headersList);
+    permissions = await getPermissionsServer(userData?.roles || [])
+  } catch (error) { }
   return (
     <html>
       <body>

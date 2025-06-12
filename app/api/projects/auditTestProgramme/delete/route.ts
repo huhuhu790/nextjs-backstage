@@ -4,17 +4,17 @@ import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { deleteOneAuditTestProgrammePermission } from "../permission";
 import { deleteOneAuditTestProgramme } from "@/db/mongodb/auditTestProgrammeCollection";
-import { deleteFile } from "@/utils/fileOperations";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
 
 export async function POST(request: NextRequest) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(deleteOneAuditTestProgrammePermission, userData)
-        const { id } = await request.json();
-        const filename = await deleteOneAuditTestProgramme(id, userId)
-        await deleteFile(filename);
+        const data: { id: string } = await request.json();
+        checkProps(data, ['id'])
+        await deleteOneAuditTestProgramme(data.id, userId)
 
         return buildResponse({
             status: 200,

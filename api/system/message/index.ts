@@ -3,13 +3,13 @@ import { fetchData } from "../../fetchApi";
 import { LocalMessage } from "@/types/api";
 import { MessageInstance } from "antd/lib/message/interface";
 
-export async function getMessageListByPage(body: PaginationRequest) {
-    return fetchData<PaginationResponse<LocalMessage[]>, PaginationRequest>('/api/system/message/getListByPage', {
+export async function getMessageListByPage(body: Partial<PaginationRequest>) {
+    return fetchData<PaginationResponse<LocalMessage[]>, Partial<PaginationRequest>>('/api/system/message/getListByPage', {
         body
     })
 }
 
-export async function sendingMessage(body: LocalMessage, message:MessageInstance) {
+export async function sendingMessage(body: LocalMessage, message: MessageInstance) {
     return fetchData<null, LocalMessage>('/api/system/message/sendingMessage', {
         body, message
     })

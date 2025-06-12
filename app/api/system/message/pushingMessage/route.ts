@@ -1,13 +1,12 @@
-import {NextResponse} from 'next/server';
-import {createMessageEventListener} from '@/db/mongodb/messageCollection';
-import {getHeadUserData} from '@/utils/getHeadUserData';
-import {toLocalMessage} from '../dataTransform';
-import {headers} from 'next/headers';
-export async function GET(request: Request) {
+import { NextResponse } from 'next/server';
+import { createMessageEventListener } from '@/db/mongodb/messageCollection';
+import { getHeadUserData } from '@/utils/getHeadUserData';
+import { toLocalMessage } from '../dataTransform';
+import { headers } from 'next/headers';
+export async function GET() {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
-        if (!userData || !userData.id) throw new Error('用户未登录')
+        const userData = await getHeadUserData(headersList);
         // 初始化 SSE 流
         const encoder = new TextEncoder();
         const stream = new ReadableStream({
@@ -33,6 +32,6 @@ export async function GET(request: Request) {
     } catch (error) {
         console.error(error);
         const message = (error as Error).message || '获取失败'
-        return new NextResponse(message, {status: 400})
+        return new NextResponse(message, { status: 400 })
     }
 }

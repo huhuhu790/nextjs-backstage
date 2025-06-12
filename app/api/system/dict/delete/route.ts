@@ -5,14 +5,16 @@ import { NextRequest } from "next/server";
 import { buildResponse } from "@/utils/buildResponse";
 import { deleteOneDictPermission } from "../permission";
 import { deleteOneDict } from "@/db/mongodb/dictCollection";
+import { checkProps } from "@/utils/checkProps";
 
 export async function POST(request: NextRequest) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(deleteOneDictPermission, userData)
         const data: { id: string } = await request.json()
-        const result = await deleteOneDict(data.id, userId)
+        checkProps(data, ['id'])
+        await deleteOneDict(data.id, userId)
 
         return buildResponse({
             status: 200,

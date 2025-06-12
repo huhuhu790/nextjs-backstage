@@ -7,7 +7,7 @@ export interface BasicUser {
     name: string;
     workingId: string;
     gender: '男' | '女' | '其他';
-    email?: string | null;
+    email: string;
     roles: string[];
     avatar?: string | null;
     birthday?: Date | string | null;

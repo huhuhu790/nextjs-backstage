@@ -3,15 +3,14 @@ import { headers } from "next/headers";
 import { buildResponse } from "@/utils/buildResponse";
 import { getOneByIdDict } from "@/db/mongodb/dictCollection";
 import { toLocalDict } from "../dataTransform";
+import { checkProps } from "@/utils/checkProps";
 
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
-        if (!userData) {
-            throw new Error('用户数据未找到');
-        }
+        await getHeadUserData(headersList);
         const body: { id: string } = await request.json()
+        checkProps(body, ['id']);
         const data = await getOneByIdDict(body.id)
         // 成功响应
         return buildResponse({

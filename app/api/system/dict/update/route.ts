@@ -6,14 +6,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { updateOneDictPermission } from "../permission";
 import { updateOneDict } from "@/db/mongodb/dictCollection";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
 
 export async function POST(request: NextRequest) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(updateOneDictPermission, userData)
-        const data: Partial<LocalDict> = await request.json()
-        const result = await updateOneDict(data, userId)
+        const data: LocalDict = await request.json()
+        checkProps(data, ['id', 'name']);
+        await updateOneDict(data, userId)
         // 成功响应
         const response: ApiResponse = {
             status: 200,

@@ -4,13 +4,15 @@ import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { updateRoleToUserPermission } from "../permission";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
 
 export async function POST(request: NextRequest) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(updateRoleToUserPermission, userData)
         const body: { id: string, roleIds: string[] } = await request.json()
+        checkProps(body, ['id', 'roleIds']);
         await updateRoleToUser(body.id, body.roleIds, userId)
         // 成功响应
         return buildResponse({

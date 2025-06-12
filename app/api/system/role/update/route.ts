@@ -4,13 +4,16 @@ import { headers } from "next/headers";
 import { updateOneRolePermission } from "../permission";
 import { updateOneRole } from "@/db/mongodb/roleCollection";
 import { buildResponse } from "@/utils/buildResponse";
+import { LocalRole } from "@/types/api";
+import { checkProps } from "@/utils/checkProps";
 
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(updateOneRolePermission, userData)
-        const data = await request.json()
+        const data: LocalRole = await request.json()
+        checkProps(data, ['id', 'name']);
         await updateOneRole(data, userId)
         // 成功响应
         return buildResponse({

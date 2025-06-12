@@ -6,14 +6,16 @@ import { getListByPageRolePermission } from '../permission';
 
 const defaultPageSize = 10
 const defaultCurrentPage = 1
-export async function getRoleServer(userData?: UserWithID | null) {
+export async function getRoleServer(userData: UserWithID) {
     await checkPermission(getListByPageRolePermission, userData)
-    const { data, ...rest } = await getListByPageRole({
+    const { data, total } = await getListByPageRole({
         pageSize: defaultPageSize,
         currentPage: defaultCurrentPage
     })
     return {
         data: toLocalRoles(data),
-        ...rest
+        total,
+        pageSize: defaultPageSize,
+        currentPage: defaultCurrentPage
     }
 };

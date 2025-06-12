@@ -1,4 +1,4 @@
-import { LocalAuditTestProgramme } from "@/types/projects/auditTestProgramme";
+import { GetRelativePathApiProps, LocalAuditTestProgramme } from "@/types/projects/auditTestProgramme";
 import { addAuditTestProgramme, updateAuditTestProgramme } from "@/api/projects/auditTestProgramme";
 import { Drawer, Form, Input, Button, Space, App, Upload, Spin } from "antd";
 import { useEffect, useRef, useState } from "react";
@@ -21,7 +21,7 @@ export default function DictDrawer({ open, onClose, title, currentItem }: {
     const [spinning, setSpinning] = useState(false);
     const [openSelectPathModal, setOpenSelectPathModal] = useState(false);
     const formName = useRef<string>('');
-    const pathType = useRef<string>('');
+    const pathType = useRef<GetRelativePathApiProps['type']>('backup');
 
     useEffect(() => {
         if (open && currentItem) {
@@ -35,7 +35,7 @@ export default function DictDrawer({ open, onClose, title, currentItem }: {
                 message.error('请上传程序文件');
                 return;
             }
-            const filename = await uploadFile(values.programmeFile[0])
+            const filename = await uploadFile(values.programmeFile[0], message)
             const data = {
                 newFileName: filename,
                 name: values.name,
@@ -66,14 +66,19 @@ export default function DictDrawer({ open, onClose, title, currentItem }: {
     const beforeUpload = (file: RcFile) => {
         return false
     }
-    const handleCloseSelectPathModal = (key?: string[]) => {
+    const handleCloseSelectPathModal = (key?: string) => {
         setOpenSelectPathModal(false);
         if (key) {
-            console.log(key);
-
+            if (pathType.current === "save") {
+                if (key === "/") return message.error('请选择正确路径');
+                const lastSlashIndex = key.lastIndexOf('/');
+                if (lastSlashIndex === -1) return message.error('请选择正确路径');
+                form.setFieldValue("originFileName", key.substring(lastSlashIndex + 1))
+                form.setFieldValue(formName.current, key.substring(0, lastSlashIndex + 1))
+            } else form.setFieldValue(formName.current, key)
         }
     }
-    const handleOpenSelectPathModal = (name: string, typeName: string) => {
+    const handleOpenSelectPathModal = (name: string, typeName: GetRelativePathApiProps['type']) => {
         formName.current = name;
         pathType.current = typeName;
         setOpenSelectPathModal(true);
@@ -109,30 +114,30 @@ export default function DictDrawer({ open, onClose, title, currentItem }: {
                 <Form.Item
                     label="原文件路径"
                     name="originFilePath"
-                    rules={[{ required: true, message: '请输入原文件路径' }]}
+                    rules={[{ required: true, message: '请选择原文件路径' }]}
                 >
-                    <Input onClick={() => handleOpenSelectPathModal('originFilePath', 'ftp')} />
+                    <Input.Search onSearch={() => handleOpenSelectPathModal('originFilePath', 'save')} />
                 </Form.Item>
                 <Form.Item
                     label="原文件名"
                     name="originFileName"
-                    rules={[{ required: true, message: '请输入原文件名' }]}
+                    rules={[{ required: true, message: '请选择原文件路径' }]}
                 >
                     <Input />
                 </Form.Item>
                 <Form.Item
                     label="新文件路径"
                     name="newFilePath"
-                    rules={[{ required: true, message: '请输入新文件路径' }]}
+                    rules={[{ required: true, message: '请选择新文件路径' }]}
                 >
-                    <Input onClick={() => handleOpenSelectPathModal('newFilePath', 'ftp')} />
+                    <Input.Search onSearch={() => handleOpenSelectPathModal('newFilePath', 'savePath')} />
                 </Form.Item>
                 <Form.Item
                     label="备份路径"
                     name="backupPath"
-                    rules={[{ required: true, message: '请输入备份路径' }]}
+                    rules={[{ required: true, message: '请选择备份路径' }]}
                 >
-                    <Input onClick={() => handleOpenSelectPathModal('backupPath', 'bak')} />
+                    <Input.Search onSearch={() => handleOpenSelectPathModal('backupPath', 'backup')} />
                 </Form.Item>
                 <Form.Item
                     label="程序文件"
@@ -150,9 +155,9 @@ export default function DictDrawer({ open, onClose, title, currentItem }: {
                 </Form.Item>
             </Form>
             <Spin spinning={spinning} fullscreen percent="auto">
-                {"正在上传文件中，请勿关闭！"}
+                {"正在提交中，请勿关闭！"}
             </Spin>
-            <SelectPathModal open={openSelectPathModal} onClose={handleCloseSelectPathModal} />
+            <SelectPathModal open={openSelectPathModal} onClose={handleCloseSelectPathModal} type={pathType} />
         </Drawer>
     )
 }

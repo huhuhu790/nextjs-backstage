@@ -4,12 +4,15 @@ import { checkPermission } from "@/db/mongodb/userCollection";
 import { sendingMessagePermission } from "../permission";
 import { sendingMessage } from "@/db/mongodb/messageCollection";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
+import { LocalMessage } from "@/types/api";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(sendingMessagePermission, userData)
-        const body = await request.json()
+        const body: LocalMessage = await request.json()
+        checkProps(body, ['title', 'content']);
         await sendingMessage(body, userId)
 
         // 成功响应

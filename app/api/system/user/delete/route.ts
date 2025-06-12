@@ -4,13 +4,15 @@ import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { deleteOneUserPermission } from "../permission";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
 export async function POST(request: NextRequest) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(deleteOneUserPermission, userData)
-        const body = await request.json()
-        const result = await deleteOneUser(body.id, userId)
+        const body: { id: string } = await request.json()
+        checkProps(body, ['id']);
+        await deleteOneUser(body.id, userId)
         // 成功响应
         return buildResponse({
             status: 200,

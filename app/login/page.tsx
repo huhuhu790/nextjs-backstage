@@ -4,18 +4,19 @@ import { Button, Form, Input, Card, Layout, Checkbox, App } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSetAtom } from 'jotai';
 import { userInfoAtom } from '@/store/user/userAtom';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { handleLogin } from '@/api/auth';
 import { sha256 } from '@/utils/encrypt';
 import { LoginFieldType } from '@/types/api';
 import { permissionsAtom } from '@/store/user/permissionsAtom';
-const Page: React.FC = () => {
+
+function Login() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { notification, message } = App.useApp()
   const openNotification = (message: string) => {
     notification.error({
-      message: '登出失败',
+      message: '登录失败',
       description: message,
       duration: 0,
     });
@@ -91,4 +92,10 @@ const Page: React.FC = () => {
   )
 };
 
-export default Page;
+export default function Page() {
+  return (
+    <Suspense>
+      <Login />
+    </Suspense>
+  )
+}

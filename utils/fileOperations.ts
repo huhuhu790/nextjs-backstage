@@ -1,3 +1,4 @@
+import { GetRelativePathApiProps } from '@/types/projects/auditTestProgramme';
 import { existsSync, promises } from 'fs';
 import { join } from 'path';
 const tmpPath = process.env.TEST_PROGRAMME_TMP_PATH!
@@ -14,6 +15,8 @@ export function checkFileExistsOrigin(fileName: string) {
 
 function checkPathExists(filename: string, basePath: string) {
     const path = join(basePath, filename);
+    console.log(path);
+    
     if (!existsSync(path)) {
         throw new Error(`路径不存在: ${filename}`);
     }
@@ -56,6 +59,7 @@ export async function moveFileFromTmpToTargetPath(targetPath: string, fileName: 
     // 将生成唯一的文件名修改为原本文件名
     const originalFileName = fileName.split('-').slice(1).join('-');
     await moveFileToTargetPath(tmpPath, realTargetPath, fileName, originalFileName);
+    return originalFileName
 }
 
 export async function moveFileFromOriginToBackupPath(originPath: string, backupPath: string, fileName: string) {
@@ -73,5 +77,49 @@ export async function deleteFile(fileName: string) {
         console.error(error);
         const message = (error as Error).message || '删除文件失败'
         throw new Error(message);
+    }
+}
+
+// 读取目录下的所有子目录
+async function getSubDirs(relative: string, path: string, needFile: boolean = false) {
+    const basePath = join(relative, path);
+    if (!existsSync(basePath)) {
+        throw new Error(`路径不存在: ${path}`);
+    }
+    if (!promises.stat(basePath).then(stat => stat.isDirectory())) {
+        throw new Error(`路径不是目录: ${path}`);
+    }
+    // 读取目录下的所有子目录
+    const files = await promises.readdir(basePath);
+    const subDirs = [];
+    for (const file of files) {
+        const filePath = join(basePath, file);
+        const stat = await promises.stat(filePath);
+        const relativePath = filePath.replaceAll("\\", "/").replace(relative, '');
+        if (stat.isDirectory()) {
+            subDirs.push({
+                type: 'folder',
+                name: relativePath
+            });
+        } else if (needFile && stat.isFile()) {
+            subDirs.push({
+                type: 'file',
+                name: relativePath
+            });
+        }
+    }
+    return subDirs;
+}
+
+export async function getRelativePath({ path, type }: GetRelativePathApiProps) {
+    switch (type) {
+        case 'save':
+            return await getSubDirs(basePath, path, true)
+        case 'savePath':
+            return await getSubDirs(basePath, path);
+        case 'backup':
+            return await getSubDirs(backupBasePath, path);
+        default:
+            throw new Error('无效的路径类型');
     }
 }

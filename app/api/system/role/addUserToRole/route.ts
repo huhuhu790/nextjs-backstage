@@ -4,12 +4,14 @@ import { headers } from "next/headers";
 import { addUserToRolePermission } from "../permission";
 import { addUserToRole } from "@/db/mongodb/roleCollection";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(addUserToRolePermission, userData)
         const data: { id: string, userIds: string[] } = await request.json()
+        checkProps(data, ['id', 'userIds']);
         await addUserToRole(data.id, data.userIds, userId)
         // 成功响应
         return buildResponse({

@@ -4,26 +4,35 @@ import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
 export async function POST(request: NextRequest) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         if (!userData) throw new Error('请先登录')
         const formData = await request.formData()
-        const department = formData.get('department') as string
         const id = formData.get('id') as string
         if (id !== userData.id) throw new Error('无权限操作')
-        const data: Partial<updateUserDataType> = {
+        const data: updateUserDataType = {
             id: formData.get('id') as string,
             name: formData.get('name') as string,
             gender: formData.get('gender') as LocalUser["gender"],
             phone: formData.get('phone') as string,
-            email: formData.get('email') as string || null,
+            email: formData.get('email') as string,
             address: formData.get('address') as string || null,
             birthday: formData.get('birthday') as string || null,
             avatar: formData.get('avatar') as string || null,
             file: formData.get('file') as File || null,
+            roles: [],
+            username: "", workingId: ""
         }
+        checkProps(data, [
+            'id',
+            'name',
+            'gender',
+            'phone',
+            'email',
+        ])
         await updateOwn(data, userData.id)
         // 成功响应
         return buildResponse({

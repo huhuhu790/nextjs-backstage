@@ -5,13 +5,15 @@ import { headers } from "next/headers";
 import { updateOneMenu } from "@/db/mongodb/menuCollection";
 import { updateOneMenuPermission } from "../permission";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(updateOneMenuPermission, userData)
-        const data: Partial<LocalMenu> = await request.json()
-         await updateOneMenu(data, userId)
+        const data: LocalMenu = await request.json()
+        checkProps(data, ['id', 'name', 'path', 'type', 'iconPath']);
+        await updateOneMenu(data, userId)
         // 成功响应
         return buildResponse({
             status: 200,

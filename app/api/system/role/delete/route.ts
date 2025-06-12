@@ -4,13 +4,14 @@ import { headers } from "next/headers";
 import { deleteOneRolePermission } from "../permission";
 import { deleteOneRole } from "@/db/mongodb/roleCollection";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(deleteOneRolePermission, userData)
-        const data: { id?: string } = await request.json()
-        if (!data.id) throw new Error("角色id无效")
+        const data: { id: string } = await request.json()
+        checkProps(data, ['id']);
         await deleteOneRole(data.id, userId)
         // 成功响应
         return buildResponse({

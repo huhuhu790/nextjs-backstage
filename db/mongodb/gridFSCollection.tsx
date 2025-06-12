@@ -18,10 +18,10 @@ export async function uploadFile(name: string, file: File, db: Db) {
     return filename
 }
 
-export async function downloadFile(filename: string) {
-    const db = await dbConnection()
+export async function downloadFile(fileId: string) {
+    const db = dbConnection()
     const bucket = new GridFSBucket(db)
-    const file = await getFile(filename, bucket)
+    const file = await getFile(fileId, bucket)
     if (!file) throw new Error('文件不存在')
     const id = new ObjectId(file._id)
     const stream = bucket.openDownloadStream(id)

@@ -4,3 +4,4 @@ export const updateOneAuditTestProgrammePermission = '683e8637e809a9065183c0dc';
 export const deleteOneAuditTestProgrammePermission = '683e8644e809a9065183c0dd';
 export const signByRoleAuditTestProgrammePermission = '683fb181a77ae3c285e72f1b';
 export const checkAuditTestProgrammePermission = '683fb19ca77ae3c285e72f1c';
+export const getRelativePathPermission = "68465434b03f87708055e191"

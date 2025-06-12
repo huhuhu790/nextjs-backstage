@@ -4,14 +4,15 @@ import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { deleteOneMenuPermission } from "../permission";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
 
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(deleteOneMenuPermission, userData)
-        const data: { id?: string } = await request.json()
-        if (!data.id) throw new Error("目录id无效")
+        const data: { id: string } = await request.json()
+        checkProps(data, ['id']);
         await deleteOneMenu(data.id, userId)
         // 成功响应
         return buildResponse({

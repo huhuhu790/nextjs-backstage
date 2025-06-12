@@ -20,7 +20,7 @@ function toLocalList(dbDicts: WithId<DictItem>[]) {
 }
 
 export async function getListByPageDict(options?: PaginationRequest) {
-    const db = await dbConnection()
+    const db = dbConnection()
     const dictsCollection = db.collection<DictItem>('dictionaries');
     const query: Filter<DictItem> = {};
     if (options?.keyword) {
@@ -45,17 +45,15 @@ export async function getListByPageDict(options?: PaginationRequest) {
 }
 
 export async function getOneByIdDict(id: string) {
-    if (!id) throw new Error("字典ID不能为空")
-    const db = await dbConnection()
+    const db = dbConnection()
     const dictsCollection = db.collection<DictItem>('dictionaries');
     const dict = await dictsCollection.findOne({ _id: new ObjectId(id) });
     if (!dict) throw new Error("字典不存在")
     return toLocal(dict);
 }
 
-export async function insertOneDict(data: Partial<LocalDict>, operatorId: string) {
-    if (!data.name) throw new Error("字典名称不能为空")
-    const db = await dbConnection()
+export async function insertOneDict(data: LocalDict, operatorId: string) {
+    const db = dbConnection()
     const date = new Date();
     const collection = db.collection<DictItem>("dictionaries");
     const result = await collection.insertOne({
@@ -74,10 +72,8 @@ export async function insertOneDict(data: Partial<LocalDict>, operatorId: string
     return result;
 }
 
-export async function updateOneDict(data: Partial<LocalDict>, operatorId: string) {
-    if (!data.id) throw new Error("字典ID不能为空")
-    if (!data.name) throw new Error("字典名称不能为空")
-    const db = await dbConnection()
+export async function updateOneDict(data:LocalDict, operatorId: string) {
+    const db = dbConnection()
     const date = new Date();
     const collection = db.collection<DictItem>("dictionaries");
     const result = await collection.updateOne(
@@ -95,8 +91,7 @@ export async function updateOneDict(data: Partial<LocalDict>, operatorId: string
 }
 
 export async function deleteOneDict(id: string, operatorId: string) {
-    if (!id) throw new Error("字典ID不能为空")
-    const db = await dbConnection()
+    const db = dbConnection()
     const collection = db.collection<DictItem>("dictionaries");
     const dictItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!dictItem) throw new Error("字典不存在")
@@ -105,9 +100,7 @@ export async function deleteOneDict(id: string, operatorId: string) {
 }
 
 export async function deleteOneDictValue(valueId: string, dictId: string, operatorId: string) {
-    if (!valueId) throw new Error("字典值ID不能为空")
-    if (!dictId) throw new Error("字典ID不能为空")
-    const db = await dbConnection()
+    const db = dbConnection()
     const collection = db.collection<DictItem>("dictionaries");
     const dictItem = await collection.findOne({ _id: new ObjectId(dictId) })
     if (!dictItem) throw new Error("字典不存在")
@@ -125,11 +118,7 @@ export async function deleteOneDictValue(valueId: string, dictId: string, operat
 }
 
 export async function updateOneDictValue(value: DictValue, dictId: string, operatorId: string) {
-    if (!dictId) throw new Error("字典表ID不能为空")
-    if (!value._id) throw new Error("字典值ID不能为空")
-    if (!value.name) throw new Error("字典值名称不能为空")
-    if (!value.value) throw new Error("字典值不能为空")
-    const db = await dbConnection()
+    const db = dbConnection()
     const collection = db.collection<DictItem>("dictionaries");
     const dictItem = await collection.findOne({ _id: new ObjectId(dictId) })
     if (!dictItem) throw new Error("字典表不存在")
@@ -157,10 +146,7 @@ export async function updateOneDictValue(value: DictValue, dictId: string, opera
 }
 
 export async function insertOneDictValue(value: DictValue, dictId: string, operatorId: string) {
-    if (!dictId) throw new Error("字典表ID不能为空")
-    if (!value.name) throw new Error("字典值名称不能为空")
-    if (!value.value) throw new Error("字典值不能为空")
-    const db = await dbConnection()
+    const db = dbConnection()
     const collection = db.collection<DictItem>("dictionaries");
     const dictItem = await collection.findOne({ _id: new ObjectId(dictId) })
     if (!dictItem) throw new Error("字典表不存在")

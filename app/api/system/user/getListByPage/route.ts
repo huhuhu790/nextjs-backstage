@@ -4,12 +4,13 @@ import { headers } from "next/headers";
 import { getListByPageUserPermission } from "../permission";
 import { toLocalUserList } from "../dataTransform";
 import { buildResponse } from "@/utils/buildResponse";
+import { getUserOption } from "@/types/api";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
-        const userId = await checkPermission(getListByPageUserPermission, userData)
-        const body = await request.json()
+        const userData = await getHeadUserData(headersList);
+        await checkPermission(getListByPageUserPermission, userData)
+        const body: getUserOption = await request.json()
         const { data, ...records } = await getListByPageUser(body)
         // 成功响应
         return buildResponse({

@@ -197,30 +197,39 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
     ];
 
     const handleAudit = (role: AuditTestProgrammeRoles, id: string) => {
+        setLoading(true)
         signByRoleAuditTestProgramme({
             id,
             roleName: role
         }, message).then((res) => {
             updateTableData('', currentPage, pageSize);
         }).catch((err) => {
-            
-        });
+
+        }).finally(() => {
+            setLoading(false)
+        })
     }
 
     const handleSubmit = (id: string) => {
+        setLoading(true)
         checkAuditTestProgramme(id, message).then((res) => {
             updateTableData('', currentPage, pageSize);
         }).catch((err) => {
-            
+
+        }).finally(() => {
+            setLoading(false)
         })
     }
 
     const handleDelete = (id: string) => {
+        setLoading(true)
         deleteAuditTestProgramme(id, message).then((res) => {
             updateTableData('', currentPage, pageSize);
         }).catch((err) => {
-            
-        });
+
+        }).finally(() => {
+            setLoading(false)
+        })
     };
 
     const handleAdd = () => {
@@ -243,7 +252,7 @@ export default function ClientPage({ initData }: { initData: PaginationResponse<
                 setPageSize(res.pageSize!);
             }
         }).catch((err) => {
-            
+
         }).finally(() => {
             setLoading(false);
         });

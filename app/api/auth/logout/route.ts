@@ -8,7 +8,7 @@ export async function POST() {
     try {
         // 获取用户信息
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         if (!userData) throw new Error("未找到用户");
         // 移除Redis中的会话记录
         await removeUserSession(userData.id);

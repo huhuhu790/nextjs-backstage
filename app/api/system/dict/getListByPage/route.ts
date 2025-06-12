@@ -5,12 +5,15 @@ import { buildResponse } from "@/utils/buildResponse";
 import { getListByPageDictPermission } from "../permission";
 import { getListByPageDict } from "@/db/mongodb/dictCollection";
 import { toLocalDictList } from "../dataTransform";
+import { checkProps } from "@/utils/checkProps";
+import { PaginationRequest } from "@/types/database";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
-        const userId = await checkPermission(getListByPageDictPermission, userData)
-        const body = await request.json()
+        const userData = await getHeadUserData(headersList);
+        await checkPermission(getListByPageDictPermission, userData)
+        const body: PaginationRequest = await request.json()
+        checkProps(body, ['currentPage', 'pageSize']);
         const { data, ...records } = await getListByPageDict(body)
         // 成功响应
         return buildResponse({

@@ -1,6 +1,6 @@
 import { fetchData } from "@/api/fetchApi";
 import { PaginationRequest, PaginationResponse } from "@/types/database";
-import { LocalAuditTestProgramme } from "@/types/projects/auditTestProgramme";
+import { GetRelativePathApiProps, LocalAuditTestProgramme } from "@/types/projects/auditTestProgramme";
 import { MessageInstance } from "antd/lib/message/interface";
 
 export async function addAuditTestProgramme(body: Partial<LocalAuditTestProgramme>, message: MessageInstance) {
@@ -36,4 +36,13 @@ export async function checkAuditTestProgramme(id: string, message: MessageInstan
         body: { id },
         message
     })
+}
+
+export async function getRelativePath(body: GetRelativePathApiProps) {
+    return await fetchData<{
+        type: 'file' | 'folder',
+        name: string
+    }[], GetRelativePathApiProps>('/api/projects/auditTestProgramme/getRelativePath', {
+        body
+    });
 }

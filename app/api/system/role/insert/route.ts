@@ -4,12 +4,15 @@ import { headers } from "next/headers";
 import { insertOneRolePermission } from "../permission";
 import { insertOneRole } from "@/db/mongodb/roleCollection";
 import { buildResponse } from "@/utils/buildResponse";
+import { LocalRole } from "@/types/api";
+import { checkProps } from "@/utils/checkProps";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(insertOneRolePermission, userData)
-        const data = await request.json()
+        const data: LocalRole = await request.json()
+        checkProps(data, ['name']);
         const result = await insertOneRole(data, userId)
         // 成功响应
         return buildResponse({

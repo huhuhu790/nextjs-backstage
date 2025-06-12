@@ -5,26 +5,36 @@ import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { insertOneUserPermission } from "../permission";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
 export async function POST(request: NextRequest) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(insertOneUserPermission, userData)
         const formData = await request.formData()
         const department = formData.get('department') as string
-        const data: Partial<updateUserDataType> = {
+        const data: updateUserDataType = {
             username: formData.get('username') as string,
             name: formData.get('name') as string,
             workingId: formData.get('workingId') as string,
             gender: formData.get('gender') as LocalUser["gender"],
             phone: formData.get('phone') as string,
-            email: formData.get('email') as string || null,
+            email: formData.get('email') as string,
             address: formData.get('address') as string || null,
             department: department ? department.split(',') : [],
             birthday: formData.get('birthday') as string || null,
             avatar: formData.get('avatar') as string || null,
             file: formData.get('file') as File || null,
+            roles: []
         }
+        checkProps(data, [
+            'username',
+            'name',
+            'workingId',
+            'gender',
+            'phone',
+            'email',
+        ])
         const result = await insertOneUser(data, userId)
         // 成功响应
         return buildResponse({

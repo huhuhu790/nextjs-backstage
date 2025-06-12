@@ -9,7 +9,7 @@ import { buildResponse } from "@/utils/buildResponse";
 export async function POST() {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         await checkPermission(getListByPageMenuPermission, userData)
         const data = toLocalMenus(await getAllMenus())
         // 成功响应

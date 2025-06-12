@@ -3,12 +3,12 @@ import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { toLocalMessageList } from "../dataTransform";
 import { buildResponse } from "@/utils/buildResponse";
+import { PaginationRequest } from "@/types/database";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
-        if (!userData || !userData.id) throw new Error('用户未登录')
-        const body = await request.json()
+        const userData = await getHeadUserData(headersList);
+        const body: PaginationRequest = await request.json()
         const { data, ...records } = await getListByPageMessage(userData, body)
 
         // 成功响应

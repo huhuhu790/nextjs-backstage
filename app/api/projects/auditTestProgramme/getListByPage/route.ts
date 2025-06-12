@@ -5,13 +5,16 @@ import { getListbyPageAuditTestProgrammePermission } from '../permission';
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
+import { PaginationRequest } from "@/types/database";
 
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
+        const userData = await getHeadUserData(headersList);
         await checkPermission(getListbyPageAuditTestProgrammePermission, userData)
-        const body = await request.json()
+        const body: PaginationRequest = await request.json()
+        checkProps(body, ['currentPage', 'pageSize'])
         const { data, ...records } = await getListbyPageAuditTestProgramme(body)
 
         return buildResponse({

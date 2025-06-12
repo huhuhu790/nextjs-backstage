@@ -3,7 +3,7 @@ import { fetchData } from "@/api/fetchApi";
 import { PaginationRequest, PaginationResponse } from '@/types/database';
 import { MessageInstance } from 'antd/lib/message/interface';
 
-export async function getRoleByPage(body: PaginationRequest) {
+export async function getRoleByPage(body?: PaginationRequest) {
   return await fetchData<PaginationResponse<LocalRole[]>, PaginationRequest>('/api/system/role/getListByPage', {
     body
   })

@@ -10,7 +10,7 @@ export default async function getMenusByRolesServer(userData?: UserWithID | null
 }
 
 
-export async function getAllMenusServer(userData?: UserWithID | null) {
+export async function getAllMenusServer(userData: UserWithID) {
     await checkPermission(getListByPageMenuPermission, userData)
     return toLocalMenus(await getAllMenus());
 }

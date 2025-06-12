@@ -2,11 +2,15 @@ module.exports = {
     apps: [
         {
             name: 'NextJS:3006',
-            script: 'npm',
-            args: 'start', //running on port 3000
+            script: './node_modules/next/dist/bin/next',
+            args: 'start -p 3006', // 直接指定端口
             instances: 1,
-            autorestart: false,       // 崩溃后自动重启
-            watch: false,            // 关闭文件变化监控
+            autorestart: false,
+            exec_mode: 'fork', 
+            watch: false,
+            env: {
+                NODE_ENV: 'production'
+            }
         }
     ]
-};
+}

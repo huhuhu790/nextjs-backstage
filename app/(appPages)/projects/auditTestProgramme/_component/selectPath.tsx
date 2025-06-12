@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { RefObject, useEffect, useState } from 'react';
 import { Modal, Tree, TreeProps } from 'antd';
-import { set } from 'lodash';
+import { getRelativePath } from '@/api/projects/auditTestProgramme';
+import { GetRelativePathApiProps } from '@/types/projects/auditTestProgramme';
+import style from "./style.module.css"
 
 interface DataNode {
     title: string;
@@ -30,42 +32,56 @@ const updateTreeData = (list: DataNode[], key: React.Key, children: DataNode[]):
 export default function SelectPathModal({
     open,
     onClose,
+    type
 }: {
     open: boolean,
-    onClose: (key?: string[]) => void;
+    onClose: (key?: string) => void,
+    type: RefObject<GetRelativePathApiProps['type']>
 }) {
     const [treeData, setTreeData] = useState<DataNode[]>([]);
     const [key, setKey] = useState<string[]>();
 
     useEffect(() => {
-        if (open) {
-            setTreeData([
-                { title: 'Expand to load', key: '0' },
-                { title: 'Expand to load', key: '1' },
-                { title: 'Tree Node', key: '2', isLeaf: true },
-            ]);
-        }
+        if (open)
+            setTreeData([{
+                title: "/",
+                key: "/",
+                isLeaf: false,
+            }]);
     }, [open]);
 
     const onLoadData: TreeProps['loadData'] = async ({ key, children }) => {
         if (children) return
+        const data = await getRelativePath({ path: key as string, type: type.current });
+        if (!data) return;
+
         setTreeData((origin) =>
-            updateTreeData(origin, key, [
-                { title: `${key}-0`, key: `${key}-0` },
-            ]),
+            updateTreeData(origin, key, data.map((item) => {
+                const nameArray = item.name.split("/")
+                let result = {
+                    title: nameArray[nameArray.length - 1],
+                    key: item.name,
+                    isLeaf: false
+                }
+                if (item.type === 'file') {
+                    result.isLeaf = true;
+                }
+                return result as DataNode;
+            }))
         );
     }
 
     const handleClose = () => {
         onClose();
         setKey(undefined);
-        setTreeData([]);
     }
 
     const handleSubmit = () => {
-        onClose(key);
-        setKey(undefined);
-        setTreeData([]);
+        if (key) {
+            const result = key[0]
+            onClose(result);
+            setKey(undefined);
+        }
     };
 
     const handleSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
@@ -79,16 +95,18 @@ export default function SelectPathModal({
             width={800}
             maskClosable={false}
             forceRender
-            closable={{ 'aria-label': 'Custom Close Button' }}
             onOk={handleSubmit}
             onCancel={handleClose}
         >
-            <Tree
+            {open ? <Tree
+                className={style.tree}
+                showLine
+                blockNode
                 loadData={onLoadData}
                 treeData={treeData}
                 selectedKeys={key}
                 onSelect={handleSelect}
-            />
+            /> : null}
         </Modal>
     )
 };

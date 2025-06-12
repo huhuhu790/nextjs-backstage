@@ -3,14 +3,19 @@ import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { buildResponse } from "@/utils/buildResponse";
+import { checkProps } from "@/utils/checkProps";
 export async function POST(request: NextRequest) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
-        if (!userData) throw new Error('请先登录')
-        const data = await request.json()
+        const userData = await getHeadUserData(headersList);
+        const data: {
+            originPassword: string,
+            newPassword: string,
+            id: string
+        } = await request.json()
         if (data.id !== userData.id) throw new Error('无权限操作')
-        const result = await updatePassword(data, userData.id)
+        checkProps(data, ['originPassword', 'newPassword', 'id']);
+        await updatePassword(data, userData.id)
         // 成功响应
         return buildResponse({
             status: 200,

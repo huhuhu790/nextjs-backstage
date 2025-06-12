@@ -7,17 +7,18 @@ import { LocalAuditTestProgramme } from "@/types/projects/auditTestProgramme";
 import { insertOneAuditTestProgramme } from "@/db/mongodb/auditTestProgrammeCollection";
 import { buildResponse } from "@/utils/buildResponse";
 import { checkFileExists, checkFileExistsOrigin, deleteFile } from "@/utils/fileOperations";
+import { checkProps } from "@/utils/checkProps";
+import { join } from "path";
 
 export async function POST(request: NextRequest) {
     try {
         const headersList = await headers()
         const userData = await getHeadUserData(headersList);
         const userId = await checkPermission(insertOneAuditTestProgrammePermission, userData)
-        const data: Partial<LocalAuditTestProgramme> = await request.json()
-        if (!data.newFileName) throw new Error("参数错误");
-        if (!data.originFileName) throw new Error("原始文件名不能为空");
+        const data: LocalAuditTestProgramme = await request.json()
+        checkProps(data, ['newFileName', 'originFileName', 'originFilePath', 'newFilePath', 'backupPath', 'name']);
         try {
-            checkFileExistsOrigin(data.originFileName);
+            checkFileExistsOrigin(join(data.originFilePath, data.originFileName));
             checkFileExists(data.newFileName);
             await insertOneAuditTestProgramme(data, userId)
         } catch (error) {

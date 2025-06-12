@@ -5,12 +5,13 @@ import { toLocalRoles } from "../dataTransform";
 import { getListByPageRole } from "@/db/mongodb/roleCollection";
 import { getListByPageRolePermission } from "../permission";
 import { buildResponse } from "@/utils/buildResponse";
+import { PaginationRequest } from "@/types/database";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
-    const userData = await getHeadUserData(headersList);
-        const userId = await checkPermission(getListByPageRolePermission, userData)
-        const body = await request.json()
+        const userData = await getHeadUserData(headersList);
+        await checkPermission(getListByPageRolePermission, userData)
+        const body: Partial<PaginationRequest> = await request.json()
         const { data, ...records } = await getListByPageRole(body)
         // 成功响应
         return buildResponse({

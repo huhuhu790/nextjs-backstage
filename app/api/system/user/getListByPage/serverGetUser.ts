@@ -5,14 +5,16 @@ import { toLocalUserList } from "../dataTransform"
 
 const defaultPageSize = 10
 const defaultCurrentPage = 1
-export async function getUserServer(userData?: UserWithID | null) {
+export async function getUserServer(userData: UserWithID) {
     await checkPermission(getListByPageUserPermission, userData)
-    const { data, ...rest } = await getListByPageUser({
+    const { data, total } = await getListByPageUser({
         pageSize: defaultPageSize,
         currentPage: defaultCurrentPage
     })
     return {
         data: toLocalUserList(data),
-        ...rest
+        total,
+        pageSize: defaultPageSize,
+        currentPage: defaultCurrentPage
     }
 } 
