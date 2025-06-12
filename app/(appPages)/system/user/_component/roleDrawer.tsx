@@ -15,7 +15,7 @@ export default function RoleDrawer({ open, onClose, currentItem }: {
     useEffect(() => {
         if (open && currentItem) {
             setTargetKeys(currentItem.roles || []);
-            getRoleByPage().then(result => {
+            getRoleByPage({}).then(result => {
                 if (result) {
                     const { data, ...rest } = result
                     setDataSource(data)

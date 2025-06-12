@@ -1,3 +1,6 @@
 {
-  "unstable": ["unsafe-proto"]
+    "lock": false,
+    "unstable": [
+        "unsafe-proto"
+    ]
 }

@@ -1,7 +1,7 @@
 "use client"
 import { ApiResponse } from '@/types/api';
 import { MessageInstance } from 'antd/lib/message/interface';
-export async function fetchData<T = undefined, S = undefined>(url: string, options?: { body?: S, message?: MessageInstance }): Promise<T | undefined> {
+export async function fetchData<T = undefined, S = undefined>(url: string, options?: { body: S, message?: MessageInstance }): Promise<T | undefined> {
     const { body, message } = options || {};
     try {
         const response = await fetch(url, { body: JSON.stringify(body), method: 'POST' });
