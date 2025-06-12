@@ -78,9 +78,10 @@ export async function getListByPageUser(options?: getUserOption) {
     const total = await usersCollection.countDocuments(query);
     const users = currentPage && pageSize ? await usersCollection
         .find(query)
+        .sort({ updatedAt: -1 })
         .skip((currentPage - 1) * pageSize)
         .limit(pageSize)
-        .toArray() : await usersCollection.find(query).toArray();
+        .toArray() : await usersCollection.find(query).sort({ updatedAt: -1 }).toArray();
     return {
         data: toLocalList(users),
         total,

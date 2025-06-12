@@ -29,9 +29,10 @@ export async function getListByPageRole(options?: Partial<PaginationRequest>) {
     const pageSize = options?.pageSize
     const total = await usersCollection.countDocuments(query);
     const roles = currentPage && pageSize ? await usersCollection.find(query)
+        .sort({ updatedAt: -1 })
         .skip((currentPage - 1) * pageSize)
         .limit(pageSize)
-        .toArray() : await usersCollection.find(query).toArray();
+        .toArray() : await usersCollection.find(query).sort({ updatedAt: -1 }).toArray();
     return {
         data: toLocalList(roles),
         total,

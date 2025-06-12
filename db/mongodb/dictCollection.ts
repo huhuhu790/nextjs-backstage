@@ -33,9 +33,10 @@ export async function getListByPageDict(options?: PaginationRequest) {
     const pageSize = options?.pageSize
     const total = await dictsCollection.countDocuments(query);
     const dicts = currentPage && pageSize ? await dictsCollection.find(query)
+        .sort({ updatedAt: -1 })
         .skip((currentPage - 1) * pageSize)
         .limit(pageSize)
-        .toArray() : await dictsCollection.find(query).toArray();
+        .toArray() : await dictsCollection.find(query).sort({ updatedAt: -1 }).toArray();
     return {
         data: toLocalList(dicts),
         total,
@@ -72,7 +73,7 @@ export async function insertOneDict(data: LocalDict, operatorId: string) {
     return result;
 }
 
-export async function updateOneDict(data:LocalDict, operatorId: string) {
+export async function updateOneDict(data: LocalDict, operatorId: string) {
     const db = dbConnection()
     const date = new Date();
     const collection = db.collection<DictItem>("dictionaries");

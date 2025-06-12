@@ -31,9 +31,10 @@ export async function getListByPageMessage(user: UserWithID, options?: Paginatio
     const pageSize = 10
     const total = await collection.countDocuments(query);
     const messages = currentPage && pageSize ? await collection.find(query)
+        .sort({ updatedAt: -1 })
         .skip((currentPage - 1) * pageSize)
         .limit(pageSize)
-        .toArray() : await collection.find(query).toArray();
+        .toArray() : await collection.find(query).sort({ updatedAt: -1 }).toArray();
     return {
         data: toLocalList(messages),
         total,

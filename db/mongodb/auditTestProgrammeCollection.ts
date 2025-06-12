@@ -31,9 +31,10 @@ export async function getListbyPageAuditTestProgramme(options?: PaginationReques
     const pageSize = options?.pageSize
     const total = await dictsCollection.countDocuments(query);
     const dicts = currentPage && pageSize ? await dictsCollection.find(query)
+        .sort({ updatedAt: -1 })
         .skip((currentPage - 1) * pageSize)
         .limit(pageSize)
-        .toArray() : await dictsCollection.find(query).toArray();
+        .toArray() : await dictsCollection.find(query).sort({ updatedAt: -1 }).toArray();
     return {
         data: toLocalList(dicts),
         total,

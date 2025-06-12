@@ -22,14 +22,14 @@ export async function getListByRolesMenus(roleIds: string[]) {
     const permissionsObjectIDs = uniquePermissions.map(id => new ObjectId(id))
     const usersCollection = db.collection<MenuItem>('menus');
     // type不为button
-    const menus = await usersCollection.find({ _id: { $in: permissionsObjectIDs }, type: { $ne: 'button' } }).toArray();
+    const menus = await usersCollection.find({ _id: { $in: permissionsObjectIDs }, type: { $ne: 'button' } }).sort({ updatedAt: -1 }).toArray();
     return toLocal(menus);
 }
 
 export async function getAllMenus() {
     const db = dbConnection()
     const usersCollection = db.collection<MenuItem>('menus');
-    return toLocal(await usersCollection.find({}).toArray());
+    return toLocal(await usersCollection.find({}).sort({ updatedAt: -1 }).toArray());
 }
 
 export async function insertOneMenu(menuData: LocalMenu, operatorId: string) {
