@@ -2,7 +2,7 @@ import { getAllMenus, getListByRolesMenus } from '@/db/mongodb/menuCollection'
 import { toLocalMenus } from '@/app/api/system/menu/dataTransform';
 import { checkPermission } from '@/db/mongodb/userCollection';
 import { UserWithID } from '@/types/system/user';
-import { getListByPageMenuPermission } from '../permission';
+import { getListByPageMenuPermission } from '@/utils/appRoutePermission';
 // 需要验证是否登录
 export default async function getMenusByRolesServer(userData?: UserWithID | null) {
     if (!userData) throw new Error("无用户信息")

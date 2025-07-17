@@ -2,7 +2,7 @@ import { checkPermission, updateRoleToUser } from "@/db/mongodb/userCollection";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { NextRequest } from "next/server";
-import { updateRoleToUserPermission } from "../permission";
+import { updateRoleToUserPermission } from "@/utils/appRoutePermission";
 import { buildResponse } from "@/utils/buildResponse";
 import { checkProps } from "@/utils/checkProps";
 

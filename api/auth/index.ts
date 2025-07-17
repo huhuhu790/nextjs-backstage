@@ -7,5 +7,8 @@ export async function handleLogin(values: LoginFieldType, message: MessageInstan
 }
 
 export async function handleLogout(message: MessageInstance) {
-    return await fetchData('/api/auth/logout', { message })
+    return await fetchData('/api/auth/logout', {
+        message,
+        body:{}
+    })
 }

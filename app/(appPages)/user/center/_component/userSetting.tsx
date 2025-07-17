@@ -131,6 +131,7 @@ export default function UserSetting() {
                     <Form.Item
                         label="邮箱"
                         name="email"
+                         rules={[{ required: true, message: '请输入邮箱' }]}
                     >
                         <Input />
                     </Form.Item>

@@ -5,6 +5,7 @@ export async function fetchData<T = undefined, S = undefined>(url: string, optio
     const { body, message } = options || {};
     try {
         const response = await fetch(url, { body: JSON.stringify(body), method: 'POST' });
+        if (response.redirected) location.replace(response.url)
         if (!response.ok) throw new Error('网络错误')
         const result: ApiResponse<T> = await response.json();
         if (!result.success) throw new Error(result.message);
@@ -23,6 +24,7 @@ export async function fetchData<T = undefined, S = undefined>(url: string, optio
 export async function fetchFormdata<T = undefined>(url: string, formData: FormData, message?: MessageInstance): Promise<T | undefined> {
     try {
         const response = await fetch(url, { method: 'POST', body: formData });
+        if (response.redirected) location.replace(response.url)
         if (!response.ok) throw new Error('网络错误')
         const result: ApiResponse<T> = await response.json();
         if (!result.success) throw new Error(result.message);
@@ -40,7 +42,8 @@ export async function fetchFormdata<T = undefined>(url: string, formData: FormDa
 
 
 export async function downloadFile(fileId: string, message: MessageInstance) {
-    const response = await fetch(`/api/system/file/download`, { method: 'POST', body: JSON.stringify({ fileId }) });
+    const response = await fetch(`/api/system/file/download`, { method: 'POST', body: JSON.stringify({ fileId }), redirect: "manual" });
+    if (response.status === 307) location.reload();
     if (!response.ok) {
         const error = await response.text()
         message.error({ content: error })

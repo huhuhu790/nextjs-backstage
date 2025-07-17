@@ -210,7 +210,7 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
                 <Form.Item
                     label="邮箱"
                     name="email"
-                    rules={[{ type: 'email', message: '请输入正确的邮箱地址' }]}
+                    rules={[{ required: true, type: 'email', message: '请输入正确的邮箱地址' }]}
                 >
                     <Input />
                 </Form.Item>
@@ -236,9 +236,7 @@ export default function UserDrawer({ open, onClose, title, currentItem }: {
                     </Select>
                 </Form.Item> */}
             </Form>
-            <Spin spinning={spinning} fullscreen percent="auto">
-                {"正在提交中，请勿关闭！"}
-            </Spin>
+            <Spin spinning={spinning} fullscreen percent="auto" tip={<div>正在提交中，请勿关闭！</div>} />
         </Drawer>
     )
 }

@@ -1,7 +1,7 @@
 import { checkPermission, getListByPageUser } from "@/db/mongodb/userCollection";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
-import { getListByPageUserPermission } from "../permission";
+import { getListByPageUserPermission } from "@/utils/appRoutePermission";
 import { toLocalUserList } from "../dataTransform";
 import { buildResponse } from "@/utils/buildResponse";
 import { getUserOption } from "@/types/api";

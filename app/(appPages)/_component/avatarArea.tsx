@@ -44,7 +44,7 @@ const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
                     await handleLogout(message);
                     location.reload();
                 } catch (error) {
-                    
+
                 }
                 break;
         }
@@ -61,7 +61,7 @@ const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
             downloadFile(user.avatar, message).then((file) => {
                 setImageUrl(URL.createObjectURL(file));
             }).catch((error) => {
-                
+
             });
     }, [user]);
 
@@ -72,14 +72,15 @@ const AvatarArea = ({ menuData }: { menuData: LocalMenu[] }) => {
                     const data: LocalMessage = JSON.parse(event.data);
                     if (data.id) {
                         setHasNewMessage(true)
-                        notification.info({
-                            message: '新消息',
-                            description: `${data.title}, ${data.content}`,
-                            duration: null
+                        notification.open({
+                            message: data.title,
+                            description: data.content,
+                            duration: null,
+                            type: data.type
                         });
                     }
                 } catch (error) {
-                    
+
                 }
             });
             return () => {

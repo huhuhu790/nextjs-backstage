@@ -1,5 +1,5 @@
 import { checkPermission } from "@/db/mongodb/userCollection";
-import { sendingMessagePermission } from "../../appPagePermission";
+import { sendingMessagePermission } from "../../../../utils/appPagePermission";
 import ClientPage from "./_component/clientPage";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";

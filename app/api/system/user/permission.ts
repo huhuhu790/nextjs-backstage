@@ -1,5 +1,0 @@
-export const insertOneUserPermission = '682d9351d044808e4bcf098b'
-export const deleteOneUserPermission = '682d935ed044808e4bcf098c'
-export const getListByPageUserPermission = '682d9341d044808e4bcf098a'
-export const updateOneUserPermission = '682d94c1d044808e4bcf098d'
-export const updateRoleToUserPermission = '6832edbaad6c879771b0f07b'

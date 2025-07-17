@@ -3,7 +3,7 @@ import { LocalUser, updateUserDataType } from "@/types/api";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { NextRequest } from "next/server";
-import { updateOneUserPermission } from "../permission";
+import { updateOneUserPermission } from "@/utils/appRoutePermission";
 import { buildResponse } from "@/utils/buildResponse";
 import { checkProps } from "@/utils/checkProps";
 export async function POST(request: NextRequest) {

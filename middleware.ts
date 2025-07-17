@@ -52,11 +52,9 @@ export async function middleware(request: NextRequest) {
       const result = await verifyTokenStatus(accessToken);
       if (!result.success) throw new Error(result.errorType);
       userId = result.userId!;
-      // 将请求的时间，用户id，与请求路径添加到日志中
-      console.log(`[${new Date()}] [${userId}] [${pathname}]`);
       // 验证成功，如果访问登录页面，跳转到系统首页
       if (pathname.startsWith('/login'))
-        response = NextResponse.redirect(request.url);
+        response = NextResponse.redirect(new URL('/', request.url));
       else {
         // 验证成功，访问受限页面,将用户信息添加到请求头中，继续访问
         const requestHeaders = new Headers(request.headers);
@@ -78,6 +76,10 @@ export async function middleware(request: NextRequest) {
   }
   // 如果无权限且访问非公共页面，跳转到登录页面
   else if (!isPublicPath) response = NextResponse.redirect(new URL('/login', request.url));
+
+  // 将请求的时间，用户id，与请求路径添加到日志中
+  const ip = request.headers.get("x-forwarded-for")
+  console.log(`[${new Date()}] [${ip}] [${userId}] [${pathname}]`);
 
   if (response) return response;
   // 如果无权限且访问公共页面，继续访问

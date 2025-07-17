@@ -1,5 +1,5 @@
 import { UserWithID } from "@/types/system/user"
-import { getListByPageUserPermission } from "../permission"
+import { getListByPageUserPermission } from "@/utils/appRoutePermission"
 import { checkPermission, getListByPageUser } from "@/db/mongodb/userCollection"
 import { toLocalUserList } from "../dataTransform"
 

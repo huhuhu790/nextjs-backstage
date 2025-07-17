@@ -2,7 +2,7 @@ import { deleteOneMenu } from "@/db/mongodb/menuCollection";
 import { checkPermission } from "@/db/mongodb/userCollection";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
-import { deleteOneMenuPermission } from "../permission";
+import { deleteOneMenuPermission } from "@/utils/appRoutePermission";
 import { buildResponse } from "@/utils/buildResponse";
 import { checkProps } from "@/utils/checkProps";
 

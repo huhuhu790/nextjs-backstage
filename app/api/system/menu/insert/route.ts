@@ -3,7 +3,7 @@ import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { insertOneMenu } from "@/db/mongodb/menuCollection";
 import { LocalMenu } from "@/types/api";
-import { insertOneMenuPermission } from "../permission";
+import { insertOneMenuPermission } from "@/utils/appRoutePermission";
 import { buildResponse } from "@/utils/buildResponse";
 import { checkProps } from "@/utils/checkProps";
 export async function POST(request: Request) {

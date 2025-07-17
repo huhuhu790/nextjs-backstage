@@ -1,17 +1,9 @@
-import { ObjectId, WithId, OptionalId } from 'mongodb';
+import { ObjectId, OptionalId } from 'mongodb';
 import { dbConnection } from './connection';
 import { MenuItem, MenuItemWithID } from '@/types/system/menu';
 import { getUniquePermissions } from './userCollection';
 import { LocalMenu } from '@/types/api';
-
-function toLocal(dbMenus: WithId<MenuItem>[]): MenuItemWithID[] {
-    return dbMenus.map(({ _id, ...rest }) => {
-        return {
-            id: _id.toString(),
-            ...rest, // 保留其他字段
-        };
-    });
-}
+import { stringfyIdList } from './utils';
 
 export async function getListByRolesMenus(roleIds: string[]) {
     const db = dbConnection()
@@ -23,13 +15,13 @@ export async function getListByRolesMenus(roleIds: string[]) {
     const usersCollection = db.collection<MenuItem>('menus');
     // type不为button
     const menus = await usersCollection.find({ _id: { $in: permissionsObjectIDs }, type: { $ne: 'button' } }).sort({ updatedAt: -1 }).toArray();
-    return toLocal(menus);
+    return stringfyIdList(menus);
 }
 
 export async function getAllMenus() {
     const db = dbConnection()
     const usersCollection = db.collection<MenuItem>('menus');
-    return toLocal(await usersCollection.find({}).sort({ updatedAt: -1 }).toArray());
+    return stringfyIdList(await usersCollection.find({}).sort({ updatedAt: -1 }).toArray());
 }
 
 export async function insertOneMenu(menuData: LocalMenu, operatorId: string) {

@@ -1,6 +1,6 @@
-import { Db, MongoClient } from 'mongodb';
+import { MongoClient } from 'mongodb';
 
-const client = new MongoClient(process.env.MONGODB_URL!);
+export const client = new MongoClient(process.env.MONGODB_URL!);
 
 export function dbConnection() {
     return client.db(process.env.MONGODB_DB);
@@ -18,8 +18,6 @@ export async function sessionTask<T>(callback: () => Promise<T>) {
         });
 
     } catch (error) {
-        // 回滚事务
-        await session.abortTransaction();
         throw error
     } finally {
         await session.endSession();

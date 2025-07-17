@@ -5,17 +5,7 @@ import { PaginationRequest } from "@/types/database";
 import { Filter, MongoOperationTimeoutError, WithId } from "mongodb";
 import { ObjectId } from "mongodb";
 import { LocalMessage } from "@/types/api";
-
-function toLocal(dbMessage: WithId<Message>): MessageWithID {
-    return {
-        id: dbMessage._id.toString(),
-        ...dbMessage,
-    };
-}
-
-function toLocalList(dbMessages: WithId<Message>[]): MessageWithID[] {
-    return dbMessages.map(toLocal);
-}
+import { stringfyId, stringfyIdList } from "./utils";
 
 export async function getListByPageMessage(user: UserWithID, options?: PaginationRequest) {
     const userId = user.id
@@ -30,13 +20,14 @@ export async function getListByPageMessage(user: UserWithID, options?: Paginatio
     const currentPage = options?.currentPage
     const pageSize = 10
     const total = await collection.countDocuments(query);
-    const messages = currentPage && pageSize ? await collection.find(query)
-        .sort({ updatedAt: -1 })
-        .skip((currentPage - 1) * pageSize)
-        .limit(pageSize)
-        .toArray() : await collection.find(query).sort({ updatedAt: -1 }).toArray();
+    const messages = currentPage && pageSize ? await collection.aggregate<WithId<Message>>([
+        { $match: query },  // 相当于 find(query)
+        { $sort: { updatedAt: -1 } },  // 排序
+        { $skip: (currentPage - 1) * pageSize },  // 跳过指定数量的文档
+        { $limit: pageSize }  // 限制返回的文档数量
+    ]).toArray() : await collection.find(query).sort({ updatedAt: -1 }).toArray();
     return {
-        data: toLocalList(messages),
+        data: stringfyIdList(messages),
         total,
         currentPage,
         pageSize
@@ -44,7 +35,7 @@ export async function getListByPageMessage(user: UserWithID, options?: Paginatio
 }
 
 
-export async function sendingMessage(message: LocalMessage, operatorId: string) {
+export async function sendingMessage(message: Partial<LocalMessage>, operatorId: string) {
     const messageDb = dbConnection()
     const userCollection = messageDb.collection<User>("users")
     const users = await userCollection.find({}).toArray()
@@ -54,10 +45,10 @@ export async function sendingMessage(message: LocalMessage, operatorId: string) 
         await collection.insertOne({
             from: operatorId,
             to: user._id.toString(),
-            title: message.title!,
-            content: message.content!,
+            title: message.title || "",
+            content: message.content || "",
             isRead: false,
-            type: 'info',
+            type: message.type || 'info',
             createdAt: date,
             createdBy: operatorId,
             updatedAt: date,
@@ -84,7 +75,7 @@ export async function createMessageEventListener(callback: (change: MessageWithI
     ])
         .on('change', (change) => {
             if (change.operationType === 'insert')
-                callback(toLocal(change.fullDocument as WithId<Message>))
+                callback(stringfyId(change.fullDocument as WithId<Message>))
         })
         .on('error', e => {
             console.error(e);

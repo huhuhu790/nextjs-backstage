@@ -23,17 +23,18 @@ export default function Page(
     const nextPage = currentPage.current + 1;
     currentPage.current = nextPage;
     getMessageListByPage({ currentPage: nextPage }).then((res) => {
-      if (Array.isArray(res)) {
-        const newData = data.concat(res);
-        setData(newData);
-        if (newData.length >= total.current) {
-          setShowLoadMore(false);
-        } else {
-          setShowLoadMore(true);
-        }
+      if (!res) return;
+      const result = res.data
+      if (!Array.isArray(result)) return;
+      const newData = [...data, ...result];
+      setData(newData);
+      if (newData.length >= total.current) {
+        setShowLoadMore(false);
+      } else {
+        setShowLoadMore(true);
       }
     }).catch((err) => {
-      
+
     }).finally(() => {
       setLoading(false);
       // Resetting window's offsetTop so as to display react-virtualized demo underfloor.

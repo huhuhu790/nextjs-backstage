@@ -1,5 +1,0 @@
-.tree :global(.ant-tree-node-content-wrapper) {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}

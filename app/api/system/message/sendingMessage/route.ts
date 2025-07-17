@@ -1,7 +1,7 @@
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { checkPermission } from "@/db/mongodb/userCollection";
-import { sendingMessagePermission } from "../permission";
+import { sendingMessagePermission } from "@/utils/appRoutePermission";
 import { sendingMessage } from "@/db/mongodb/messageCollection";
 import { buildResponse } from "@/utils/buildResponse";
 import { checkProps } from "@/utils/checkProps";

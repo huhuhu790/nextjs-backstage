@@ -2,7 +2,7 @@ import { checkPermission } from '@/db/mongodb/userCollection';
 import { UserWithID } from '@/types/system/user';
 import { getListByPageRole } from '@/db/mongodb/roleCollection';
 import { toLocalRoles } from '../dataTransform';
-import { getListByPageRolePermission } from '../permission';
+import { getListByPageRolePermission } from '@/utils/appRoutePermission';
 
 const defaultPageSize = 10
 const defaultCurrentPage = 1

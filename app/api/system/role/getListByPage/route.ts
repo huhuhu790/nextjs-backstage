@@ -3,7 +3,7 @@ import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { toLocalRoles } from "../dataTransform";
 import { getListByPageRole } from "@/db/mongodb/roleCollection";
-import { getListByPageRolePermission } from "../permission";
+import { getListByPageRolePermission } from "@/utils/appRoutePermission";
 import { buildResponse } from "@/utils/buildResponse";
 import { PaginationRequest } from "@/types/database";
 export async function POST(request: Request) {

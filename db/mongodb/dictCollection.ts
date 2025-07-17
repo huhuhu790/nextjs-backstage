@@ -3,20 +3,18 @@ import { dbConnection } from "./connection";
 import { DictItem, DictValue } from "@/types/system/dictionary";
 import { PaginationRequest } from "@/types/database";
 import { LocalDict } from "@/types/api";
+import { stringfyId, stringfyIdList } from "./utils";
 
-function toLocal({ _id, values, ...rest }: WithId<DictItem>) {
+function stringfyIdDict({ _id, values, ...rest }: WithId<DictItem>) {
+    const result = stringfyId({ _id, ...rest });
     return {
-        id: _id.toString(),
-        ...rest,
-        values: values.map(value => ({
-            ...value,
-            _id: value._id!.toString()
-        }))
+        ...result,
+        values: stringfyIdList(values as Required<DictValue>[])
     };
 }
 
-function toLocalList(dbDicts: WithId<DictItem>[]) {
-    return dbDicts.map(toLocal);
+function stringfyIdListDict(dbDicts: WithId<DictItem>[]) {
+    return dbDicts.map(stringfyIdDict);
 }
 
 export async function getListByPageDict(options?: PaginationRequest) {
@@ -32,13 +30,14 @@ export async function getListByPageDict(options?: PaginationRequest) {
     const currentPage = options?.currentPage
     const pageSize = options?.pageSize
     const total = await dictsCollection.countDocuments(query);
-    const dicts = currentPage && pageSize ? await dictsCollection.find(query)
-        .sort({ updatedAt: -1 })
-        .skip((currentPage - 1) * pageSize)
-        .limit(pageSize)
-        .toArray() : await dictsCollection.find(query).sort({ updatedAt: -1 }).toArray();
+    const dicts = currentPage && pageSize ? await dictsCollection.aggregate<WithId<DictItem>>([
+        { $match: query },  // 相当于 find(query)
+        { $sort: { updatedAt: -1 } },  // 排序
+        { $skip: (currentPage - 1) * pageSize },  // 跳过指定数量的文档
+        { $limit: pageSize }  // 限制返回的文档数量
+    ]).toArray() : await dictsCollection.find(query).sort({ updatedAt: -1 }).toArray();
     return {
-        data: toLocalList(dicts),
+        data: stringfyIdListDict(dicts),
         total,
         currentPage,
         pageSize
@@ -50,7 +49,7 @@ export async function getOneByIdDict(id: string) {
     const dictsCollection = db.collection<DictItem>('dictionaries');
     const dict = await dictsCollection.findOne({ _id: new ObjectId(id) });
     if (!dict) throw new Error("字典不存在")
-    return toLocal(dict);
+    return stringfyIdDict(dict);
 }
 
 export async function insertOneDict(data: LocalDict, operatorId: string) {
@@ -124,7 +123,7 @@ export async function updateOneDictValue(value: DictValue, dictId: string, opera
     const dictItem = await collection.findOne({ _id: new ObjectId(dictId) })
     if (!dictItem) throw new Error("字典表不存在")
     const date = new Date();
-    const valueResult = await collection.updateOne(
+    await collection.updateOne(
         {
             _id: new ObjectId(dictId),
             "values._id": new ObjectId(value._id)

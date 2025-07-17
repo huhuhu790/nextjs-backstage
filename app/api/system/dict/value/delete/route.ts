@@ -3,7 +3,7 @@ import { ApiResponse } from "@/types/api";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { deleteOneDictValuePermission } from "../../permission";
+import { deleteOneDictValuePermission } from "../@/utils/appRoutePermission";
 import { deleteOneDictValue } from "@/db/mongodb/dictCollection";
 import { buildResponse } from "@/utils/buildResponse";
 import { checkProps } from "@/utils/checkProps";
@@ -16,14 +16,11 @@ export async function POST(request: NextRequest) {
         const data: { valueId: string, dictId: string } = await request.json()
         checkProps(data, ['valueId', 'dictId']);
         await deleteOneDictValue(data.valueId, data.dictId, userId)
-        // 成功响应
-        const response: ApiResponse = {
-            status: 200,
-            success: true,
-            message: '删除成功'
-        };
 
-        return NextResponse.json(response);
+        return buildResponse({
+            status: 200,
+            message: '删除成功'
+        });
     } catch (error) {
         console.error(error);
         const message = (error as Error).message || '删除失败'

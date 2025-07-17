@@ -2,7 +2,7 @@ import { checkPermission } from "@/db/mongodb/userCollection";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { buildResponse } from "@/utils/buildResponse";
-import { getListByPageDictPermission } from "../permission";
+import { getListByPageDictPermission } from "@/utils/appRoutePermission";
 import { getListByPageDict } from "@/db/mongodb/dictCollection";
 import { toLocalDictList } from "../dataTransform";
 import { checkProps } from "@/utils/checkProps";

@@ -2,7 +2,7 @@ import { checkPermission, deleteOneUser } from "@/db/mongodb/userCollection";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { NextRequest } from "next/server";
-import { deleteOneUserPermission } from "../permission";
+import { deleteOneUserPermission } from "@/utils/appRoutePermission";
 import { buildResponse } from "@/utils/buildResponse";
 import { checkProps } from "@/utils/checkProps";
 export async function POST(request: NextRequest) {

@@ -3,7 +3,7 @@ import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { buildResponse } from "@/utils/buildResponse";
-import { deleteOneDictPermission } from "../permission";
+import { deleteOneDictPermission } from "@/utils/appRoutePermission";
 import { deleteOneDict } from "@/db/mongodb/dictCollection";
 import { checkProps } from "@/utils/checkProps";
 

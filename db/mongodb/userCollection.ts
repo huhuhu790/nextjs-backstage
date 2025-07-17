@@ -4,17 +4,7 @@ import { Role, User, UserWithID } from '@/types/system/user';
 import { getUserOption, updateUserDataType } from '@/types/api';
 import { deleteFile, uploadFile } from './gridFSCollection';
 import { serverEncrypt } from '@/utils/serverEncrypt';
-function toLocal(dbUser: WithId<User>): UserWithID {
-    let { _id, ...rest } = dbUser;
-    return {
-        id: _id.toString(),
-        ...rest, // 保留其他字段
-    };
-}
-
-function toLocalList(dbUsers: WithId<User>[]): UserWithID[] {
-    return dbUsers.map(toLocal);
-}
+import { stringfyId, stringfyIdList } from './utils';
 
 export async function getPermissions(roleIds: string[]) {
     const db = dbConnection()
@@ -50,14 +40,14 @@ export async function verifyUserCredentials(user: { username: string, password: 
     const dbUser = await usersCollection.findOne({ username: user.username });
     if (!dbUser) throw new Error("用户不存在")
     if (dbUser.password !== password) throw new Error("密码错误")
-    return dbUser ? toLocal(dbUser) : null;
+    return dbUser ? stringfyId(dbUser) : null;
 }
 
 export async function getUserInfo(userId: string) {
     const db = dbConnection()
     const usersCollection = db.collection<User>('users');
     const dbUser = await usersCollection.findOne({ _id: new ObjectId(userId) });
-    return dbUser ? toLocal(dbUser) : null;
+    return dbUser ? stringfyId(dbUser) : null;
 }
 
 export async function getListByPageUser(options?: getUserOption) {
@@ -76,14 +66,14 @@ export async function getListByPageUser(options?: getUserOption) {
     const currentPage = options?.currentPage
     const pageSize = options?.pageSize
     const total = await usersCollection.countDocuments(query);
-    const users = currentPage && pageSize ? await usersCollection
-        .find(query)
-        .sort({ updatedAt: -1 })
-        .skip((currentPage - 1) * pageSize)
-        .limit(pageSize)
-        .toArray() : await usersCollection.find(query).sort({ updatedAt: -1 }).toArray();
+    const users = currentPage && pageSize ? await usersCollection.aggregate<WithId<User>>([
+        { $match: query },  // 相当于 find(query)
+        { $sort: { updatedAt: -1 } },  // 排序
+        { $skip: (currentPage - 1) * pageSize },  // 跳过指定数量的文档
+        { $limit: pageSize }  // 限制返回的文档数量
+    ]).toArray() : await usersCollection.find(query).sort({ updatedAt: -1 }).toArray();
     return {
-        data: toLocalList(users),
+        data: stringfyIdList(users),
         total,
         currentPage,
         pageSize

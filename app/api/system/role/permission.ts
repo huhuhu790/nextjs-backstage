@@ -1,7 +1,0 @@
-export const insertOneRolePermission = '682d7faed044808e4bcf0987'
-export const deleteOneRolePermission = '682d91e6d044808e4bcf0988'
-export const getListByPageRolePermission = '682d7f74d044808e4bcf0986'
-export const updateOneRolePermission = '682d924bd044808e4bcf0989'
-export const updatePermissionToRolePermission = '682fc61e2206153ca3ab83e9'
-export const addUserToRolePermission = '68302ea17335a52f7087a2fa'
-export const removeUserFromRolePermission = '68302edd7335a52f7087a2fc'

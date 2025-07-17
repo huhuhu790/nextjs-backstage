@@ -1,3 +1,4 @@
+import { IconType } from "antd/es/notification/interface";
 import { WithLocalId } from "../api";
 import { DefaultModel } from "../database"
 
@@ -7,7 +8,8 @@ export interface BasicMessage {
     title: string;
     content: string;
     isRead: boolean;
-    type: 'info' | 'warning' | 'error';
+    type: IconType;
+    code?: number;
 }
 
 export interface Message extends DefaultModel, BasicMessage { }

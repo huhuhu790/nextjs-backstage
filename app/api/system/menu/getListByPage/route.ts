@@ -3,7 +3,7 @@ import { checkPermission } from "@/db/mongodb/userCollection";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { toLocalMenus } from "../dataTransform";
-import { getListByPageMenuPermission } from "../permission";
+import { getListByPageMenuPermission } from "@/utils/appRoutePermission";
 import { buildResponse } from "@/utils/buildResponse";
 
 export async function POST() {

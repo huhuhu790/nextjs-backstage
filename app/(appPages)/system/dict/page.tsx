@@ -2,7 +2,7 @@ import { getDictServer } from "@/app/api/system/dict/getListByPage/serverGetDict
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import ClientPage from "./_component/clientPage";
-import { dictPermission } from "../../appPagePermission";
+import { dictPermission } from "../../../../utils/appPagePermission";
 import { checkPermission } from "@/db/mongodb/userCollection";
 
 export default async function Page() {

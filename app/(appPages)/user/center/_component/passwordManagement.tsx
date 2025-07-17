@@ -24,7 +24,7 @@ export default function PasswordManagement() {
                 handleLogout(message).then(() => {
                     location.reload();
                 }).catch((err) => {
-                   
+
                 })
             }, 1000);
         }).catch((err) => {
@@ -49,6 +49,7 @@ export default function PasswordManagement() {
                 <Input.Password />
             </Form.Item>
             <Form.Item label="确认密码" name="confirmPassword" rules={[
+                { required: true, message: '请再次输入密码' },
                 {
                     validator: (rule, value) => {
                         if (!value) {

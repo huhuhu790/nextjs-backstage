@@ -4,16 +4,7 @@ import { RoleItem, RoleItemWithID } from "@/types/system/role";
 import { PaginationRequest } from "@/types/database";
 import { User } from "@/types/system/user";
 import { LocalRole } from "@/types/api";
-
-function toLocalList(dbRoles: WithId<RoleItem>[]): RoleItemWithID[] {
-    return dbRoles.map(({ _id, ...rest }) => {
-        return {
-            id: _id.toString(),
-            ...rest,
-        };
-    });
-}
-
+import { stringfyIdList } from "./utils";
 
 export async function getListByPageRole(options?: Partial<PaginationRequest>) {
     const db = dbConnection()
@@ -28,13 +19,14 @@ export async function getListByPageRole(options?: Partial<PaginationRequest>) {
     const currentPage = options?.currentPage
     const pageSize = options?.pageSize
     const total = await usersCollection.countDocuments(query);
-    const roles = currentPage && pageSize ? await usersCollection.find(query)
-        .sort({ updatedAt: -1 })
-        .skip((currentPage - 1) * pageSize)
-        .limit(pageSize)
-        .toArray() : await usersCollection.find(query).sort({ updatedAt: -1 }).toArray();
+    const roles = currentPage && pageSize ? await usersCollection.aggregate<WithId<RoleItem>>([
+        { $match: query },  // 相当于 find(query)
+        { $sort: { updatedAt: -1 } },  // 排序
+        { $skip: (currentPage - 1) * pageSize },  // 跳过指定数量的文档
+        { $limit: pageSize }  // 限制返回的文档数量
+    ]).toArray() : await usersCollection.find(query).sort({ updatedAt: -1 }).toArray();
     return {
-        data: toLocalList(roles),
+        data: stringfyIdList(roles),
         total,
         currentPage,
         pageSize

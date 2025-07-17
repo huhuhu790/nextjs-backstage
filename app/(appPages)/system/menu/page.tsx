@@ -3,7 +3,7 @@ import ClientPage from "./_component/clientPage";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { checkPermission } from "@/db/mongodb/userCollection";
-import { menuPermission } from "../../appPagePermission";
+import { menuPermission } from "../../../../utils/appPagePermission";
 
 export default async function Page() {
   try {

@@ -1,1 +1,0 @@
-export const sendingMessagePermission = "683567d9f9c6117ade474b84"

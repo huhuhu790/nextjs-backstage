@@ -1,10 +1,8 @@
-"use server";
 import { createClient } from 'redis';
 
-const client = createClient({
+export const client = createClient({
   url: process.env.REDIS_URL!
 });
-
 
 // 存储用户当前活跃会话
 export async function setUserSession(userId: string, tokenId: string, expiresIn: number) {
