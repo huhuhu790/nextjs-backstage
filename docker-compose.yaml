@@ -1,0 +1,12 @@
+services:
+  nextjs:
+    build: .
+    container_name: backstage
+    ports:
+      - "3006:3006"
+    networks:
+      - basic-net
+
+networks:
+  basic-net:
+    external: true

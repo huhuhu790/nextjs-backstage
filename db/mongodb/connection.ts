@@ -1,4 +1,5 @@
 import { MongoClient } from 'mongodb';
+import { env } from 'process';
 
 export const client = new MongoClient(process.env.MONGODB_URL!);
 
