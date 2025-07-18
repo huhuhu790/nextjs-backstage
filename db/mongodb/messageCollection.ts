@@ -10,8 +10,8 @@ import { stringfyId, stringfyIdList } from "./utils";
 export async function getListByPageMessage(user: UserWithID, options?: PaginationRequest) {
     const userId = user.id
     const messageDb = dbConnection()
-    const collectionUser = messageDb.collection<User>("users")
-    const userInfo = await collectionUser.findOne({ _id: new ObjectId(userId) })
+    const userCollection = messageDb.collection<User>("users")
+    const userInfo = await userCollection.findOne({ _id: new ObjectId(userId) })
     if (!userInfo) throw new Error('用户不存在')
     const collection = messageDb.collection<Message>("messages")
     const query: Filter<Message> = {

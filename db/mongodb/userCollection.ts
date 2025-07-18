@@ -111,7 +111,7 @@ export async function insertOneUser(data: updateUserDataType, operatorId: string
         deletedAt: null,
         deletedBy: null
     });
-    return result;
+    return result
 }
 
 export async function updateOwn(data: updateUserDataType, operatorId: string) {
@@ -146,7 +146,6 @@ export async function updateOwn(data: updateUserDataType, operatorId: string) {
             $set: setData
         }
     );
-    return result;
 }
 
 export async function updateOneUser(data: updateUserDataType, operatorId: string) {
@@ -184,7 +183,6 @@ export async function updateOneUser(data: updateUserDataType, operatorId: string
             $set: setData
         }
     );
-    return result;
 }
 
 export async function deleteOneUser(id: string, operatorId: string) {
@@ -210,7 +208,6 @@ export async function deleteOneUser(id: string, operatorId: string) {
                 }
             );
         }
-        return result;
     })
 }
 
@@ -275,5 +272,4 @@ export async function updatePassword(data: {
         { _id: new ObjectId(data.id) },
         { $set: { password: newPassword, updatedAt: new Date(), updatedBy: operatorId } }
     );
-    return result;
 }

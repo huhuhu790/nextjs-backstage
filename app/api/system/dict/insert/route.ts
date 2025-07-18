@@ -1,9 +1,9 @@
 import { checkPermission } from "@/db/mongodb/userCollection";
-import { ApiResponse, LocalDict } from "@/types/api";
+import { LocalDict } from "@/types/api";
 import { getHeadUserData } from "@/utils/getHeadUserData";
 import { headers } from "next/headers";
 import { buildResponse } from "@/utils/buildResponse";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { insertOneDictPermission } from "@/utils/appRoutePermission";
 import { insertOneDict } from "@/db/mongodb/dictCollection";
 import { checkProps } from "@/utils/checkProps";

@@ -69,7 +69,7 @@ export async function insertOneDict(data: LocalDict, operatorId: string) {
         deletedBy: null,
         isActive: true
     });
-    return result;
+    return result
 }
 
 export async function updateOneDict(data: LocalDict, operatorId: string) {
@@ -87,7 +87,6 @@ export async function updateOneDict(data: LocalDict, operatorId: string) {
             }
         }
     );
-    return result;
 }
 
 export async function deleteOneDict(id: string, operatorId: string) {
@@ -96,7 +95,6 @@ export async function deleteOneDict(id: string, operatorId: string) {
     const dictItem = await collection.findOne({ _id: new ObjectId(id) })
     if (!dictItem) throw new Error("字典不存在")
     const result = await collection.deleteOne({ _id: new ObjectId(id) });
-    return result;
 }
 
 export async function deleteOneDictValue(valueId: string, dictId: string, operatorId: string) {
@@ -114,7 +112,6 @@ export async function deleteOneDictValue(valueId: string, dictId: string, operat
             }
         }
     )
-    return result
 }
 
 export async function updateOneDictValue(value: DictValue, dictId: string, operatorId: string) {
@@ -142,7 +139,6 @@ export async function updateOneDictValue(value: DictValue, dictId: string, opera
             $set: { updatedAt: date, updatedBy: operatorId }
         }
     )
-    return result
 }
 
 export async function insertOneDictValue(value: DictValue, dictId: string, operatorId: string) {
@@ -165,5 +161,4 @@ export async function insertOneDictValue(value: DictValue, dictId: string, opera
             $set: { updatedAt: new Date(), updatedBy: operatorId }
         }
     )
-    return result
 }

@@ -8,7 +8,7 @@ import { stringfyIdList } from "./utils";
 
 export async function getListByPageRole(options?: Partial<PaginationRequest>) {
     const db = dbConnection()
-    const usersCollection = db.collection<RoleItem>('roles');
+    const collection = db.collection<RoleItem>('roles');
     const query: Filter<RoleItem> = {};
     if (options?.keyword) {
         query.$or = [
@@ -18,13 +18,13 @@ export async function getListByPageRole(options?: Partial<PaginationRequest>) {
     }
     const currentPage = options?.currentPage
     const pageSize = options?.pageSize
-    const total = await usersCollection.countDocuments(query);
-    const roles = currentPage && pageSize ? await usersCollection.aggregate<WithId<RoleItem>>([
+    const total = await collection.countDocuments(query);
+    const roles = currentPage && pageSize ? await collection.aggregate<WithId<RoleItem>>([
         { $match: query },  // 相当于 find(query)
         { $sort: { updatedAt: -1 } },  // 排序
         { $skip: (currentPage - 1) * pageSize },  // 跳过指定数量的文档
         { $limit: pageSize }  // 限制返回的文档数量
-    ]).toArray() : await usersCollection.find(query).sort({ updatedAt: -1 }).toArray();
+    ]).toArray() : await collection.find(query).sort({ updatedAt: -1 }).toArray();
     return {
         data: stringfyIdList(roles),
         total,
@@ -51,7 +51,7 @@ export async function insertOneRole(data: LocalRole, operatorId: string) {
         deletedBy: null,
         isActive: true
     });
-    return result;
+    return result
 }
 
 export async function updateOneRole(data: LocalRole, operatorId: string) {
@@ -71,7 +71,6 @@ export async function updateOneRole(data: LocalRole, operatorId: string) {
             }
         }
     );
-    return result;
 }
 
 export async function updatePermissionToRole(id: string, permissions: string[], operatorId: string) {
@@ -89,7 +88,6 @@ export async function updatePermissionToRole(id: string, permissions: string[], 
             updatedBy: operatorId,
         }
     });
-    return result;
 }
 export async function deleteOneRole(id: string, operatorId: string) {
     if (!id) throw new Error("角色ID不能为空")
@@ -112,7 +110,6 @@ export async function deleteOneRole(id: string, operatorId: string) {
             updatedBy: operatorId,
         }
     });
-    return result;
 }
 
 export async function addUserToRole(id: string, userIds: string[], operatorId: string) {
