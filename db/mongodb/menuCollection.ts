@@ -1,6 +1,6 @@
 import { ObjectId, OptionalId } from 'mongodb';
 import { dbConnection } from './connection';
-import { MenuItem, MenuItemWithID } from '@/types/system/menu';
+import { MenuItem } from '@/types/system/menu';
 import { getUniquePermissions } from './userCollection';
 import { LocalMenu } from '@/types/api';
 import { stringfyIdList } from './utils';
@@ -57,16 +57,16 @@ export async function insertOneMenu(menuData: LocalMenu, operatorId: string) {
 export async function deleteOneMenu(id: string, operatorId: string) {
     if (!id) throw new Error("目录id不能为空")
     const db = dbConnection()
-    const usersCollection = db.collection<MenuItem>('menus');
-    const menuItem = await usersCollection.findOne({ _id: new ObjectId(id) })
+    const menusCollection = db.collection<MenuItem>('menus');
+    const menuItem = await menusCollection.findOne({ _id: new ObjectId(id) })
     if (!menuItem) throw new Error("目录不存在")
     if (menuItem.children && menuItem.children.length > 0) throw new Error("目录下有子目录")
     if (menuItem.parentId) {
-        const parentMenu = await usersCollection.findOne({ _id: new ObjectId(menuItem.parentId) })
+        const parentMenu = await menusCollection.findOne({ _id: new ObjectId(menuItem.parentId) })
         if (!parentMenu) throw new Error("父级目录不存在")
-        await usersCollection.updateOne({ _id: new ObjectId(menuItem.parentId) }, { $pull: { children: id } })
+        await menusCollection.updateOne({ _id: new ObjectId(menuItem.parentId) }, { $pull: { children: id } })
     }
-    return await usersCollection.deleteOne({ _id: new ObjectId(id) })
+    return await menusCollection.deleteOne({ _id: new ObjectId(id) })
     // 逻辑删除
     //     const date = new Date();
     // await usersCollection.updateOne({ _id: new ObjectId(id) }, {

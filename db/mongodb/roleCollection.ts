@@ -1,6 +1,6 @@
 import { Filter, WithId, ObjectId } from "mongodb";
 import { dbConnection } from "./connection";
-import { RoleItem, RoleItemWithID } from "@/types/system/role";
+import { RoleItem } from "@/types/system/role";
 import { PaginationRequest } from "@/types/database";
 import { User } from "@/types/system/user";
 import { LocalRole } from "@/types/api";
