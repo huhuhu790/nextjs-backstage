@@ -1,7 +1,7 @@
 import { PaginationResponse } from "@/types/database";
 import { fetchData, fetchFormdata } from "../../fetchApi";
 import { getUserOption, LocalUser } from "@/types/api";
-import { sha256 } from "@/utils/encrypt";
+import { sha256 } from "@/utils/clientUtils";
 import { MessageInstance } from "antd/lib/message/interface";
 
 export async function getUserByOption(body: getUserOption) {

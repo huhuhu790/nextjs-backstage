@@ -1,5 +1,5 @@
 import ClientLayout from "./_component/clientLayout"
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import getMenusByRolesServer from "@/app/api/system/menu/getListByPage/serverGetMenu";
 

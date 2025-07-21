@@ -1,4 +1,4 @@
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import ClientPage from "./_component/clientPage";
 import { getMessageServer } from "@/app/api/system/message/getListByPage/getMessageServer";

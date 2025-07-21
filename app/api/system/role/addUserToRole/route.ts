@@ -1,10 +1,10 @@
 import { checkPermission } from "@/db/mongodb/userCollection";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import { addUserToRolePermission } from "@/utils/appRoutePermission";
 import { addUserToRole } from "@/db/mongodb/roleCollection";
-import { buildResponse } from "@/utils/buildResponse";
-import { checkProps } from "@/utils/checkProps";
+import { buildResponse } from "@/utils/serverUtils";
+import { checkProps } from "@/utils/serverUtils";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()

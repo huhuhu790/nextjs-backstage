@@ -1,10 +1,10 @@
 import { checkPermission } from "@/db/mongodb/userCollection";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import { toLocalRoles } from "../dataTransform";
 import { getListByPageRole } from "@/db/mongodb/roleCollection";
 import { getListByPageRolePermission } from "@/utils/appRoutePermission";
-import { buildResponse } from "@/utils/buildResponse";
+import { buildResponse } from "@/utils/serverUtils";
 import { PaginationRequest } from "@/types/database";
 export async function POST(request: Request) {
     try {

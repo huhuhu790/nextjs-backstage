@@ -1,12 +1,12 @@
 import { checkPermission } from "@/db/mongodb/userCollection";
 import { LocalDict } from "@/types/api";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
-import { buildResponse } from "@/utils/buildResponse";
+import { buildResponse } from "@/utils/serverUtils";
 import { NextRequest } from "next/server";
 import { insertOneDictPermission } from "@/utils/appRoutePermission";
 import { insertOneDict } from "@/db/mongodb/dictCollection";
-import { checkProps } from "@/utils/checkProps";
+import { checkProps } from "@/utils/serverUtils";
 
 export async function POST(request: NextRequest) {
     try {

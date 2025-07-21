@@ -1,9 +1,9 @@
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
-import { buildResponse } from "@/utils/buildResponse";
+import { buildResponse } from "@/utils/serverUtils";
 import { getOneByIdDict } from "@/db/mongodb/dictCollection";
 import { toLocalDict } from "../dataTransform";
-import { checkProps } from "@/utils/checkProps";
+import { checkProps } from "@/utils/serverUtils";
 
 export async function POST(request: Request) {
     try {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createMessageEventListener } from '@/db/mongodb/messageCollection';
-import { getHeadUserData } from '@/utils/getHeadUserData';
+import { getHeadUserData } from '@/utils/serverUtils';
 import { toLocalMessage } from '../dataTransform';
 import { headers } from 'next/headers';
 

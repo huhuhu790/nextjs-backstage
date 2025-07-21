@@ -1,6 +1,6 @@
 import { removeUserSession } from '@/db/redis/redis';
-import { getHeadUserData } from '@/utils/getHeadUserData';
-import { buildResponse } from '@/utils/buildResponse';
+import { getHeadUserData } from '@/utils/serverUtils';
+import { buildResponse } from '@/utils/serverUtils';
 import { headers } from 'next/headers';
 
 // 登录，无需权限

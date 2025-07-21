@@ -1,5 +1,5 @@
 import { getUserServer } from "@/app/api/system/user/getListByPage/serverGetUser";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import ClientPage from "./_component/clientPage";
 import { checkPermission } from "@/db/mongodb/userCollection";

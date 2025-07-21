@@ -1,6 +1,6 @@
 import { getAllMenusServer } from "@/app/api/system/menu/getListByPage/serverGetMenu";
 import ClientPage from "./_component/clientPage";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import { checkPermission } from "@/db/mongodb/userCollection";
 import { menuPermission } from "../../../../utils/appPagePermission";

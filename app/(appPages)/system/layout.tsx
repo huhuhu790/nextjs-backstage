@@ -1,6 +1,6 @@
 import { checkPermission } from "@/db/mongodb/userCollection";
 import { systemPermission } from "../../../utils/appPagePermission";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 const Layout = async ({ children }: React.PropsWithChildren) => {
   try {

@@ -1,6 +1,6 @@
 import { getRoleServer } from "@/app/api/system/role/getListByPage/serverGetRole";
 import ClientPage from "./_component/clientPage";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import { checkPermission } from "@/db/mongodb/userCollection";
 import { rolePermission } from "../../../../utils/appPagePermission";

@@ -3,7 +3,7 @@ import { dbConnection, sessionTask } from './connection';
 import { Role, User, UserWithID } from '@/types/system/user';
 import { getUserOption, updateUserDataType } from '@/types/api';
 import { deleteFile, uploadFile } from './gridFSCollection';
-import { serverEncrypt } from '@/utils/serverEncrypt';
+import { serverEncrypt } from '@/utils/serverUtils';
 import { stringfyId, stringfyIdList } from './utils';
 
 export async function getPermissions(roleIds: string[]) {

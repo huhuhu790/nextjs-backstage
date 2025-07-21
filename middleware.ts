@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyToken } from '@/utils/tokenAuth';
+import { verifyToken } from '@/utils/serverUtils';
 import { verifySession } from '@/db/redis/redis';
 import { getUserInfo } from './db/mongodb/userCollection';
 import { toLocalUser } from '@/app/api/system/user/dataTransform';

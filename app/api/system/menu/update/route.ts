@@ -1,11 +1,11 @@
 import { checkPermission } from "@/db/mongodb/userCollection";
 import { LocalMenu } from "@/types/api";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import { updateOneMenu } from "@/db/mongodb/menuCollection";
 import { updateOneMenuPermission } from "@/utils/appRoutePermission";
-import { buildResponse } from "@/utils/buildResponse";
-import { checkProps } from "@/utils/checkProps";
+import { buildResponse } from "@/utils/serverUtils";
+import { checkProps } from "@/utils/serverUtils";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()

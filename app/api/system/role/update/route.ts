@@ -1,11 +1,11 @@
 import { checkPermission } from "@/db/mongodb/userCollection";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import { updateOneRolePermission } from "@/utils/appRoutePermission";
 import { updateOneRole } from "@/db/mongodb/roleCollection";
-import { buildResponse } from "@/utils/buildResponse";
+import { buildResponse } from "@/utils/serverUtils";
 import { LocalRole } from "@/types/api";
-import { checkProps } from "@/utils/checkProps";
+import { checkProps } from "@/utils/serverUtils";
 
 export async function POST(request: Request) {
     try {

@@ -3,7 +3,25 @@ import {Dropdown, MenuProps, Tabs, TabsProps} from 'antd';
 import {usePathname, useRouter} from 'next/navigation';
 import {useEffect, useState} from 'react';
 import {LocalMenu} from '@/types/api';
-import {publicPermissionPaths} from '@/utils/publicPaths';
+
+const publicPermissionPaths: LocalMenu[] = [
+    {
+        id: 'user-center',
+        name: '用户中心',
+        path: '/user/center',
+        parentId: null,
+        iconPath: 'user',
+        type: 'menu',
+    },
+    {
+        id: 'user-message',
+        name: '用户消息',
+        path: '/user/message',
+        parentId: null,
+        iconPath: 'message',
+        type: 'menu',
+    },
+];
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 

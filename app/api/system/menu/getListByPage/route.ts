@@ -1,10 +1,10 @@
 import { getAllMenus } from "@/db/mongodb/menuCollection";
 import { checkPermission } from "@/db/mongodb/userCollection";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import { toLocalMenus } from "../dataTransform";
 import { getListByPageMenuPermission } from "@/utils/appRoutePermission";
-import { buildResponse } from "@/utils/buildResponse";
+import { buildResponse } from "@/utils/serverUtils";
 
 export async function POST() {
     try {

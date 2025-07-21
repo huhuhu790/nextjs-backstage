@@ -1,9 +1,9 @@
-import { generateAccessToken, verifyToken } from '@/utils/tokenAuth';
+import { generateAccessToken, verifyToken } from '@/utils/serverUtils';
 import { setUserSession, removeUserSession } from '@/db/redis/redis';
 import { getPermissions, verifyUserCredentials } from '@/db/mongodb/userCollection';
-import { EXPIRED_TIME } from '@/utils/getExpiredTime';
+import { EXPIRED_TIME } from '@/utils/serverUtils';
 import { toLocalUser } from '@/app/api/system/user/dataTransform';
-import { buildResponse } from '@/utils/buildResponse';
+import { buildResponse } from '@/utils/serverUtils';
 
 // 登录，无需权限
 export async function POST(request: Request) {

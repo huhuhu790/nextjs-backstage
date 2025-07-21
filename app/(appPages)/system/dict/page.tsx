@@ -1,5 +1,5 @@
 import { getDictServer } from "@/app/api/system/dict/getListByPage/serverGetDict";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import ClientPage from "./_component/clientPage";
 import { dictPermission } from "../../../../utils/appPagePermission";

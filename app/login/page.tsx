@@ -6,7 +6,7 @@ import { useSetAtom } from 'jotai';
 import { userInfoAtom } from '@/store/user/userAtom';
 import { Suspense, useEffect } from 'react';
 import { handleLogin } from '@/api/auth';
-import { sha256 } from '@/utils/encrypt';
+import { sha256 } from '@/utils/clientUtils';
 import { LoginFieldType } from '@/types/api';
 import { permissionsAtom } from '@/store/user/permissionsAtom';
 

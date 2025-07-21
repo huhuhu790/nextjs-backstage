@@ -1,9 +1,9 @@
 import { checkPermission, getListByPageUser } from "@/db/mongodb/userCollection";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import { getListByPageUserPermission } from "@/utils/appRoutePermission";
 import { toLocalUserList } from "../dataTransform";
-import { buildResponse } from "@/utils/buildResponse";
+import { buildResponse } from "@/utils/serverUtils";
 import { getUserOption } from "@/types/api";
 export async function POST(request: Request) {
     try {

@@ -1,7 +1,7 @@
 import { checkPermission } from "@/db/mongodb/userCollection";
 import { sendingMessagePermission } from "../../../../utils/appPagePermission";
 import ClientPage from "./_component/clientPage";
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 
 export default async function Page() {

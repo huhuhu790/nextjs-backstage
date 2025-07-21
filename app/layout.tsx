@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ClientLayout from "./_component/clientLayout"
 import { Provider } from 'jotai'
-import { getHeadUserData } from "@/utils/getHeadUserData";
+import { getHeadUserData } from "@/utils/serverUtils";
 import { headers } from "next/headers";
 import { getPermissionsServer } from "./api/system/user/getListByPage/getPermissionsServer";
 
