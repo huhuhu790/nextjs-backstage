@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY ./package.json .
 
-# COPY ./bun.lock .
+COPY ./bun.lock .
 
 RUN bun install
 
