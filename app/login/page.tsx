@@ -37,8 +37,8 @@ function Login() {
   const onFinish: FormProps<LoginFieldType>['onFinish'] = async (values) => {
     try {
       const data = await handleLogin({
-        username: values.username,
-        password: await sha256(values.password || ""),
+        username: values.username!.trim(),
+        password: await sha256(values.password!.trim()),
       }, message);
       if (data) {
         setUser(data.userInfo);
