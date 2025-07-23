@@ -1,19 +1,19 @@
-FROM oven/bun:latest
+FROM node:latest
 
 WORKDIR /app
 
 COPY ./package.json .
 
-COPY ./bun.lock .
+RUN npm config set registry https://registry.npmmirror.com/
 
-RUN bun install
+RUN npm install
 
 COPY . .
 
-RUN bun run build
+RUN npm run build
 
 ENV NODE_ENV=production
 
 EXPOSE 3006
 
-CMD [ "bun","run","start" ]
+CMD [ "npm","run","start" ]

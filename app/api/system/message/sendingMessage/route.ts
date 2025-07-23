@@ -6,6 +6,7 @@ import { sendingMessage } from "@/db/mongodb/messageCollection";
 import { buildResponse } from "@/utils/serverUtils";
 import { checkProps } from "@/utils/serverUtils";
 import { LocalMessage } from "@/types/api";
+import { sendingMessagesEvent } from "@/kafka/producer";
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
@@ -14,6 +15,10 @@ export async function POST(request: Request) {
         const body: LocalMessage = await request.json()
         checkProps(body, ['title', 'content']);
         await sendingMessage(body, userId)
+        await sendingMessagesEvent({
+            message: body,
+            operatorId: userId
+        });
 
         // 成功响应
         return buildResponse({
