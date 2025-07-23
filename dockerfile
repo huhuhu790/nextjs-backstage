@@ -4,16 +4,18 @@ WORKDIR /app
 
 COPY ./package.json .
 
-RUN npm config set registry https://registry.npmmirror.com/
+COPY ./.bunfig.toml .
 
-RUN npm install
+RUN npm install bun -g
+
+RUN bun install
 
 COPY . .
 
-RUN npm run build
+RUN bun run build
 
 ENV NODE_ENV=production
 
 EXPOSE 3006
 
-CMD [ "npm","run","start" ]
+CMD [ "bun","run","start" ]
